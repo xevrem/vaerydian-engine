@@ -1,0 +1,29 @@
+{
+  "name": "vaerydian-engine",
+  "version": "0.0.1",
+  "description": "a 2d action rpg engine in javascript and pixi",
+  "main": "index.js",
+  "repository": "git@github.com:xevrem/vaerydian-engine",
+  "author": "Erika V. Jonell",
+  "license": "MIT",
+  "dependencies": {
+    "@pixi/app": "^5.2.2",
+    "@pixi/constants": "^5.2.2",
+    "@pixi/core": "^5.2.2",
+    "@pixi/display": "^5.2.2",
+    "@pixi/graphics": "^5.2.2",
+    "@pixi/interaction": "^5.2.2",
+    "@pixi/loaders": "^5.2.2",
+    "@pixi/math": "^5.2.2",
+    "@pixi/runner": "^5.2.2",
+    "@pixi/settings": "^5.2.2",
+    "@pixi/sprite": "^5.2.2",
+    "@pixi/sprite-animated": "^5.2.2",
+    "@pixi/sprite-tiling": "^5.2.2",
+    "@pixi/spritesheet": "^5.2.2",
+    "@pixi/text": "^5.2.2",
+    "@pixi/text-bitmap": "^5.2.2",
+    "@pixi/ticker": "^5.2.2",
+    "@pixi/utils": "^5.2.2"
+  }
+}
