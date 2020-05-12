@@ -6,6 +6,9 @@
   "repository": "git@github.com:xevrem/vaerydian-engine",
   "author": "Erika V. Jonell",
   "license": "MIT",
+  "scripts": {
+    "start": "parcel ./src/index.html -p 3000"
+  },
   "dependencies": {
     "@pixi/app": "^5.2.2",
     "@pixi/constants": "^5.2.2",
@@ -24,6 +27,29 @@
     "@pixi/text": "^5.2.2",
     "@pixi/text-bitmap": "^5.2.2",
     "@pixi/ticker": "^5.2.2",
-    "@pixi/utils": "^5.2.2"
-  }
+    "@pixi/utils": "^5.2.2",
+    "ecsf": "github:xevrem/ecs-framework#ts-conversion",
+    "engine": "^1.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-typescript": "^7.9.0",
+    "@types/jest": "^25.2.1",
+    "@typescript-eslint/eslint-plugin": "^2.31.0",
+    "@typescript-eslint/parser": "^2.31.0",
+    "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
+    "babel-plugin-module-resolver": "^3.2.0",
+    "eslint": "^7.0.0",
+    "jest": "^24.9.0",
+    "parcel-bundler": "^1.12.4",
+    "parcel-plugin-typescript": "^1.0.0",
+    "prettier": "^2.0.5",
+    "typescript": "^3.8.3"
+  },
+  "moduleRoots": [
+    "src"
+  ]
 }
