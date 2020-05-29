@@ -7,33 +7,17 @@
   "author": "Erika V. Jonell",
   "license": "MIT",
   "scripts": {
-    "start": "parcel ./src/index.html -p 3000"
+    "start": "parcel ./src/index.html -p 3000",
+    "watch": "tsc --watch --noEmit"
   },
   "dependencies": {
-    "@pixi/app": "^5.2.2",
-    "@pixi/constants": "^5.2.2",
-    "@pixi/core": "^5.2.2",
-    "@pixi/display": "^5.2.2",
-    "@pixi/graphics": "^5.2.2",
-    "@pixi/interaction": "^5.2.2",
-    "@pixi/loaders": "^5.2.2",
-    "@pixi/math": "^5.2.2",
-    "@pixi/runner": "^5.2.2",
-    "@pixi/settings": "^5.2.2",
-    "@pixi/sprite": "^5.2.2",
-    "@pixi/sprite-animated": "^5.2.2",
-    "@pixi/sprite-tiling": "^5.2.2",
-    "@pixi/spritesheet": "^5.2.2",
-    "@pixi/text": "^5.2.2",
-    "@pixi/text-bitmap": "^5.2.2",
-    "@pixi/ticker": "^5.2.2",
-    "@pixi/utils": "^5.2.2",
     "ecsf": "github:xevrem/ecs-framework#ts-conversion",
-    "engine": "^1.0.0"
+    "pixi.js": "^5.2.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.4",
+    "@babel/core": "^7.9.6",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.6.3",
     "@babel/preset-typescript": "^7.9.0",
     "@types/jest": "^25.2.1",
@@ -47,7 +31,7 @@
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-typescript": "^1.0.0",
     "prettier": "^2.0.5",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.3"
   },
   "moduleRoots": [
     "src"

@@ -1,10 +1,10 @@
 import { Engine } from "./engine";
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   console.log('load...');
 
   const engine: Engine = new Engine();
   engine.initialize();
-  engine.load();
-  engine.run();
+  await engine.load();
+  engine.startLoop();
 });
