@@ -13,16 +13,13 @@ export class EntityFactory {
   createGraphic() {
     let entity = this.ecsInstance.create();
 
-    const position = new Position();
-    position.point = new Point(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+    const position = new Position(new Point(Math.random() * window.innerWidth, Math.random() * window.innerHeight));
     this.ecsInstance.addComponent(entity, position);
 
-    const velocity = new Velocity();
-    velocity.vector = new Point(Math.random()*2-1, Math.random()*2-1);
+    const velocity = new Velocity(new Point(Math.random() * 2 - 1, Math.random() * 2 - 1));
     this.ecsInstance.addComponent(entity, velocity);
 
-    const renderable = new Renderable();
-    renderable.graphics = new Graphics().beginFill(0x5555ff).drawCircle(0, 0, 2).endFill();
+    const renderable = new Renderable(new Graphics().beginFill(0x5555ff).drawCircle(0, 0, 2).endFill());
     this.ecsInstance.addComponent(entity, renderable);
 
     this.ecsInstance.resolve(entity);

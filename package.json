@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "ecsf": "github:xevrem/ecs-framework#ts-conversion",
-    "pixi.js": "^5.2.4"
+    "pixi.js": "^5.2.4",
+    "stats.js": "^0.17.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
