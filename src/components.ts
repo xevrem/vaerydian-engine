@@ -1,4 +1,4 @@
-import { Component } from "ecsf";
+import { Component } from './ecsf';
 import { Point, Graphics } from 'pixi.js';
 
 export class Position extends Component {

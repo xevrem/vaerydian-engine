@@ -7,11 +7,10 @@
   "author": "Erika V. Jonell",
   "license": "MIT",
   "scripts": {
-    "start": "parcel ./src/index.html -p 3000",
+    "start": "parcel -p 3000 --no-autoinstall ./src/index.html",
     "watch": "tsc --watch --noEmit"
   },
   "dependencies": {
-    "ecsf": "github:xevrem/ecs-framework#ts-conversion",
     "pixi.js": "^5.2.4",
     "stats.js": "^0.17.0"
   },

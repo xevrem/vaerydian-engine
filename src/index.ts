@@ -1,4 +1,4 @@
-import { Engine } from "./engine";
+import { Engine } from './engine';
 
 window.addEventListener('load', async () => {
   console.log('load...');

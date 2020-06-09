@@ -1,8 +1,8 @@
-import { EcsInstance, EntitySystem } from 'ecsf';
+import { EcsInstance, EntitySystem } from './ecsf';
 import { Application } from 'pixi.js';
 import { RenderSystem, MovementSystem } from './systems';
 import { Renderable, Position, Velocity } from './components';
-import { EntityFactory } from './factories/entity';
+import { EntityFactory } from './factories';
 import Stats from 'stats.js';
 
 const FRAME_TARGET: number = 1000 / 30;
@@ -10,7 +10,7 @@ const FRAME_TARGET: number = 1000 / 30;
 export class Engine {
   ecsInstance: EcsInstance;
   app: Application;
-  lastTime: number = 0;
+  lastTime = 0;
   movementSystem: EntitySystem;
   renderSystem: EntitySystem;
   entityFactory: EntityFactory;
@@ -77,11 +77,11 @@ export class Engine {
     window.requestAnimationFrame(this.run);
   }
 
-  timeoutRun = () => {
+  timeoutRun = (): void => {
     window.setTimeout(this.doPreFrame, FRAME_TARGET);
   };
 
-  doPreFrame = () => {
+  doPreFrame = (): void => {
     // compute delta time
     let time = performance.now();
     let delta = time - this.lastTime;
