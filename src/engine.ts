@@ -1,63 +1,19 @@
-import { EcsInstance, EntitySystem } from './ecsf';
-import { Application } from 'pixi.js';
-import { RenderSystem, MovementSystem } from './systems';
-import { Renderable, Position, Velocity } from './components';
-import { EntityFactory } from './factories';
-import Stats from 'stats.js';
+import { ScreenManager, GameScreen } from './screens';
 
 const FRAME_TARGET: number = 1000 / 30;
 
 export class Engine {
-  ecsInstance: EcsInstance;
-  app: Application;
   lastTime = 0;
-  movementSystem: EntitySystem;
-  renderSystem: EntitySystem;
-  entityFactory: EntityFactory;
-  stats: Stats;
+  screenManager: ScreenManager;
 
-
-  initialize(): void {
-    console.log('engine initialize...');
-
-    this.app = new Application({
-      width: window.innerWidth,
-      height: window.innerHeight,
-      backgroundColor: 0x000000
-    });
-
-    document.body.append(this.app.view);
-
-    this.ecsInstance = new EcsInstance();
-
-    this.movementSystem = this.ecsInstance.systemManager.setSystem(
-      new MovementSystem(),
-      new Position(),
-      new Velocity()
-    )
-
-    this.renderSystem = this.ecsInstance.systemManager.setSystem(
-      new RenderSystem(this.app),
-      new Renderable(),
-      new Position()
-    )
-
-    this.ecsInstance.systemManager.initializeSystems();
-
-    this.entityFactory = new EntityFactory(this.ecsInstance);
-
-    this.stats = new Stats();
-    document.body.append(this.stats.dom);
+  constructor() {
+    this.screenManager = new ScreenManager();
   }
 
-  async load(): Promise<void> {
-    console.log('engine loading...');
+  async start(): Promise<any> {
+    await this.screenManager.addScreen(new GameScreen());
 
-    Array(100).fill('').forEach(() => this.entityFactory.createGraphic())
-
-    this.ecsInstance.resolveEntities();
-
-    this.ecsInstance.systemManager.systemsLoadContent();
+    this.startLoop();
   }
 
   startLoop(): void {
@@ -69,13 +25,15 @@ export class Engine {
   run = (time: number): void => {
     const delta = time - this.lastTime;
     this.lastTime = time;
-    this.stats.begin();
-    this.update(delta / 1000);
-    this.draw();
-    this.stats.end();
+
+    const seconds = delta / 1000;
+    // this.stats.begin();
+    this.update(seconds);
+    this.draw(seconds);
+    // this.stats.end();
 
     window.requestAnimationFrame(this.run);
-  }
+  };
 
   timeoutRun = (): void => {
     window.setTimeout(this.doPreFrame, FRAME_TARGET);
@@ -86,10 +44,10 @@ export class Engine {
     let time = performance.now();
     let delta = time - this.lastTime;
 
-    this.stats.begin();
-    this.update(delta/1000);
+    // this.stats.begin();
+    this.update(delta / 1000);
     this.draw();
-    this.stats.end();
+    // this.stats.end();
 
     let frameTime = performance.now() - time;
     this.lastTime = time;
@@ -98,18 +56,18 @@ export class Engine {
       window.setTimeout(this.doPreFrame, FRAME_TARGET - frameTime);
     } else {
       // skip the frame calculating time for next frame
-      window.setTimeout(this.doPreFrame, FRAME_TARGET - (frameTime - FRAME_TARGET));
+      window.setTimeout(
+        this.doPreFrame,
+        FRAME_TARGET - (frameTime - FRAME_TARGET)
+      );
     }
   };
 
   update(delta: number) {
-    this.ecsInstance.updateByDelta(delta);
-    this.ecsInstance.resolveEntities();
-
-    this.movementSystem.processAll();
+    this.screenManager.update(delta);
   }
 
-  draw() {
-    this.renderSystem.processAll();
+  draw(delta: number) {
+    this.screenManager.draw(delta);
   }
 }
