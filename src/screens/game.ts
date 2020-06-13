@@ -1,10 +1,9 @@
 import { Screen } from './screen';
 import { Application } from 'pixi.js';
-import Stats from 'stats.js';
 import { Position, Renderable, Velocity } from '../components';
 import { EcsInstance, EntitySystem } from '../ecsf';
 import { EntityFactory } from '../factories';
-import { MovementSystem, RenderSystem } from '../systems';
+import { MovementSystem, RenderSystem, InputSystem } from 'src/systems';
 
 export class GameScreen extends Screen {
   ecsInstance: EcsInstance;
@@ -16,7 +15,7 @@ export class GameScreen extends Screen {
   stats: Stats;
 
   initialize(): void {
-    console.log('engine initialize...');
+    console.log('game screen initialize...');
 
     this.app = new Application({
       width: window.innerWidth,
@@ -34,6 +33,10 @@ export class GameScreen extends Screen {
       new Velocity()
     );
 
+    this.inputSystem = this.ecsInstance.systemManager.setSystem(
+      new InputSystem()
+    );
+
     this.renderSystem = this.ecsInstance.systemManager.setSystem(
       new RenderSystem(this.app),
       new Renderable(),
@@ -43,67 +46,20 @@ export class GameScreen extends Screen {
     this.ecsInstance.systemManager.initializeSystems();
 
     this.entityFactory = new EntityFactory(this.ecsInstance);
-
-    this.stats = new Stats();
-    document.body.append(this.stats.dom);
   }
 
   async load(): Promise<void> {
-    console.log('engine loading...');
+    console.log('game screen loading...');
 
     Array(100)
       .fill('')
       .forEach(() => this.entityFactory.createGraphic());
 
     this.ecsInstance.resolveEntities();
-
     this.ecsInstance.systemManager.systemsLoadContent();
   }
 
-  startLoop(): void {
-    console.log('engine running...');
-    this.timeoutRun();
-    // window.requestAnimationFrame(this.run);
-  }
-
-  run = (time: number): void => {
-    const delta = time - this.lastTime;
-    this.lastTime = time;
-    this.stats.begin();
-    this.update(delta / 1000);
-    this.draw();
-    this.stats.end();
-
-    window.requestAnimationFrame(this.run);
-  };
-
-  timeoutRun = (): void => {
-    window.setTimeout(this.doPreFrame, FRAME_TARGET);
-  };
-
-  doPreFrame = (): void => {
-    // compute delta time
-    let time = performance.now();
-    let delta = time - this.lastTime;
-
-    this.stats.begin();
-    this.update(delta / 1000);
-    this.draw();
-    this.stats.end();
-
-    let frameTime = performance.now() - time;
-    this.lastTime = time;
-
-    if (frameTime < FRAME_TARGET) {
-      window.setTimeout(this.doPreFrame, FRAME_TARGET - frameTime);
-    } else {
-      // skip the frame calculating time for next frame
-      window.setTimeout(
-        this.doPreFrame,
-        FRAME_TARGET - (frameTime - FRAME_TARGET)
-      );
-    }
-  };
+  unload(): void {}
 
   update(delta: number) {
     this.ecsInstance.updateByDelta(delta);
@@ -111,6 +67,8 @@ export class GameScreen extends Screen {
 
     this.movementSystem.processAll();
   }
+
+  focusUpdate(_delta: number) {}
 
   draw() {
     this.renderSystem.processAll();

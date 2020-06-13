@@ -19,5 +19,6 @@ export class Screen {
   async load(): Promise<any> {}
   unload(): void {}
   update(_delta: number): void {}
+  focusUpdate(_delta: number): void {}
   draw(_delta: number): void {}
 }

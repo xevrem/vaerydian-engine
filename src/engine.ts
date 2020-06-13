@@ -1,13 +1,18 @@
 import { ScreenManager, GameScreen } from './screens';
+import Stats from 'stats.js';
 
 const FRAME_TARGET: number = 1000 / 30;
 
 export class Engine {
   lastTime = 0;
   screenManager: ScreenManager;
+  stats: Stats;
 
   constructor() {
     this.screenManager = new ScreenManager();
+
+    this.stats = new Stats();
+    document.body.append(this.stats.dom);
   }
 
   async start(): Promise<any> {
@@ -18,36 +23,38 @@ export class Engine {
 
   startLoop(): void {
     console.log('engine running...');
-    this.timeoutRun();
-    // window.requestAnimationFrame(this.run);
+    // this.timeoutLoop();
+    window.requestAnimationFrame(this.runLoop);
   }
 
-  run = (time: number): void => {
+  runLoop = (time: number): void => {
     const delta = time - this.lastTime;
     this.lastTime = time;
 
     const seconds = delta / 1000;
-    // this.stats.begin();
+    this.stats.begin();
     this.update(seconds);
     this.draw(seconds);
-    // this.stats.end();
+    this.stats.end();
 
-    window.requestAnimationFrame(this.run);
+    window.requestAnimationFrame(this.runLoop);
   };
 
-  timeoutRun = (): void => {
+  timeoutLoop = (): void => {
     window.setTimeout(this.doPreFrame, FRAME_TARGET);
   };
 
   doPreFrame = (): void => {
     // compute delta time
-    let time = performance.now();
-    let delta = time - this.lastTime;
+    const time = performance.now();
+    const delta = time - this.lastTime;
 
-    // this.stats.begin();
-    this.update(delta / 1000);
-    this.draw();
-    // this.stats.end();
+    const seconds = delta / 1000;
+
+    this.stats.begin();
+    this.update(seconds);
+    this.draw(seconds);
+    this.stats.end();
 
     let frameTime = performance.now() - time;
     this.lastTime = time;

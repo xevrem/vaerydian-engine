@@ -13,10 +13,10 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "outDir": "./build",
-    "baseUrl": "./src"
+    "baseUrl": "."
   },
   "paths":{
-    "~/*": ["./*"]
+    "*": ["src/*"]
   },
   "include": [
     "./src/**/*"
