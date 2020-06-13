@@ -1,7 +1,7 @@
 {
   "compilerOptions" : {
     "target": "es2017",
-    "allowJs": false,
+    "allowJs": true,
     "sourceMap": true,
     "removeComments": false,
     "strict": false,
@@ -12,7 +12,7 @@
     "strictNullChecks": false,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "outDir": "./build",
+    "outDir": "./dist",
     "baseUrl": "./src"
   },
   "paths":{

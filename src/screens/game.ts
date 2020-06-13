@@ -1,18 +1,17 @@
 import { Application } from 'pixi.js';
 import Stats from 'stats.js';
-
 import { Screen } from './screen';
 import { Position, Renderable, Velocity } from '../components';
 import { EcsInstance, EntitySystem } from '../ecsf';
 import { EntityFactory } from '../factories';
-import { MovementSystem, RenderSystem, InputSystem } from '../systems';
+import { MovementSystem, InputSystem, RenderSystem } from '../systems';
 
 export class GameScreen extends Screen {
   ecsInstance: EcsInstance;
   app: Application;
   lastTime = 0;
-  movementSystem: EntitySystem;
   inputSystem: EntitySystem;
+  movementSystem: EntitySystem;
   renderSystem: EntitySystem;
   entityFactory: EntityFactory;
   stats: Stats;

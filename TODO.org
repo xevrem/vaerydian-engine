@@ -1,0 +1,72 @@
+#+title: Game Notes
+* [0/14] Features & Architecture
+** DOING [3/16] Components
+*** DONE Position
+    CLOSED: [2020-06-13 Sat 13:29]
+*** DONE Sprite
+    CLOSED: [2020-06-13 Sat 13:29]
+*** DONE Velocity
+    CLOSED: [2020-06-13 Sat 13:29]
+*** TODO Spatial
+*** TODO Health
+*** TODO Damage
+*** TODO Faction
+*** TODO Skill
+*** TODO Knowledge
+*** TODO Award
+*** TODO Ligh
+*** TODO Controllable
+*** TODO CameraFocus
+*** TODO Target
+*** TODO Aggression
+*** TODO Path
+** DOING [2/8] Systems
+*** DONE Movement
+    CLOSED: [2020-06-13 Sat 13:00]
+*** DONE Sprite Renderer
+    CLOSED: [2020-06-13 Sat 13:00]
+*** TODO Map/Tile Renderer
+*** TODO Input
+*** TODO Spatial Query
+*** TODO Collisions
+*** TODO Pathing
+*** TODO Camera
+** DOING [2/6] Screens
+*** DONE Screen Manager
+    CLOSED: [2020-06-13 Sat 13:11]
+*** DONE Screen
+    CLOSED: [2020-06-13 Sat 13:11]
+*** DOING Game Screen
+*** TODO Loading Sreen 
+*** TODO Start Screen
+*** TODO Munu Screen
+** TODO [0/3] AI Systems
+*** TODO Behavior Trees
+*** TODO Behaviors
+*** TODO Goals & Inference
+** TODO User Interface
+** TODO Sound System
+** TODO [0/3] Player
+*** TODO Sprite
+*** TODO Input
+*** TODO Equipment
+** TODO Enemies
+** TODO Abilities
+** TODO Progression
+** TODO [0/4] Levels
+*** TODO Cave
+*** TODO Dungeon
+*** TODO Forest
+*** TODO Overworld
+** TODO [0/6] Items
+*** TODO Weapons
+*** TODO Armor
+*** TODO Throwables
+*** TODO Consumables
+*** TODO Quest
+*** TODO Traps
+** TODO Materials
+what things are made of and how that reflects its properties
+** TODO Crafting
+
+
