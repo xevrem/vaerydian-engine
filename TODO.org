@@ -1,54 +1,80 @@
 #+title: Game Notes
-* [0/15] Features & Architecture
-** DOING [3/18] Components
-*** DONE Position
-    CLOSED: [2020-06-13 Sat 13:29]
-*** DONE Sprite
-    CLOSED: [2020-06-13 Sat 13:29]
-*** DONE Velocity
-    CLOSED: [2020-06-13 Sat 13:29]
+* [2/21] Features & Architecture
+** DOING [3/19] unattached Components
 *** TODO Spatial
-*** TODO Health
-*** TODO Damage
-*** TODO Faction
 *** TODO Skill
 *** TODO Knowledge
-*** TODO Award
 *** TODO Light
-*** TODO Controllable
-*** TODO CameraFocus
-*** TODO Target
-*** TODO Aggression
 *** TODO Path
-*** TODO Behaviors
 *** TODO Material
 what things are made of and how that reflects its properties
+*** TODO Status Effect
+** DONE Movement
+   CLOSED: [2020-06-13 Sat 13:00]
+*** DONE Components
+    CLOSED: [2020-06-15 Mon 15:55]
+**** DONE Position
+    CLOSED: [2020-06-13 Sat 13:29]
+**** DONE Velocity
+    CLOSED: [2020-06-13 Sat 13:29]
+*** DONE Systems
+    CLOSED: [2020-06-15 Mon 15:55]
+**** Movement System
+** DONE Sprites 
+    CLOSED: [2020-06-13 Sat 13:00]
+*** DONE Components
+    CLOSED: [2020-06-15 Mon 15:54]
+**** DONE Position
+    CLOSED: [2020-06-13 Sat 13:29]
+**** DONE Sprite
+    CLOSED: [2020-06-13 Sat 13:29]
+*** DONE Systems
+    CLOSED: [2020-06-15 Mon 15:54]
+**** DONE Sprite Renderer
+     CLOSED: [2020-06-15 Mon 15:54]
+** TODO Input
+** TODO Spatial Queries
+** TODO Collisions
+** TODO Pathing
+** TODO Camera
+*** TODO Components
+**** DONE Position
+    CLOSED: [2020-06-13 Sat 13:29]
+**** DONE Velocity
+    CLOSED: [2020-06-13 Sat 13:29]
+**** TODO CameraFocus
+*** TODO Systems 
+**** TODO Follow System
+** TODO Abilities
+** TODO Progression
+** TODO Crafting
+** TODO Combat
+*** TODO Components
+**** TODO Health
+**** TODO Damage
+**** TODO Faction
+**** TODO Target
+**** TODO Aggression
+*** TODO Systems
+**** TODO Combat System
+** TODO Victories
+*** TODO Components
+**** TODO Award
+** TODO Characters
+** TODO [0/1] Player
+*** TODO Components
+**** TODO Controllable
+**** DONE Sprite
+     CLOSED: [2020-06-15 Mon 16:00]
+**** DONE Position
+     CLOSED: [2020-06-15 Mon 16:00]
+**** DONE Velocity
+     CLOSED: [2020-06-15 Mon 16:00]
 
-** DOING [2/12] Systems
-*** DONE Movement
-    CLOSED: [2020-06-13 Sat 13:00]
-*** DONE Sprite Renderer
-    CLOSED: [2020-06-13 Sat 13:00]
-*** TODO Map/Tile Renderer
-*** TODO Input
-*** TODO Spatial Query
-*** TODO Collisions
-*** TODO Pathing
-*** TODO Camera
-*** TODO Abilities
-*** TODO Progression
-*** TODO Crafting
-*** TODO Combat
-** TODO [0/6] Entities
-*** TODO [0/3] Player
-**** TODO Sprite
 **** TODO Input
 **** TODO Equipment
-*** TODO Enemies
-*** TODO Map
-*** TODO Tile
-*** TODO Item
-*** TODO [0/6] Items
+** TODO Enemies
+** TODO [0/6] Items
 **** TODO Weapons
 **** TODO Armor
 **** TODO Throwables
@@ -64,15 +90,26 @@ what things are made of and how that reflects its properties
 *** TODO Loading Sreen 
 *** TODO Start Screen
 *** TODO Munu Screen
-** TODO [0/2] AI
+** TODO [0/4] AI
+*** TODO Components
+**** TODO Behaviors
+**** TODO Goal
 *** TODO Behavior Trees
-*** TODO Goals & Inference
+*** TODO Systems
+**** TODO Goals & Inference
 ** TODO User Interface
 ** TODO Sound
-** TODO [0/4] Map Generation
-*** TODO Cave
-*** TODO Dungeon
-*** TODO Forest
-*** TODO Overworld
+** TODO [0/3] Maps 
+*** TODO Components
+**** Map
+**** Tile
+**** Features
+**** Effects?
+*** TODO Generation
+**** TODO Cave
+**** TODO Dungeon
+**** TODO Forest
+**** TODO Overworld
+*** TODO Transitions
 
 
