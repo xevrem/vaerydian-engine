@@ -1,14 +1,5 @@
 #+title: Game Notes
-* [2/21] Features & Architecture
-** DOING [3/19] unattached Components
-*** TODO Spatial
-*** TODO Skill
-*** TODO Knowledge
-*** TODO Light
-*** TODO Path
-*** TODO Material
-what things are made of and how that reflects its properties
-*** TODO Status Effect
+* [18/87] Features & Architecture
 ** DONE Movement
    CLOSED: [2020-06-13 Sat 13:00]
 *** DONE Components
@@ -61,7 +52,7 @@ what things are made of and how that reflects its properties
 *** TODO Components
 **** TODO Award
 ** TODO Characters
-** TODO [0/1] Player
+** TODO [3/8] Player
 *** TODO Components
 **** TODO Controllable
 **** DONE Sprite
@@ -73,6 +64,8 @@ what things are made of and how that reflects its properties
 
 **** TODO Input
 **** TODO Equipment
+*** TODO Assets
+**** Player graphics
 ** TODO Enemies
 ** TODO [0/6] Items
 **** TODO Weapons
@@ -111,5 +104,12 @@ what things are made of and how that reflects its properties
 **** TODO Forest
 **** TODO Overworld
 *** TODO Transitions
-
-
+** TODO [3/19] unattached Components
+*** TODO Spatial
+*** TODO Skill
+*** TODO Knowledge
+*** TODO Light
+*** TODO Path
+*** TODO Material
+what things are made of and how that reflects its properties
+*** TODO Status Effect
