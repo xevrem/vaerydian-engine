@@ -1,12 +1,19 @@
 import { Application, Point, LoaderResource } from 'pixi.js';
 import Stats from 'stats.js';
 import { Screen } from './screen';
-import { Position, Renderable, Velocity, SpriteRender, Controllable } from '../components';
+import {
+  Position,
+  Renderable,
+  Velocity,
+  SpriteRender,
+  Controllable,
+} from '../components';
 import { EcsInstance, EntitySystem } from '../ecsf';
 import { EntityFactory, PlayerFactory } from '../factories';
 import { MovementSystem, InputSystem, RenderSystem } from '../systems';
 
-import playerIdle from 'assets/player/idle.png';
+import playerIdle from 'url:~/src/assets/player/idle.png';
+
 import { SpriteSystem } from '../systems/sprite';
 import { KeyboardManager } from '../utils/keyboard';
 

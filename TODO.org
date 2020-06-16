@@ -1,5 +1,5 @@
 #+title: Game Notes
-* [18/87] Features & Architecture
+* [2/22] Features & Architecture
 ** DONE Movement
    CLOSED: [2020-06-13 Sat 13:00]
 *** DONE Components
@@ -27,32 +27,32 @@
 ** TODO Spatial Queries
 ** TODO Collisions
 ** TODO Pathing
-** TODO Camera
-*** TODO Components
+** TODO [0/2] Camera
+*** TODO [2/3] Components
 **** DONE Position
     CLOSED: [2020-06-13 Sat 13:29]
 **** DONE Velocity
     CLOSED: [2020-06-13 Sat 13:29]
 **** TODO CameraFocus
-*** TODO Systems 
+*** TODO [0/1] Systems 
 **** TODO Follow System
 ** TODO Abilities
 ** TODO Progression
 ** TODO Crafting
-** TODO Combat
-*** TODO Components
+** TODO [0/2] Combat
+*** TODO [0/5] Components
 **** TODO Health
 **** TODO Damage
 **** TODO Faction
 **** TODO Target
 **** TODO Aggression
-*** TODO Systems
+*** TODO [0/1] Systems
 **** TODO Combat System
-** TODO Victories
-*** TODO Components
+** TODO [0/1] Victories
+*** TODO [0/1] Components
 **** TODO Award
 ** TODO Characters
-** TODO [3/8] Player
+** DOING [3/8] Player
 *** TODO Components
 **** TODO Controllable
 **** DONE Sprite

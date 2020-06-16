@@ -1,7 +1,7 @@
-import { ScreenManager, GameScreen } from './screens';
 import Stats from 'stats.js';
+import { ScreenManager, GameScreen } from '~/src/screens';
 
-const FRAME_TARGET: number = 1000 / 30;
+const FRAME_TARGET: number = 1000 / 60;
 
 export class Engine {
   lastTime = 0;
