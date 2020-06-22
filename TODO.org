@@ -1,4 +1,24 @@
 #+title: Game Notes
+* Concept
+** Genre 
+   Top-down Space Simulation
+** Overview
+   Player is a captain of a spaceship and adventures throughout the galaxy. The 
+   game will perform a deep simulation of the player, their ship, their crew, 
+   and the galaxy. The game will have a procedurally generated universe, planets,
+   factions, enemies, items, etc. Enemies and NPCs will be given directed AI 
+   with behavior trees to allow them to behave intelligently and set their own 
+   goals based on their needs, desires, and game state. Everything should be 
+   craftable. Stories / plot should emerge through gameplay. 
+
+* Use Cases
+** Player
+*** Player can adventure throughout the galaxy
+*** Player can customize ship
+** Game
+*** sdads
+** Director
+*** askdasd
 * [2/22] Features & Architecture
 ** DONE Movement
    CLOSED: [2020-06-13 Sat 13:00]
