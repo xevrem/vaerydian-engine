@@ -1,6 +1,10 @@
 import { Component } from './ecsf';
 import { Point, Graphics, Sprite } from 'pixi.js';
 
+export class CameraFocus extends Component {}
+
+export class Controllable extends Component {}
+
 export class Position extends Component {
   point: Point;
   constructor(point?: Point) {
@@ -9,19 +13,21 @@ export class Position extends Component {
   }
 }
 
-export class Velocity extends Component {
-  vector: Point;
-  constructor(vector?: Point) {
-    super();
-    this.vector = vector;
-  }
-}
-
 export class Renderable extends Component {
   graphics: Graphics;
   constructor(graphics?: Graphics) {
     super();
     this.graphics = graphics;
+  }
+}
+
+export class Rotation extends Component {
+  amount: number;
+  rate: number;
+  constructor(rotation?: number, rate?: number) {
+    super();
+    this.amount = rotation;
+    this.rate = rate;
   }
 }
 
@@ -38,4 +44,14 @@ export class SpriteRender extends Component {
   }
 }
 
-export class Controllable extends Component {}
+export class Velocity extends Component {
+  vector: Point;
+  magnitude: number;
+  rate: number;
+  constructor(vector?: Point, magnitude?: number, rate?: number) {
+    super();
+    this.vector = vector;
+    this.magnitude = magnitude;
+    this.rate = rate;
+  }
+}

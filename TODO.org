@@ -19,7 +19,7 @@
 *** sdads
 ** Director
 *** askdasd
-* [2/22] Features & Architecture
+* [2/23] Features & Architecture
 ** DONE Movement
    CLOSED: [2020-06-13 Sat 13:00]
 *** DONE Components
@@ -72,8 +72,8 @@
 *** TODO [0/1] Components
 **** TODO Award
 ** TODO Characters
-** DOING [3/8] Player
-*** TODO Components
+** DOING [0/3] Player
+*** DOING Components
 **** TODO Controllable
 **** DONE Sprite
      CLOSED: [2020-06-15 Mon 16:00]
@@ -82,10 +82,16 @@
 **** DONE Velocity
      CLOSED: [2020-06-15 Mon 16:00]
 
-**** TODO Input
 **** TODO Equipment
+**** DONE Rotation
+     CLOSED: [2020-06-24 Wed 21:23]
 *** TODO Assets
-**** Player graphics
+**** TODO [0/2] Player graphics
+***** TODO ship
+***** TODO explosion / death
+*** TODO Systems
+**** DOING ControllableInputSystem
+     we have rotation and thrust... progress???
 ** TODO Enemies
 ** TODO [0/6] Items
 **** TODO Weapons
@@ -124,6 +130,12 @@
 **** TODO Forest
 **** TODO Overworld
 *** TODO Transitions
+** TODO Starfield
+*** TODO Components
+*** TODO Systems
+**** TODO StarfieldSystem
+     should take the current viewport and the starfield 'pips' and then poisiton 
+     them for the graphics renderer
 ** TODO [3/19] unattached Components
 *** TODO Spatial
 *** TODO Skill

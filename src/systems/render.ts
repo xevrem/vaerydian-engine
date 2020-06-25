@@ -3,7 +3,7 @@ import { Application } from 'pixi.js';
 import { Renderable, Position } from '../components';
 
 
-export class RenderSystem extends EntitySystem {
+export class GraphicsRenderSystem extends EntitySystem {
   app: Application;
   renderMap: ComponentMapper;
   positionMap: ComponentMapper;

@@ -7,20 +7,27 @@ import {
   Velocity,
   SpriteRender,
   Controllable,
+  Rotation,
+  CameraFocus,
 } from '../components';
 import { EcsInstance, EntitySystem } from '../ecsf';
 import { EntityFactory, PlayerFactory } from '../factories';
-import { MovementSystem, InputSystem, RenderSystem } from '../systems';
+import {
+  MovementSystem,
+  ControlSystem,
+  GraphicsRenderSystem,
+  CameraSystem,
+} from '../systems';
 
-import playerIdle from 'url:~/src/assets/player/idle.png';
+import playerShip from 'url:~/src/assets/player/ship.png';
 
 import { SpriteSystem } from '../systems/sprite';
 import { KeyboardManager } from '../utils/keyboard';
 
 const assets = [
   {
-    url: playerIdle,
-    name: 'playerIdle',
+    url: playerShip,
+    name: 'playerShip',
   },
 ];
 
@@ -30,7 +37,8 @@ export class GameScreen extends Screen {
   stats: Stats;
   lastTime = 0;
 
-  inputSystem: EntitySystem;
+  cameraSystem: EntitySystem;
+  controlSystem: EntitySystem;
   movementSystem: EntitySystem;
   renderSystem: EntitySystem;
   spriteSystem: EntitySystem;
@@ -59,12 +67,21 @@ export class GameScreen extends Screen {
       new Velocity()
     );
 
-    this.inputSystem = this.ecsInstance.systemManager.setSystem(
-      new InputSystem()
+    this.cameraSystem = this.ecsInstance.systemManager.setSystem(
+      new CameraSystem(),
+      new Position(),
+      new CameraFocus()
+    );
+
+    this.controlSystem = this.ecsInstance.systemManager.setSystem(
+      new ControlSystem(),
+      new Controllable(),
+      new Velocity(),
+      new Rotation()
     );
 
     this.renderSystem = this.ecsInstance.systemManager.setSystem(
-      new RenderSystem(this.app),
+      new GraphicsRenderSystem(this.app),
       new Renderable(),
       new Position()
     );
@@ -72,7 +89,8 @@ export class GameScreen extends Screen {
     this.spriteSystem = this.ecsInstance.systemManager.setSystem(
       new SpriteSystem(this.app),
       new SpriteRender(),
-      new Position()
+      new Position(),
+      new Rotation()
     );
 
     this.ecsInstance.componentManager.registerComponent(new Controllable());
@@ -118,7 +136,9 @@ export class GameScreen extends Screen {
     this.movementSystem.processAll();
   }
 
-  focusUpdate(_delta: number) {}
+  focusUpdate(_delta: number) {
+    this.controlSystem.processAll();
+  }
 
   draw() {
     this.spriteSystem.processAll();
