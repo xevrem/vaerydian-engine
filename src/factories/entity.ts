@@ -1,7 +1,6 @@
-import { EcsInstance} from '../ecsf';
-import { Point, Graphics } from 'pixi.js';
-
-import { Position, Renderable, Velocity } from '../components';
+import { EcsInstance } from '../ecsf';
+import { Position, GraphicsRender, Velocity, CameraData, Layer } from '../components';
+import { LAYER } from '../utils/constants';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -10,44 +9,47 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createGraphic() {
-    let entity = this.ecsInstance.create();
+  createStar(location?: PIXI.Point) {
+    let graphic = this.ecsInstance.create();
 
     const position = new Position(
-      new Point(
+      location ? location : new PIXI.Point(
         Math.random() * window.innerWidth,
         Math.random() * window.innerHeight
       )
     );
-    this.ecsInstance.addComponent(entity, position);
+    this.ecsInstance.addComponent(graphic, position);
 
-    const velocity = new Velocity(
-      new Point(Math.random() * 2 - 1, Math.random() * 2 - 1),
-      Math.random() * 100
+    const renderable = new GraphicsRender(
+      new PIXI.Graphics().beginFill(0xffffff).drawCircle(0, 0, 2).endFill()
     );
-    this.ecsInstance.addComponent(entity, velocity);
+    this.ecsInstance.addComponent(graphic, renderable);
+    this.ecsInstance.addComponent(graphic, new Layer (LAYER.starfield))
 
-    const renderable = new Renderable(
-      new Graphics().beginFill(0x5555ff).drawCircle(0, 0, 2).endFill()
-    );
-    this.ecsInstance.addComponent(entity, renderable);
-
-    this.ecsInstance.resolve(entity);
+    this.ecsInstance.resolve(graphic);
   }
 
   createCamera() {
-    let entity = this.ecsInstance.create();
+    let camera = this.ecsInstance.create();
 
-    this.ecsInstance.tagManager.tagEntity('camera', entity);
+    this.ecsInstance.tagManager.tagEntity('camera', camera);
 
     const position = new Position(
-      new Point(window.innerWidth / 2, window.innerHeight / 2)
+      new PIXI.Point(window.innerWidth / 2, window.innerHeight / 2)
     );
-    this.ecsInstance.addComponent(entity, position);
+    this.ecsInstance.addComponent(camera, position);
 
-    const velocity = new Velocity(new Point(0, 0), 0, 0);
-    this.ecsInstance.addComponent(entity, velocity);
+    const velocity = new Velocity(new PIXI.Point(0, 0), 0, 0);
+    this.ecsInstance.addComponent(camera, velocity);
 
-    this.ecsInstance.resolve(entity);
+    const cameraContainer = new PIXI.Container();
+    cameraContainer.pivot.set(window.innerWidth/2, window.innerHeight/2);
+    cameraContainer.position.set(window.innerWidth/2, window.innerHeight/2);
+    // cameraContainer.width = window.innerWidth;
+    // cameraContainer.height = window.innerHeight;
+    const cameraData = new CameraData(cameraContainer);
+    this.ecsInstance.addComponent(camera, cameraData);
+
+    this.ecsInstance.resolve(camera);
   }
 }

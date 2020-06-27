@@ -1,7 +1,8 @@
 import Stats from 'stats.js';
-import { ScreenManager, GameScreen } from '~/src/screens';
+import { ScreenManager, GameScreen } from './screens';
 
-const FRAME_TARGET: number = 1000 / 60;
+const FRAME_TARGET_FPS: number = 60;
+const FRAME_TARGET_MS: number = 1000 / FRAME_TARGET_FPS;
 
 export class Engine {
   lastTime = 0;
@@ -23,8 +24,8 @@ export class Engine {
 
   startLoop(): void {
     console.log('engine running...');
-    // this.timeoutLoop();
-    window.requestAnimationFrame(this.runLoop);
+    this.timeoutLoop();
+    // window.requestAnimationFrame(this.runLoop);
   }
 
   runLoop = (time: number): void => {
@@ -41,7 +42,7 @@ export class Engine {
   };
 
   timeoutLoop = (): void => {
-    window.setTimeout(this.doPreFrame, FRAME_TARGET);
+    window.setTimeout(this.doPreFrame, FRAME_TARGET_MS);
   };
 
   doPreFrame = (): void => {
@@ -59,13 +60,13 @@ export class Engine {
     let frameTime = performance.now() - time;
     this.lastTime = time;
 
-    if (frameTime < FRAME_TARGET) {
-      window.setTimeout(this.doPreFrame, FRAME_TARGET - frameTime);
+    if (frameTime < FRAME_TARGET_MS) {
+      window.setTimeout(this.doPreFrame, FRAME_TARGET_MS - frameTime);
     } else {
       // skip the frame calculating time for next frame
       window.setTimeout(
         this.doPreFrame,
-        FRAME_TARGET - (frameTime - FRAME_TARGET)
+        FRAME_TARGET_MS - (frameTime - FRAME_TARGET_MS)
       );
     }
   };

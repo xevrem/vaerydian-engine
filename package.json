@@ -11,6 +11,7 @@
     "watch": "tsc --watch --noEmit"
   },
   "dependencies": {
+    "pixi-layers": "^0.2.3",
     "pixi.js": "^5.2.4",
     "stats.js": "^0.17.0"
   },

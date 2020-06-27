@@ -18,8 +18,8 @@ export class MovementSystem extends EntitySystem {
     let dx = position.point.x + velocity.vector.x * delta;
     let dy = position.point.y + velocity.vector.y * delta;
 
-    dx = dx > window.innerWidth ? 0 : dx < 0 ? window.innerWidth : dx;
-    dy = dy > window.innerHeight ? 0 : dy < 0 ? window.innerHeight : dy;
+    // dx = dx > window.innerWidth ? 0 : dx < 0 ? window.innerWidth : dx;
+    // dy = dy > window.innerHeight ? 0 : dy < 0 ? window.innerHeight : dy;
 
     position.point.set(
       dx,

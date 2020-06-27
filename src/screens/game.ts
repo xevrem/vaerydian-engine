@@ -2,13 +2,15 @@ import { Application, Point, LoaderResource } from 'pixi.js';
 import Stats from 'stats.js';
 import { Screen } from './screen';
 import {
+  Layer,
   Position,
-  Renderable,
+  GraphicsRender,
   Velocity,
   SpriteRender,
   Controllable,
   Rotation,
   CameraFocus,
+  CameraData,
 } from '../components';
 import { EcsInstance, EntitySystem } from '../ecsf';
 import { EntityFactory, PlayerFactory } from '../factories';
@@ -17,11 +19,12 @@ import {
   ControlSystem,
   GraphicsRenderSystem,
   CameraSystem,
+  LayeringSystem,
 } from '../systems';
 
 import playerShip from 'url:~/src/assets/player/ship.png';
 
-import { SpriteSystem } from '../systems/sprite';
+import { SpriteRenderSystem } from '../systems/sprite';
 import { KeyboardManager } from '../utils/keyboard';
 
 const assets = [
@@ -39,9 +42,10 @@ export class GameScreen extends Screen {
 
   cameraSystem: EntitySystem;
   controlSystem: EntitySystem;
+  layeringSystem: EntitySystem;
   movementSystem: EntitySystem;
-  renderSystem: EntitySystem;
-  spriteSystem: EntitySystem;
+  graphicsRenderSystem: EntitySystem;
+  spriteRenderSystem: EntitySystem;
 
   entityFactory: EntityFactory;
   playerFactory: PlayerFactory;
@@ -57,18 +61,18 @@ export class GameScreen extends Screen {
       backgroundColor: 0x000000,
     });
 
+    this.app.stage = new PIXI.display.Stage();
+
+    this.app.ticker.autoStart = false;
+    this.app.ticker.stop();
+
     document.body.append(this.app.view);
 
     this.ecsInstance = new EcsInstance();
 
-    this.movementSystem = this.ecsInstance.systemManager.setSystem(
-      new MovementSystem(),
-      new Position(),
-      new Velocity()
-    );
-
+    
     this.cameraSystem = this.ecsInstance.systemManager.setSystem(
-      new CameraSystem(),
+      new CameraSystem(this.app),
       new Position(),
       new CameraFocus()
     );
@@ -80,20 +84,32 @@ export class GameScreen extends Screen {
       new Rotation()
     );
 
-    this.renderSystem = this.ecsInstance.systemManager.setSystem(
-      new GraphicsRenderSystem(this.app),
-      new Renderable(),
-      new Position()
+    this.layeringSystem = this.ecsInstance.systemManager.setSystem(
+      new LayeringSystem(this.app),
+      new Layer()
+    )
+
+    this.movementSystem = this.ecsInstance.systemManager.setSystem(
+      new MovementSystem(),
+      new Position(),
+      new Velocity()
     );
 
-    this.spriteSystem = this.ecsInstance.systemManager.setSystem(
-      new SpriteSystem(this.app),
+    this.spriteRenderSystem = this.ecsInstance.systemManager.setSystem(
+      new SpriteRenderSystem(this.app),
       new SpriteRender(),
       new Position(),
       new Rotation()
     );
+    this.graphicsRenderSystem = this.ecsInstance.systemManager.setSystem(
+      new GraphicsRenderSystem(this.app),
+      new GraphicsRender(),
+      new Position()
+    );
+
 
     this.ecsInstance.componentManager.registerComponent(new Controllable());
+    this.ecsInstance.componentManager.registerComponent(new CameraData());
 
     this.ecsInstance.systemManager.initializeSystems();
 
@@ -114,6 +130,9 @@ export class GameScreen extends Screen {
       });
     });
 
+    this.entityFactory.createCamera();
+
+    
     this.playerFactory.createPlayer(
       resources,
       new Point(this.app.renderer.width / 2, this.app.renderer.height / 2)
@@ -121,7 +140,8 @@ export class GameScreen extends Screen {
 
     Array(100)
       .fill('')
-      .forEach(() => this.entityFactory.createGraphic());
+      .forEach(() => this.entityFactory.createStar());
+
 
     this.ecsInstance.resolveEntities();
     this.ecsInstance.systemManager.systemsLoadContent();
@@ -141,7 +161,10 @@ export class GameScreen extends Screen {
   }
 
   draw() {
-    this.spriteSystem.processAll();
-    this.renderSystem.processAll();
+    this.spriteRenderSystem.processAll();
+    this.graphicsRenderSystem.processAll();
+
+    // render scene according to camera position
+    this.cameraSystem.processAll();
   }
 }

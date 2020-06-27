@@ -1,17 +1,16 @@
-import { Application } from "pixi.js";
-
 import { EntitySystem, ComponentMapper, Entity } from "../ecsf";
 import { SpriteRender, Position, Rotation } from "../components";
 
 
 
-export class SpriteSystem extends EntitySystem {
-  app: Application;
+export class SpriteRenderSystem extends EntitySystem {
+  app: PIXI.Application;
+  spriteContainer: PIXI.Container;
   spriteMapper: ComponentMapper;
   positionMapper: ComponentMapper;
   rotationMapper: ComponentMapper;
 
-  constructor(app: Application){
+  constructor(app: PIXI.Application){
     super();
     this.app = app;
   }
@@ -21,16 +20,18 @@ export class SpriteSystem extends EntitySystem {
     this.spriteMapper = new ComponentMapper(new SpriteRender(), this.ecsInstance);
     this.positionMapper = new ComponentMapper(new Position(), this.ecsInstance);
     this.rotationMapper = new ComponentMapper(new  Rotation(), this.ecsInstance);
+    this.spriteContainer = new PIXI.Container();
+    this.app.stage.addChild(this.spriteContainer);
   }
 
   added(entity: Entity){
     const spriteRender = this.spriteMapper.get(entity) as SpriteRender;
-    this.app.stage.addChild(spriteRender.sprite);
+    this.spriteContainer.addChild(spriteRender.sprite);
   }
 
   removed(entity: Entity){
     const spriteRender = this.spriteMapper.get(entity) as SpriteRender;
-    this.app.stage.removeChild(spriteRender.sprite);
+    this.spriteContainer.removeChild(spriteRender.sprite);
   }
 
   process(entity: Entity){

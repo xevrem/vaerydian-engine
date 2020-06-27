@@ -1,10 +1,10 @@
-import { Point } from 'pixi.js';
+// import { Point } from 'pixi.js';
 
 export class Vector {
-  static rotateVectorDegrees(vector: Point, angleDegrees: number): Point {
+  static rotateVectorDegrees(vector: PIXI.Point, angleDegrees: number): PIXI.Point {
     const angle: number = Vector.angleToRad(angleDegrees);
 
-    return new Point(
+    return new PIXI.Point(
       vector.x * Math.cos(angle) - vector.y * Math.sin(angle),
       vector.x * Math.sin(angle) + vector.y * Math.cos(angle)
     );
@@ -14,35 +14,41 @@ export class Vector {
     return ((2.0 * Math.PI) / 360.0) * angleDegrees;
   }
 
-  static add(a: Point, b: Point): Point {
-    return new Point(a.x + b.x, a.y + b.y);
+  static add(a: PIXI.Point, b: PIXI.Point): PIXI.Point {
+    return new PIXI.Point(a.x + b.x, a.y + b.y);
   }
 
-  static sub(a: Point, b: Point): Point {
-    return new Point(a.x - b.x, a.y - b.y);
+  static sub(a: PIXI.Point, b: PIXI.Point): PIXI.Point {
+    return new PIXI.Point(a.x - b.x, a.y - b.y);
   }
 
-  static mult(a: Point, b: Point): Point {
-    return new Point(a.x * b.x, a.y * b.y);
+  static mult(a: PIXI.Point, b: PIXI.Point): PIXI.Point {
+    return new PIXI.Point(a.x * b.x, a.y * b.y);
   }
 
-  static div(a: Point, b: Point): Point {
-    return new Point(a.x / b.x, a.y / b.y);
+  static div(a: PIXI.Point, b: PIXI.Point): PIXI.Point {
+    return new PIXI.Point(a.x / b.x, a.y / b.y);
   }
 
-  static multScalar(a: Point, scalar: number): Point {
-    return new Point(a.x * scalar, a.y * scalar);
+  static multScalar(a: PIXI.Point, scalar: number): PIXI.Point {
+    return new PIXI.Point(a.x * scalar, a.y * scalar);
   }
 
-  static normalize(vec: Point): Point {
+  static normalize(vec: PIXI.Point): PIXI.Point {
     const val: number = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
-    if (val === 0) return new Point(0, 0);
-    return new Point(vec.x / val, vec.y / val);
+    if (val === 0) return new PIXI.Point(0, 0);
+    return new PIXI.Point(vec.x / val, vec.y / val);
   }
 
-  static normalizeMag(vec: Point): Point {
+  static normalizeMag(vec: PIXI.Point): NormTuple {
     const val: number = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
-    if (val === 0) return [new Point(0, 0), 0];
-    return [new Point(vec.x / val, vec.y / val), val];
+    if (val === 0) return [new PIXI.Point(0, 0), 0];
+    return [new PIXI.Point(vec.x / val, vec.y / val), val]
   }
 }
+
+export type NormTuple = [
+  PIXI.Point,
+  number
+]
+

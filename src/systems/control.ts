@@ -1,7 +1,7 @@
 import { EntitySystem, Entity, ComponentMapper } from '../ecsf';
 import { Rotation, Velocity, Heading } from '../components';
 import { KeyboardManager } from '../utils/keyboard';
-import { Key } from '../utils/constants';
+import { KEY } from '../utils/constants';
 import { Point } from 'pixi.js';
 import { Vector } from '../utils/vector';
 
@@ -24,23 +24,23 @@ export class ControlSystem extends EntitySystem {
     let magnitude = 0;
     let thrust: Point = new Point(0,-1);
 
-    if (KeyboardManager.isKeyPressed(Key.A)) {
+    if (KeyboardManager.isKeyPressed(KEY.A)) {
       //rotate left
       amount -= rotation.rate * delta;
     }
 
-    if (KeyboardManager.isKeyPressed(Key.D)) {
+    if (KeyboardManager.isKeyPressed(KEY.D)) {
       //rotate right
       amount += rotation.rate * delta;
     }
 
-    if (KeyboardManager.isKeyPressed(Key.W)) {
+    if (KeyboardManager.isKeyPressed(KEY.W)) {
       // add 'forward' velocity
       magnitude += velocity.rate * delta;
       // thrust = Vector.add(thrust, new Point)
     }
 
-    if (KeyboardManager.isKeyPressed(Key.S)) {
+    if (KeyboardManager.isKeyPressed(KEY.S)) {
       // remove 'forward' velocity
       magnitude -= velocity.rate * delta;
     }

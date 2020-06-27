@@ -47,15 +47,23 @@
 ** TODO Spatial Queries
 ** TODO Collisions
 ** TODO Pathing
-** TODO [0/2] Camera
-*** TODO [2/3] Components
+** DOING [2/3] Camera
+*** DOING [1/2] Features
+**** DONE Follow CameraFocus
+     CLOSED: [2020-06-27 Sat 09:00]
+**** TODO Follow CameraFocus within circular range
+*** DONE [3/3] Components
+    CLOSED: [2020-06-27 Sat 09:01]
 **** DONE Position
     CLOSED: [2020-06-13 Sat 13:29]
 **** DONE Velocity
     CLOSED: [2020-06-13 Sat 13:29]
-**** TODO CameraFocus
-*** TODO [0/1] Systems 
-**** TODO Follow System
+**** DONE CameraFocus
+     CLOSED: [2020-06-27 Sat 08:59]
+*** DONE [1/1] Systems 
+    CLOSED: [2020-06-27 Sat 08:59]
+**** DONE CameraSystem
+     CLOSED: [2020-06-27 Sat 08:59]
 ** TODO Abilities
 ** TODO Progression
 ** TODO Crafting
@@ -72,9 +80,19 @@
 *** TODO [0/1] Components
 **** TODO Award
 ** TODO Characters
-** DOING [0/3] Player
+** DOING [0/4] Player
+*** DOING [2/6] Features
+**** DONE is controllable
+     CLOSED: [2020-06-27 Sat 09:03]
+**** DONE camera follows
+     CLOSED: [2020-06-27 Sat 09:03]
+**** TODO can shoot weapons
+**** TODO can have items
+**** TODO can level up
+**** TODO define more player features
 *** DOING Components
-**** TODO Controllable
+**** DONE Controllable
+     CLOSED: [2020-06-27 Sat 09:02]
 **** DONE Sprite
      CLOSED: [2020-06-15 Mon 16:00]
 **** DONE Position
@@ -85,6 +103,8 @@
 **** TODO Equipment
 **** DONE Rotation
      CLOSED: [2020-06-24 Wed 21:23]
+**** DONE CameraFocus
+     CLOSED: [2020-06-27 Sat 09:04]
 *** TODO Assets
 **** TODO [0/2] Player graphics
 ***** TODO ship
@@ -108,7 +128,7 @@
 *** DOING Game Screen
 *** TODO Loading Sreen 
 *** TODO Start Screen
-*** TODO Munu Screen
+*** TODO Menu Screen
 ** TODO [0/4] AI
 *** TODO Components
 **** TODO Behaviors
@@ -132,6 +152,8 @@
 *** TODO Transitions
 ** TODO Starfield
 *** TODO Components
+**** DONE Position
+**** DONE GraphicsRender
 *** TODO Systems
 **** TODO StarfieldSystem
      should take the current viewport and the starfield 'pips' and then poisiton 
