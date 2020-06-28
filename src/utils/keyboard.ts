@@ -1,3 +1,5 @@
+import { KEY } from './constants';
+
 type KeyState = {
   up: boolean;
   down: boolean;
@@ -16,14 +18,14 @@ export type KeyboardState = {
 export class KeyboardManager {
   static state: KeyboardState;
 
-  static init() {
+  static init(): void {
     KeyboardManager.state = { prev: {}, curr: {} };
     window.addEventListener('keydown', KeyboardManager.handleKeyDown);
     window.addEventListener('keyup', KeyboardManager.handleKeyUp);
     window.addEventListener('keypress', KeyboardManager.handleKeyPress);
   }
 
-  static preProcess(event: KeyboardEvent) {
+  static preProcess(event: KeyboardEvent): void {
     if (!KeyboardManager.state.curr.hasOwnProperty(event.key)) {
       KeyboardManager.state.curr[event.key] = {
         up: false,
@@ -34,14 +36,14 @@ export class KeyboardManager {
     KeyboardManager.state.prev = KeyboardManager.state.curr;
   }
 
-  static handleKeyDown(event: KeyboardEvent) {
+  static handleKeyDown(event: KeyboardEvent): void {
     // console.log('km:hkd::', event);
     KeyboardManager.preProcess(event);
     KeyboardManager.state.curr[event.key].down = true;
     KeyboardManager.state.curr[event.key].up = false;
   }
 
-  static handleKeyUp(event: KeyboardEvent) {
+  static handleKeyUp(event: KeyboardEvent): void {
     // console.log('km:hku::', event);
     KeyboardManager.preProcess(event);
     KeyboardManager.state.curr[event.key].up = true;
@@ -49,14 +51,14 @@ export class KeyboardManager {
     KeyboardManager.state.curr[event.key].press = false;
   }
 
-  static handleKeyPress(event: KeyboardEvent) {
+  static handleKeyPress(event: KeyboardEvent): void {
     // console.log('km:hkp::', event);
     KeyboardManager.preProcess(event);
     KeyboardManager.state.curr[event.key].press = true;
     KeyboardManager.state.curr[event.key].up = false;
   }
 
-  static isKeyPressed(key: Key) {
+  static isKeyPressed(key: KEY): boolean {
     return (
       (KeyboardManager?.state?.curr?.[key]?.press ?? false) &&
       (KeyboardManager?.state?.prev?.[key]?.press ?? false)

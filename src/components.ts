@@ -61,6 +61,8 @@ export class SpriteRender extends Component {
   }
 }
 
+export class Starfield extends Component {}
+
 export class Velocity extends Component {
   vector: PIXI.Point;
   rate: number;

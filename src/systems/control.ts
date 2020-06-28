@@ -22,7 +22,7 @@ export class ControlSystem extends EntitySystem {
     // by default we point straight up
     let amount = 0;
     let magnitude = 0;
-    let thrust: Point = new Point(0,-1);
+    let thrust: Point = new Point(0, -1);
 
     if (KeyboardManager.isKeyPressed(KEY.A)) {
       //rotate left
@@ -49,6 +49,14 @@ export class ControlSystem extends EntitySystem {
       Vector.rotateVectorDegrees(thrust, rotation.amount + amount),
       magnitude
     );
+
+    if (KeyboardManager.isKeyPressed(KEY.SPACE)) {
+      // we override the thrust to apply a breaking force
+      const [vec, mag] = Vector.normalizeMag(
+        Vector.rotateVectorDegrees(velocity.vector, 180)
+      );
+      thrust = Vector.multScalar(vec, mag/30);
+    }
 
     rotation.amount += amount;
     velocity.vector = Vector.add(velocity.vector, thrust);

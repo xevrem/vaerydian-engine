@@ -21,7 +21,7 @@ export class PlayerFactory {
     resources: Partial<Record<string, PIXI.LoaderResource>>,
     location: PIXI.Point
   ): void {
-    let player = this.ecsInstance.create();
+    const player = this.ecsInstance.create();
 
     this.ecsInstance.tagManager.tagEntity('player', player);
 

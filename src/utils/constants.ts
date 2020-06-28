@@ -3,6 +3,7 @@ export enum KEY {
   D = 'd',
   S = 's',
   W = 'w',
+  SPACE = ' ',
 }
 
 export enum LAYER {

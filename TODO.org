@@ -10,11 +10,15 @@
    with behavior trees to allow them to behave intelligently and set their own 
    goals based on their needs, desires, and game state. Everything should be 
    craftable. Stories / plot should emerge through gameplay. 
-** Core Loop
-   travel between locations (systems, planets, asteroids, etc.) and defeat 
-   enemy ships, gain loot, find crew, become more powerful. Get tips on locations 
-   from space stations. crew and equipment improve your ship, repair damage, spot
-   enemies and spot/hear about interesting things, help find tips, etc.
+** Gameplay Loops
+*** Pimary Loop
+    travel between locations (systems, planets, asteroids, etc.) and defeat 
+    enemy ships, gain loot, find crew, become more powerful. 
+*** Secondary Loop 
+    Get tips on locations from space stations. crew and equipment improve your ship, repair damage, spot
+    enemies and spot/hear about interesting things, help find tips, etc.
+*** Tertiary Loop
+    crafting and exploration
 * Use Cases
 ** Player
 *** Player can adventure throughout the galaxy

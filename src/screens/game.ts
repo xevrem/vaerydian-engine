@@ -11,6 +11,7 @@ import {
   Rotation,
   CameraFocus,
   CameraData,
+  Starfield,
 } from '../components';
 import { EcsInstance, EntitySystem } from '../ecsf';
 import { EntityFactory, PlayerFactory } from '../factories';
@@ -20,6 +21,7 @@ import {
   GraphicsRenderSystem,
   CameraSystem,
   LayeringSystem,
+  StarfieldSystem,
 } from '../systems';
 
 import playerShip from 'url:~/src/assets/player/ship.png';
@@ -46,6 +48,7 @@ export class GameScreen extends Screen {
   movementSystem: EntitySystem;
   graphicsRenderSystem: EntitySystem;
   spriteRenderSystem: EntitySystem;
+  starfieldSystem: EntitySystem;
 
   entityFactory: EntityFactory;
   playerFactory: PlayerFactory;
@@ -70,7 +73,6 @@ export class GameScreen extends Screen {
 
     this.ecsInstance = new EcsInstance();
 
-    
     this.cameraSystem = this.ecsInstance.systemManager.setSystem(
       new CameraSystem(this.app),
       new Position(),
@@ -84,10 +86,16 @@ export class GameScreen extends Screen {
       new Rotation()
     );
 
+    this.graphicsRenderSystem = this.ecsInstance.systemManager.setSystem(
+      new GraphicsRenderSystem(this.app),
+      new GraphicsRender(),
+      new Position()
+    );
+
     this.layeringSystem = this.ecsInstance.systemManager.setSystem(
       new LayeringSystem(this.app),
       new Layer()
-    )
+    );
 
     this.movementSystem = this.ecsInstance.systemManager.setSystem(
       new MovementSystem(),
@@ -101,12 +109,13 @@ export class GameScreen extends Screen {
       new Position(),
       new Rotation()
     );
-    this.graphicsRenderSystem = this.ecsInstance.systemManager.setSystem(
-      new GraphicsRenderSystem(this.app),
-      new GraphicsRender(),
-      new Position()
-    );
 
+    this.starfieldSystem = this.ecsInstance.systemManager.setSystem(
+      new StarfieldSystem(this.app),
+      new Position(),
+      new GraphicsRender(),
+      new Starfield()
+    );
 
     this.ecsInstance.componentManager.registerComponent(new Controllable());
     this.ecsInstance.componentManager.registerComponent(new CameraData());
@@ -132,7 +141,6 @@ export class GameScreen extends Screen {
 
     this.entityFactory.createCamera();
 
-    
     this.playerFactory.createPlayer(
       resources,
       new Point(this.app.renderer.width / 2, this.app.renderer.height / 2)
@@ -142,25 +150,25 @@ export class GameScreen extends Screen {
       .fill('')
       .forEach(() => this.entityFactory.createStar());
 
-
     this.ecsInstance.resolveEntities();
     this.ecsInstance.systemManager.systemsLoadContent();
   }
 
   unload(): void {}
 
-  update(delta: number) {
+  update(delta: number): void {
     this.ecsInstance.updateByDelta(delta);
     this.ecsInstance.resolveEntities();
 
     this.movementSystem.processAll();
+    this.starfieldSystem.processAll();
   }
 
-  focusUpdate(_delta: number) {
+  focusUpdate(_delta: number): void {
     this.controlSystem.processAll();
   }
 
-  draw() {
+  draw(): void {
     this.spriteRenderSystem.processAll();
     this.graphicsRenderSystem.processAll();
 

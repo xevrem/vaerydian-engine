@@ -1,5 +1,12 @@
-import { EcsInstance } from '../ecsf';
-import { Position, GraphicsRender, Velocity, CameraData, Layer } from '../components';
+import { EcsInstance, Entity } from '../ecsf';
+import {
+  Position,
+  GraphicsRender,
+  Velocity,
+  CameraData,
+  Layer,
+  Starfield,
+} from '../components';
 import { LAYER } from '../utils/constants';
 
 export class EntityFactory {
@@ -9,14 +16,16 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createStar(location?: PIXI.Point) {
-    let graphic = this.ecsInstance.create();
+  createStar(location?: PIXI.Point): void {
+    const graphic = this.ecsInstance.create();
 
     const position = new Position(
-      location ? location : new PIXI.Point(
-        Math.random() * window.innerWidth,
-        Math.random() * window.innerHeight
-      )
+      location
+        ? location
+        : new PIXI.Point(
+            (Math.random() * 2 - 1) * window.innerWidth,
+            (Math.random() * 2 - 1) * window.innerHeight
+          )
     );
     this.ecsInstance.addComponent(graphic, position);
 
@@ -24,13 +33,14 @@ export class EntityFactory {
       new PIXI.Graphics().beginFill(0xffffff).drawCircle(0, 0, 2).endFill()
     );
     this.ecsInstance.addComponent(graphic, renderable);
-    this.ecsInstance.addComponent(graphic, new Layer (LAYER.starfield))
+    this.ecsInstance.addComponent(graphic, new Layer(LAYER.starfield));
+    this.ecsInstance.addComponent(graphic, new Starfield());
 
     this.ecsInstance.resolve(graphic);
   }
 
-  createCamera() {
-    let camera = this.ecsInstance.create();
+  createCamera(): void {
+    const camera = this.ecsInstance.create();
 
     this.ecsInstance.tagManager.tagEntity('camera', camera);
 
@@ -39,14 +49,12 @@ export class EntityFactory {
     );
     this.ecsInstance.addComponent(camera, position);
 
-    const velocity = new Velocity(new PIXI.Point(0, 0), 0, 0);
+    const velocity = new Velocity(new PIXI.Point(0, 0), 0);
     this.ecsInstance.addComponent(camera, velocity);
 
     const cameraContainer = new PIXI.Container();
-    cameraContainer.pivot.set(window.innerWidth/2, window.innerHeight/2);
-    cameraContainer.position.set(window.innerWidth/2, window.innerHeight/2);
-    // cameraContainer.width = window.innerWidth;
-    // cameraContainer.height = window.innerHeight;
+    cameraContainer.pivot.set(window.innerWidth / 2, window.innerHeight / 2);
+    cameraContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
     const cameraData = new CameraData(cameraContainer);
     this.ecsInstance.addComponent(camera, cameraData);
 

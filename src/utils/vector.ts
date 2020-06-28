@@ -1,7 +1,10 @@
 // import { Point } from 'pixi.js';
 
 export class Vector {
-  static rotateVectorDegrees(vector: PIXI.Point, angleDegrees: number): PIXI.Point {
+  static rotateVectorDegrees(
+    vector: PIXI.Point,
+    angleDegrees: number
+  ): PIXI.Point {
     const angle: number = Vector.angleToRad(angleDegrees);
 
     return new PIXI.Point(
@@ -43,12 +46,12 @@ export class Vector {
   static normalizeMag(vec: PIXI.Point): NormTuple {
     const val: number = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
     if (val === 0) return [new PIXI.Point(0, 0), 0];
-    return [new PIXI.Point(vec.x / val, vec.y / val), val]
+    return [new PIXI.Point(vec.x / val, vec.y / val), val];
+  }
+
+  static distance(a: PIXI.Point, b: PIXI.Point): number {
+    return Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
   }
 }
 
-export type NormTuple = [
-  PIXI.Point,
-  number
-]
-
+export type NormTuple = [PIXI.Point, number];
