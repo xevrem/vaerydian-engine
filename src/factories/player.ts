@@ -8,7 +8,7 @@ import {
   Rotation,
   Layer,
 } from '../components';
-import { LAYER } from '../utils/constants';
+import { LayerType } from '../utils/constants';
 
 export class PlayerFactory {
   ecsInstance: EcsInstance;
@@ -35,11 +35,11 @@ export class PlayerFactory {
       player,
       new SpriteRender(
         new PIXI.Sprite(resources['playerShip'].texture),
-        new PIXI.Point(49, 37),
+        new PIXI.Point(8, 8),
         new PIXI.Point(0.5, 0.5)
       )
     );
-    this.ecsInstance.addComponent(player, new Layer(LAYER.player));
+    this.ecsInstance.addComponent(player, new Layer(LayerType.player));
     this.ecsInstance.addComponent(player, new Controllable());
     this.ecsInstance.addComponent(player, new CameraFocus());
 

@@ -27,7 +27,7 @@
 *** sdads
 ** Director
 *** askdasd
-* [2/23] Features & Architecture
+* [3/23] Features & Architecture
 ** DONE Movement
    CLOSED: [2020-06-13 Sat 13:00]
 *** DONE Components
@@ -120,7 +120,16 @@
 *** TODO Systems
 **** DOING ControllableInputSystem
      we have rotation and thrust... progress???
-** TODO Enemies
+** TODO [0/3] Enemies
+*** TODO [/] Features
+**** fly
+**** shoot
+**** pick up items
+**** warp
+**** shop
+**** equip
+*** TODO [/] Components
+*** TODO [/] Systems
 ** TODO [0/6] Items
 **** TODO Weapons
 **** TODO Armor
@@ -158,12 +167,14 @@
 **** TODO Forest
 **** TODO Overworld
 *** TODO Transitions
-** TODO Starfield
-*** TODO Components
+** DONE Starfield
+   CLOSED: [2020-06-28 Sun 12:19]
+*** DONE Components
 **** DONE Position
 **** DONE GraphicsRender
-*** TODO Systems
-**** TODO StarfieldSystem
+**** DONE Starfield
+*** DONE Systems
+**** DONE StarfieldSystem
      should take the current viewport and the starfield 'pips' and then poisiton 
      them for the graphics renderer
 ** TODO [3/19] unattached Components

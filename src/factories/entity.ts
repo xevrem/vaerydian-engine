@@ -6,8 +6,10 @@ import {
   CameraData,
   Layer,
   Starfield,
+  SpriteRender,
+  Rotation,
 } from '../components';
-import { LAYER } from '../utils/constants';
+import { LayerType, STARS } from '../utils/constants';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -16,7 +18,10 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createStar(location?: PIXI.Point): void {
+  createStar(
+    resources: Partial<Record<string, PIXI.LoaderResource>>,
+    location?: PIXI.Point
+  ): void {
     const graphic = this.ecsInstance.create();
 
     const position = new Position(
@@ -28,12 +33,16 @@ export class EntityFactory {
           )
     );
     this.ecsInstance.addComponent(graphic, position);
-
-    const renderable = new GraphicsRender(
-      new PIXI.Graphics().beginFill(0xffffff).drawCircle(0, 0, 2).endFill()
+    const spriteName = STARS[
+      Math.floor(Math.random()*STARS.length)];
+    const renderable = new SpriteRender(
+        new PIXI.Sprite(resources[spriteName].texture),
+        new PIXI.Point(4, 4),
+        new PIXI.Point(0.5, 0.5)
     );
+    this.ecsInstance.addComponent(graphic, new Rotation(Math.random()*180, 0));
     this.ecsInstance.addComponent(graphic, renderable);
-    this.ecsInstance.addComponent(graphic, new Layer(LAYER.starfield));
+    this.ecsInstance.addComponent(graphic, new Layer(LayerType.starfield));
     this.ecsInstance.addComponent(graphic, new Starfield());
 
     this.ecsInstance.resolve(graphic);

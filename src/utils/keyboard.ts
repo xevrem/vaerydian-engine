@@ -1,4 +1,4 @@
-import { KEY } from './constants';
+import { KeyType } from './constants';
 
 type KeyState = {
   up: boolean;
@@ -58,7 +58,7 @@ export class KeyboardManager {
     KeyboardManager.state.curr[event.key].up = false;
   }
 
-  static isKeyPressed(key: KEY): boolean {
+  static isKeyPressed(key: KeyType): boolean {
     return (
       (KeyboardManager?.state?.curr?.[key]?.press ?? false) &&
       (KeyboardManager?.state?.prev?.[key]?.press ?? false)

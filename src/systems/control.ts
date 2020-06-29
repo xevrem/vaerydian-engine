@@ -1,7 +1,7 @@
 import { EntitySystem, Entity, ComponentMapper } from '../ecsf';
 import { Rotation, Velocity, Heading } from '../components';
 import { KeyboardManager } from '../utils/keyboard';
-import { KEY } from '../utils/constants';
+import { KeyType } from '../utils/constants';
 import { Point } from 'pixi.js';
 import { Vector } from '../utils/vector';
 
@@ -24,23 +24,23 @@ export class ControlSystem extends EntitySystem {
     let magnitude = 0;
     let thrust: Point = new Point(0, -1);
 
-    if (KeyboardManager.isKeyPressed(KEY.A)) {
+    if (KeyboardManager.isKeyPressed(KeyType.A)) {
       //rotate left
       amount -= rotation.rate * delta;
     }
 
-    if (KeyboardManager.isKeyPressed(KEY.D)) {
+    if (KeyboardManager.isKeyPressed(KeyType.D)) {
       //rotate right
       amount += rotation.rate * delta;
     }
 
-    if (KeyboardManager.isKeyPressed(KEY.W)) {
+    if (KeyboardManager.isKeyPressed(KeyType.W)) {
       // add 'forward' velocity
       magnitude += velocity.rate * delta;
       // thrust = Vector.add(thrust, new Point)
     }
 
-    if (KeyboardManager.isKeyPressed(KEY.S)) {
+    if (KeyboardManager.isKeyPressed(KeyType.S)) {
       // remove 'forward' velocity
       magnitude -= velocity.rate * delta;
     }
@@ -50,12 +50,12 @@ export class ControlSystem extends EntitySystem {
       magnitude
     );
 
-    if (KeyboardManager.isKeyPressed(KEY.SPACE)) {
+    if (KeyboardManager.isKeyPressed(KeyType.SPACE)) {
       // we override the thrust to apply a breaking force
       const [vec, mag] = Vector.normalizeMag(
         Vector.rotateVectorDegrees(velocity.vector, 180)
       );
-      thrust = Vector.multScalar(vec, mag/30);
+      thrust = Vector.multScalar(vec, mag/100);
     }
 
     rotation.amount += amount;

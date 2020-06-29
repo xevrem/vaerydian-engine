@@ -23,16 +23,50 @@ import {
   LayeringSystem,
   StarfieldSystem,
 } from '../systems';
-
-import playerShip from 'url:~/src/assets/player/ship.png';
-
 import { SpriteRenderSystem } from '../systems/sprite';
 import { KeyboardManager } from '../utils/keyboard';
+
+import playerShip from 'url:../assets/player/ship.png';
+import star1 from 'url:../assets/stars/star1.png';
+import star2 from 'url:../assets/stars/star2.png';
+import star3 from 'url:../assets/stars/star3.png';
+import star4 from 'url:../assets/stars/star4.png';
+import star5 from 'url:../assets/stars/star5.png';
+import star6 from 'url:../assets/stars/star6.png';
+import star7 from 'url:../assets/stars/star7.png';
 
 const assets = [
   {
     url: playerShip,
     name: 'playerShip',
+  },
+  {
+    url: star1,
+    name: 'star1',
+  },
+  {
+    url: star2,
+    name: 'star2',
+  },
+  {
+    url: star3,
+    name: 'star3',
+  },
+  {
+    url: star4,
+    name: 'star4',
+  },
+  {
+    url: star5,
+    name: 'star5',
+  },
+  {
+    url: star6,
+    name: 'star6',
+  },
+  {
+    url: star7,
+    name: 'star7',
   },
 ];
 
@@ -62,6 +96,7 @@ export class GameScreen extends Screen {
       width: window.innerWidth,
       height: window.innerHeight,
       backgroundColor: 0x000000,
+      antialias: false,
     });
 
     this.app.stage = new PIXI.display.Stage();
@@ -113,7 +148,6 @@ export class GameScreen extends Screen {
     this.starfieldSystem = this.ecsInstance.systemManager.setSystem(
       new StarfieldSystem(this.app),
       new Position(),
-      new GraphicsRender(),
       new Starfield()
     );
 
@@ -148,7 +182,7 @@ export class GameScreen extends Screen {
 
     Array(100)
       .fill('')
-      .forEach(() => this.entityFactory.createStar());
+      .forEach(() => this.entityFactory.createStar(resources));
 
     this.ecsInstance.resolveEntities();
     this.ecsInstance.systemManager.systemsLoadContent();

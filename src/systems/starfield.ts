@@ -31,7 +31,7 @@ export class StarfieldSystem extends EntitySystem {
     const playerVel = this.velocityMap.get(this.player) as Velocity;
     const distance = Vector.distance(position.point, playerPos.point);
     if (distance > this.distance) {
-      const angle = Math.random() * 180 - 90;
+      const angle = Math.random() * 120 - 60;
       const projVec = Vector.normalize(
         Vector.rotateVectorDegrees(playerVel.vector, angle)
       );

@@ -1,5 +1,5 @@
 import { Component } from './ecsf';
-import { LAYER } from 'utils/constants';
+import { LayerType } from 'utils/constants';
 // import { Point, Graphics, Sprite, Container } from 'pixi.js';
 
 export class CameraData extends Component {
@@ -31,8 +31,8 @@ export class GraphicsRender extends Component {
 }
 
 export class Layer extends Component {
-  layer: LAYER;
-  constructor(layer?: LAYER){
+  layer: LayerType;
+  constructor(layer?: LayerType){
     super();
     this.layer = layer;
   }
