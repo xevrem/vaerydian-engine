@@ -1,8 +1,8 @@
 import Stats from 'stats.js';
 import { ScreenManager, GameScreen } from './screens';
 
-const FRAME_TARGET_FPS: number = 60;
-const FRAME_TARGET_MS: number = 1000 / FRAME_TARGET_FPS;
+const FRAME_TARGET_FPS = 60.0;
+const FRAME_TARGET_MS: number = 1000.0 / FRAME_TARGET_FPS;
 
 export class Engine {
   lastTime = 0;
@@ -16,7 +16,7 @@ export class Engine {
     document.body.append(this.stats.dom);
   }
 
-  async start(): Promise<any> {
+  async start(): Promise<void> {
     await this.screenManager.addScreen(new GameScreen());
 
     this.startLoop();
@@ -57,7 +57,7 @@ export class Engine {
     this.draw(seconds);
     this.stats.end();
 
-    let frameTime = performance.now() - time;
+    const frameTime = performance.now() - time;
     this.lastTime = time;
 
     if (frameTime < FRAME_TARGET_MS) {
@@ -71,11 +71,11 @@ export class Engine {
     }
   };
 
-  update(delta: number) {
+  update(delta: number): void {
     this.screenManager.update(delta);
   }
 
-  draw(delta: number) {
+  draw(delta: number): void {
     this.screenManager.draw(delta);
   }
 }

@@ -64,6 +64,7 @@ export class EntityFactory {
     const cameraContainer = new PIXI.Container();
     cameraContainer.pivot.set(window.innerWidth / 2, window.innerHeight / 2);
     cameraContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
+    cameraContainer.scale.set(2.0,2.0);
     const cameraData = new CameraData(cameraContainer);
     this.ecsInstance.addComponent(camera, cameraData);
 
