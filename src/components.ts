@@ -1,5 +1,6 @@
 import { Component } from './ecsf';
 import { LayerType } from 'utils/constants';
+// import { Point } from 'pixi.js';
 // import { Point, Graphics, Sprite, Container } from 'pixi.js';
 
 export class CameraData extends Component {
@@ -37,6 +38,27 @@ export class Layer extends Component {
     this.layer = layer;
   }
 }
+
+export class QtPoint extends Component {
+  point: PIXI.Point
+  constructor(point?: PIXI.Point){
+    super();
+    this.point = point;
+  }
+}
+
+export class QtRange extends Component {
+  
+}
+
+export class QtLine extends Component {
+
+}
+
+export class Qtree extends Component {
+  
+}
+
 
 export class Rotation extends Component {
   amount: number;

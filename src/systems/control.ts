@@ -55,7 +55,7 @@ export class ControlSystem extends EntitySystem {
       const [vec, mag] = Vector.normalizeMag(
         Vector.rotateVectorDegrees(velocity.vector, 180)
       );
-      thrust = Vector.multScalar(vec, mag/100);
+      thrust = Vector.multScalar(vec, mag/50);
     }
 
     rotation.amount += amount;

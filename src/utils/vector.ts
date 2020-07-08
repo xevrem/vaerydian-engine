@@ -1,4 +1,3 @@
-// import { Point } from 'pixi.js';
 
 export class Vector {
   static rotateVectorDegrees(
@@ -51,6 +50,13 @@ export class Vector {
 
   static distance(a: PIXI.Point, b: PIXI.Point): number {
     return Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+  }
+
+  /**
+   * a more efficient calculation if all you need is to compare relative distances.
+   */
+  static distanceSq(a: PIXI.Point, b: PIXI.Point): number {
+    return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
   }
 }
 

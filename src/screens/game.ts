@@ -99,6 +99,9 @@ export class GameScreen extends Screen {
       antialias: false,
     });
 
+    // Scale mode for all textures, will retain pixelation
+    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+
     this.app.stage = new PIXI.display.Stage();
 
     this.app.ticker.autoStart = false;
