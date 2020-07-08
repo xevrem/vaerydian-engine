@@ -1,4 +1,5 @@
 import { Point } from 'pixi.js';
+import { LineRange, Range } from './quadtree';
 
 /**
  * region code used for bitwise comparisons
@@ -10,44 +11,19 @@ const RIGHT = 2; // 0010
 const BOTTOM = 4; // 0100
 const TOP = 8; // 1000
 
-/**
- * the algorithm divides a two-dimensional space into 9 regions and then
- * efficiently determines the lines and portions of lines that are visible
- * in the central region of interest (the viewport).
- * https://en.wikipedia.org/wiki/Cohen-Sutherland_algorithm
- * @param {Object} line - Parameter description.
- * @param {RectangleRange} bounds - a rectangular range.
- * @returns {boolean} true if the line segment clips the viewport false if not.
- */
-export const csClip = (line, bounds) => {
-  return CohenSutherlandLineClipAndDraw(line.from, line.to, bounds);
-  // line.from.x,
-  // line.from.y,
-  // line.to.x,
-  // line.to.y,
-  // bounds.left,
-  // bounds.right,
-  // bounds.top,
-  // bounds.bottom
-  // );
-};
 
 /**
  * Compute the bit code for a point (x, y) using the clip rectangle
  * bounded diagonally by (xmin, ymin), and (xmax, ymax)
- * @param {Number} x - point x coordinate.
- * @param {Number} y - point y coordinate.
- * @param {Number} xmin - viewport xmin.
- * @param {Number} xmax - viewport xmax.
- * @param {Number} ymin - viewport ymin.
- * @param {Number} ymax - viewport ymax.
+ * @param {PIXI.Point} point -  point to test
+ * @param {Range} bounds - bounds to test against
  * @returns {OutCode} appropriate OutCode for the point.
  */
 const ComputeOutCode = (
-  point,
-  bounds
+  point: PIXI.Point,
+  bounds: Range
   // x, y, xmin, xmax, ymin, ymax
-) => {
+): number => {
   let code;
 
   code = INSIDE; // initialised as being inside of [[clip window]]
@@ -73,29 +49,16 @@ const ComputeOutCode = (
  * Cohen–Sutherland clipping algorithm clips a line from
  * P0 = (x0, y0) to P1 = (x1, y1) against a rectangle with
  * diagonal from (xmin, ymin) to (xmax, ymax).
- * @param {Number} x0 - P0 x coordinate.
- * @param {Number} y0 - P0 y coordinate.
- * @param {Number} x1 - P1 x coordinate
- * @param {Number} y1 - P1 y coordinate.
- * @param {Number} xmin - viewport xmin.
- * @param {Number} xmax - viewport xmax.
- * @param {Number} ymin - viewport ymin.
- * @param {Number} ymax - viewport ymax.
- * @returns {Boolean} true if the line segment clips the viewport false if not.
+ * @param {PIXI.Point} from - line from
+ * @param {PIXI.Point} to - line to
+ * @param {Range} bounds - a bounding range to test against
+ * @returns {boolean} true if the line segment clips the viewport false if not.
  */
 const CohenSutherlandLineClipAndDraw = (
-  from,
-  to,
-  bounds
-  // x0,
-  // y0,
-  // x1,
-  // y1,
-  // xmin,
-  // xmax,
-  // ymin,
-  // ymax
-): void =>  {
+  from: PIXI.Point,
+  to: PIXI.Point,
+  bounds: Range
+): boolean =>  {
   // compute outcodes for P0, P1, and whatever point lies outside the clip rectangle
   let outcode0 = ComputeOutCode(from, bounds); //x0, y0, xmin, xmax, ymin, ymax);
   let outcode1 = ComputeOutCode(to, bounds); //x1, y1, xmin, xmax, ymin, ymax);
@@ -103,8 +66,8 @@ const CohenSutherlandLineClipAndDraw = (
 
   const p0 = new Point(from.x, from.y);
   const p1 = new Point(to.x, to.y);
-
-  while (true) {
+  const condition = true;
+  while (condition) {
     if (!(outcode0 | outcode1)) {
       // bitwise OR is 0: both points inside window; trivially accept and exit loop
       accept = true;
@@ -119,7 +82,7 @@ const CohenSutherlandLineClipAndDraw = (
       let x, y;
 
       // At least one endpoint is outside the clip rectangle; pick it.
-      let outcodeOut = outcode0 ? outcode0 : outcode1;
+      const outcodeOut = outcode0 ? outcode0 : outcode1;
 
       // Now find the intersection point;
       // use formulas:
@@ -178,4 +141,18 @@ const CohenSutherlandLineClipAndDraw = (
     // the line is outside the viewport
     return false;
   }
+};
+
+
+/**
+ * the algorithm divides a two-dimensional space into 9 regions and then
+ * efficiently determines the lines and portions of lines that are visible
+ * in the central region of interest (the viewport).
+ * https://en.wikipedia.org/wiki/Cohen-Sutherland_algorithm
+ * @param {LineRange} line - Parameter description.
+ * @param {Range} bounds - a rectangular range.
+ * @returns {boolean} true if the line segment clips the viewport false if not.
+ */
+export const csClip = (line: LineRange , bounds: Range): boolean => {
+  return CohenSutherlandLineClipAndDraw(line.from, line.to, bounds);
 };

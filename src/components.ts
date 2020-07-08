@@ -1,5 +1,6 @@
 import { Component } from './ecsf';
 import { LayerType } from 'utils/constants';
+import { LineRange, QuadTree, Range} from 'utils/quadtree';
 // import { Point } from 'pixi.js';
 // import { Point, Graphics, Sprite, Container } from 'pixi.js';
 
@@ -33,32 +34,28 @@ export class GraphicsRender extends Component {
 
 export class Layer extends Component {
   layer: LayerType;
-  constructor(layer?: LayerType){
+  constructor(layer?: LayerType) {
     super();
     this.layer = layer;
   }
 }
 
-export class QtPoint extends Component {
-  point: PIXI.Point
-  constructor(point?: PIXI.Point){
+export class QtSpatial extends Component {
+  point: PIXI.Point;
+  parents: Array<QuadTree>;
+  range: Range;
+  line: LineRange;
+
+  constructor(point?: PIXI.Point, range?: Range, line?: LineRange) {
     super();
+    this.parents = [];
     this.point = point;
+    this.range = range;
+    this.line = line;
   }
 }
 
-export class QtRange extends Component {
-  
-}
-
-export class QtLine extends Component {
-
-}
-
-export class Qtree extends Component {
-  
-}
-
+export class Qtree extends Component {}
 
 export class Rotation extends Component {
   amount: number;
