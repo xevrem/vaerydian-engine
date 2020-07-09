@@ -27,7 +27,7 @@
 *** sdads
 ** Director
 *** askdasd
-* [3/23] Features & Architecture
+* [2/25] Features & Architecture
 ** DONE Movement
    CLOSED: [2020-06-13 Sat 13:00]
 *** DONE Components
@@ -89,15 +89,23 @@
 **** TODO Award
 ** TODO Characters
 ** DOING [0/4] Player
-*** DOING [2/6] Features
-**** DONE is controllable
-     CLOSED: [2020-06-27 Sat 09:03]
-**** DONE camera follows
-     CLOSED: [2020-06-27 Sat 09:03]
-**** TODO can shoot weapons
-**** TODO can have items
-**** TODO can level up
-**** TODO define more player features
+*** DOING [0/9] Features
+**** DOING ship features
+***** DONE is controllable
+      CLOSED: [2020-06-27 Sat 09:03]
+***** DONE camera follows
+      CLOSED: [2020-06-27 Sat 09:03]
+***** DONE can shoot weapons
+***** DONE can respawn
+***** TODO can have items
+***** TODO can be upgraded
+***** TODO pick up debris items 
+***** TODO warp
+**** TODO captain features
+***** TODO can level up
+***** TODO can pick up items
+***** TODO shop 
+***** TODO equip items
 *** DOING Components
 **** DONE Controllable
      CLOSED: [2020-06-27 Sat 09:02]
@@ -118,16 +126,18 @@
 ***** TODO ship
 ***** TODO explosion / death
 *** TODO Systems
-**** DOING ControllableInputSystem
+**** DONE PlayerInput
+     CLOSED: [2020-07-03 Fri 11:07]
      we have rotation and thrust... progress???
+** TODO Crew
 ** TODO [0/3] Enemies
-*** TODO [/] Features
-**** fly
-**** shoot
-**** pick up items
-**** warp
-**** shop
-**** equip
+*** TODO [4/4] Features
+**** DONE fly
+     CLOSED: [2020-07-03 Fri 11:03]
+**** DONE shoot
+**** DONE can die
+**** DONE can respawn
+     CLOSED: [2020-07-03 Fri 12:35]
 *** TODO [/] Components
 *** TODO [/] Systems
 ** TODO [0/6] Items
@@ -146,16 +156,34 @@
 *** TODO Loading Sreen 
 *** TODO Start Screen
 *** TODO Menu Screen
-** TODO [0/4] AI
+** DOING [0/3] AI
 *** TODO Components
-**** TODO Behaviors
+**** TODO Behavior
 **** TODO Goal
-*** TODO Behavior Trees
+*** DOING Behavior Trees
 *** TODO Systems
 **** TODO Goals & Inference
 ** TODO User Interface
+** TODO SpriteSheets
+** TODO Animations
 ** TODO Sound
-** TODO [0/3] Maps 
+** TODO [0/4] Game World / Maps
+*** DOING [1/2] Features
+**** DONE Initial basic world
+     - can spawn player
+     - can spawn enemies
+     - can spawn starfield 
+**** TODO More complex world
+***** TODO destinations
+****** TODO locations
+******* TODO space stations
+******* TODO ship internals
+****** TODO solar & planetary bodies 
+******* TODO planets
+******* TODO moons
+******* TODO asteroids
+******* TODO comets
+***** TODO varied enemies
 *** TODO Components
 **** Map
 **** Tile
@@ -167,8 +195,10 @@
 **** TODO Forest
 **** TODO Overworld
 *** TODO Transitions
-** DONE Starfield
-   CLOSED: [2020-06-28 Sun 12:19]
+** DOING Starfield
+*** DOING [0/1] Features
+**** TODO fix respawn of player and crowded stars                       :BUG:
+
 *** DONE Components
 **** DONE Position
 **** DONE GraphicsRender
@@ -186,3 +216,4 @@
 *** TODO Material
 what things are made of and how that reflects its properties
 *** TODO Status Effect
+    
