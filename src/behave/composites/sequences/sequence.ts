@@ -14,7 +14,7 @@ export class Sequence extends Behavior {
    */
   behave(): BehaviorCode {
     let running = false;
-        for (let i = 0; i < this.behaviors.length; i++) {
+    for (let i = 0; i < this.behaviors.length; i++) {
       const result = this.behaviors[i].behave();
       if (result == BehaviorCode.Failure) {
         this.returnCode = result;

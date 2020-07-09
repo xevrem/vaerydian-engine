@@ -1,6 +1,6 @@
 import { Behavior, BehaviorCode} from '../behavior';
 
-export class IndexSelector extends Behavior {
+export class IndexedSelector extends Behavior {
   index: () => number;
   behaviors: Array<Behavior>;
   constructor(index: () => number, ...behaviors: Array<Behavior>){
