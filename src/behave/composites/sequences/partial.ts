@@ -29,6 +29,9 @@ export class PartialSequence extends Behavior {
         case BehaviorCode.Running:
           this.returnCode = BehaviorCode.Running;
           return this.returnCode;
+        default:
+          this.returnCode = BehaviorCode.Running;
+          return this.returnCode;
       }
     }
 
