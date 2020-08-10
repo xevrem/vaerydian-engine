@@ -40,7 +40,7 @@ export class EntityFactory {
     const renderable = new Renderable(
       starContainer,
       new PIXI.Point(4, 4),
-      new PIXI.Point(0.5, 0.5)
+      new PIXI.Point(2,2)
     );
     this.ecsInstance.addComponent(
       graphic,

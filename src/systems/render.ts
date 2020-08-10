@@ -42,7 +42,7 @@ export class RenderSystem extends EntitySystem {
       position.point.y - renderable.offset.y
     );
 
-    renderable.container.pivot.set(renderable.anchor.x, renderable.anchor.y);
+    renderable.container.pivot.set(renderable.pivot.x, renderable.pivot.y);
 
     renderable.container.angle = rotation
       ? rotation.amount

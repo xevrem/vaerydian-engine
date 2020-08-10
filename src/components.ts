@@ -1,8 +1,14 @@
 import { Component } from './ecsf';
 import { LayerType } from 'utils/constants';
 import { LineRange, QuadTree, Range} from 'utils/quadtree';
-// import { Point } from 'pixi.js';
-// import { Point, Graphics, Sprite, Container } from 'pixi.js';
+
+export class Animatable extends Component {
+  animation: object
+  constructor(animation?: object){
+    super();
+    this.animation = animation;
+  }
+}
 
 export class CameraData extends Component {
   view: PIXI.Container;
@@ -76,15 +82,15 @@ export class Rotation extends Component {
 }
 
 export class Renderable extends Component {
-  container: PIXI.Container;
+  container: PIXI.DisplayObject;
   offset: PIXI.Point;
-  anchor: PIXI.Point;
+  pivot: PIXI.Point;
 
-  constructor(container?: PIXI.Container, offset?: PIXI.Point, anchor?: PIXI.Point) {
+  constructor(container?: PIXI.DisplayObject, offset?: PIXI.Point, anchor?: PIXI.Point) {
     super();
     this.container = container;
     this.offset = offset;
-    this.anchor = anchor;
+    this.pivot = anchor;
   }
 }
 

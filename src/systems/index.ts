@@ -1,3 +1,4 @@
+export * from './animation';
 export * from './control';
 export * from './camera';
 export * from './layering';

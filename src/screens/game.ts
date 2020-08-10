@@ -13,10 +13,12 @@ import {
   CameraData,
   Starfield,
   Heading,
+  Animatable,
 } from '../components';
 import { EcsInstance, EntitySystem } from '../ecsf';
 import { EntityFactory, PlayerFactory } from '../factories';
 import {
+  AnimationSystem,
   MovementSystem,
   ControlSystem,
   GraphicsRenderSystem,
@@ -77,6 +79,7 @@ export class GameScreen extends Screen {
   stats: Stats;
   lastTime = 0;
 
+  animationSystem: EntitySystem;
   cameraSystem: EntitySystem;
   controlSystem: EntitySystem;
   layeringSystem: EntitySystem;
@@ -153,6 +156,11 @@ export class GameScreen extends Screen {
       new StarfieldSystem(this.app),
       new Position(),
       new Starfield()
+    );
+
+    this.animationSystem = this.ecsInstance.systemManager.setSystem(
+      new AnimationSystem(),
+      new Animatable()
     );
 
     this.ecsInstance.componentManager.registerComponent(new Controllable());
