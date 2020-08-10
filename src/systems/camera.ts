@@ -1,7 +1,5 @@
 import { Entity, EntitySystem, ComponentMapper } from '../ecsf';
 import { Position, Velocity, CameraData } from '../components';
-// import { Application } from 'pixi.js';
-// import { Vector } from '../utils/vector';
 
 export class CameraSystem extends EntitySystem {
   cameraDataMap: ComponentMapper;
@@ -45,11 +43,10 @@ export class CameraSystem extends EntitySystem {
   process(cameraFocus: Entity, _delta: number) {
     const focusPosition = this.positionMap.get(cameraFocus) as Position;
     const cameraPosition = this.positionMap.get(this.camera) as Position;
-    cameraPosition.point.set(focusPosition.point.x, focusPosition.point.y)
-    // const deltaPosition = Vector.sub(focusPosition.point, cameraPosition.point);
+    cameraPosition.point.set(focusPosition.point.x, focusPosition.point.y);
 
     this.camera = this.ecsInstance.tagManager.getEntityByTag('camera');
     const cameraData = this.cameraDataMap.get(this.camera) as CameraData;
-    cameraData.view.pivot.set(focusPosition.point.x, focusPosition.point.y)
+    cameraData.view.pivot.set(focusPosition.point.x, focusPosition.point.y);
   }
 }

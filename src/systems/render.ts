@@ -1,11 +1,12 @@
-import { ComponentMapper, Entity, EntitySystem } from '../ecsf';
-import { GraphicsRender, Position } from '../components';
+import { EntitySystem, ComponentMapper, Entity } from '../ecsf';
+import { Renderable, Position, Rotation } from '../components';
 
-export class GraphicsRenderSystem extends EntitySystem {
+export class RenderSystem extends EntitySystem {
   app: PIXI.Application;
-  graphicsContainer: PIXI.Container;
-  renderMap: ComponentMapper;
-  positionMap: ComponentMapper;
+  spriteContainer: PIXI.Container;
+  renderMapper: ComponentMapper;
+  positionMapper: ComponentMapper;
+  rotationMapper: ComponentMapper;
 
   constructor(app: PIXI.Application) {
     super();
@@ -13,26 +14,38 @@ export class GraphicsRenderSystem extends EntitySystem {
   }
 
   initialize() {
-    console.log('render system initializing...');
-    this.renderMap = new ComponentMapper(
-      new GraphicsRender(),
-      this.ecsInstance
-    );
-    this.positionMap = new ComponentMapper(new Position(), this.ecsInstance);
-    this.graphicsContainer = new PIXI.Container();
-    this.app.stage.addChild(this.graphicsContainer);
+    console.log('sprite system initializing...');
+    this.renderMapper = new ComponentMapper(new Renderable(), this.ecsInstance);
+    this.positionMapper = new ComponentMapper(new Position(), this.ecsInstance);
+    this.rotationMapper = new ComponentMapper(new Rotation(), this.ecsInstance);
+    this.spriteContainer = new PIXI.Container();
+    this.app.stage.addChild(this.spriteContainer);
   }
 
   added(entity: Entity) {
-    this.graphicsContainer.addChild(
-      (<GraphicsRender>this.renderMap.get(entity)).graphics
-    );
+    const spriteRender = this.renderMapper.get(entity) as Renderable;
+    this.spriteContainer.addChild(spriteRender.container);
+  }
+
+  removed(entity: Entity) {
+    const spriteRender = this.renderMapper.get(entity) as Renderable;
+    this.spriteContainer.removeChild(spriteRender.container);
   }
 
   process(entity: Entity) {
-    const render = this.renderMap.get(entity) as GraphicsRender;
-    const position = this.positionMap.get(entity) as Position;
+    const renderable = this.renderMapper.get(entity) as Renderable;
+    const position = this.positionMapper.get(entity) as Position;
+    const rotation = this.rotationMapper.get(entity) as Rotation;
 
-    render.graphics.position.set(position.point.x, position.point.y);
+    renderable.container.position.set(
+      position.point.x - renderable.offset.x,
+      position.point.y - renderable.offset.y
+    );
+
+    renderable.container.pivot.set(renderable.anchor.x, renderable.anchor.y);
+
+    renderable.container.angle = rotation
+      ? rotation.amount
+      : renderable.container.angle;
   }
 }

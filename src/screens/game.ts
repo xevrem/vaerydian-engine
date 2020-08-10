@@ -6,12 +6,13 @@ import {
   Position,
   GraphicsRender,
   Velocity,
-  SpriteRender,
+  Renderable,
   Controllable,
   Rotation,
   CameraFocus,
   CameraData,
   Starfield,
+  Heading,
 } from '../components';
 import { EcsInstance, EntitySystem } from '../ecsf';
 import { EntityFactory, PlayerFactory } from '../factories';
@@ -22,8 +23,8 @@ import {
   CameraSystem,
   LayeringSystem,
   StarfieldSystem,
+  RenderSystem,
 } from '../systems';
-import { SpriteRenderSystem } from '../systems/sprite';
 import { KeyboardManager } from '../utils/keyboard';
 
 import playerShip from 'url:../assets/player/ship.png';
@@ -81,7 +82,7 @@ export class GameScreen extends Screen {
   layeringSystem: EntitySystem;
   movementSystem: EntitySystem;
   graphicsRenderSystem: EntitySystem;
-  spriteRenderSystem: EntitySystem;
+  renderSystem: EntitySystem;
   starfieldSystem: EntitySystem;
 
   entityFactory: EntityFactory;
@@ -141,9 +142,9 @@ export class GameScreen extends Screen {
       new Velocity()
     );
 
-    this.spriteRenderSystem = this.ecsInstance.systemManager.setSystem(
-      new SpriteRenderSystem(this.app),
-      new SpriteRender(),
+    this.renderSystem = this.ecsInstance.systemManager.setSystem(
+      new RenderSystem(this.app),
+      new Renderable(),
       new Position(),
       new Rotation()
     );
@@ -156,6 +157,7 @@ export class GameScreen extends Screen {
 
     this.ecsInstance.componentManager.registerComponent(new Controllable());
     this.ecsInstance.componentManager.registerComponent(new CameraData());
+    this.ecsInstance.componentManager.registerComponent(new Heading());
 
     this.ecsInstance.systemManager.initializeSystems();
 
@@ -206,7 +208,7 @@ export class GameScreen extends Screen {
   }
 
   draw(): void {
-    this.spriteRenderSystem.processAll();
+    this.renderSystem.processAll();
     this.graphicsRenderSystem.processAll();
 
     // render scene according to camera position

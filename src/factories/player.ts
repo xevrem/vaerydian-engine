@@ -3,7 +3,7 @@ import {
   CameraFocus,
   Position,
   Velocity,
-  SpriteRender,
+  Renderable,
   Controllable,
   Rotation,
   Layer,
@@ -31,12 +31,15 @@ export class PlayerFactory {
       new Velocity(new PIXI.Point(0, -1), 300)
     );
     this.ecsInstance.addComponent(player, new Rotation(0, 200));
+    const playerContainer = new PIXI.Container();
+    const shipSprite = new PIXI.Sprite(resources['playerShip'].texture);
+    playerContainer.addChild(shipSprite);
     this.ecsInstance.addComponent(
       player,
-      new SpriteRender(
-        new PIXI.Sprite(resources['playerShip'].texture),
-        new PIXI.Point(8, 8),
-        new PIXI.Point(0.5, 0.5)
+      new Renderable(
+        playerContainer,
+        new PIXI.Point(0, 0),
+        new PIXI.Point(12, 12)
       )
     );
     this.ecsInstance.addComponent(player, new Layer(LayerType.player));

@@ -1,5 +1,5 @@
 import { EntitySystem, Entity, ComponentMapper } from "../ecsf";
-import { Layer, SpriteRender, GraphicsRender } from "../components";
+import { Layer, Renderable, GraphicsRender } from "../components";
 import { LayerType } from "../utils/constants";
 
 
@@ -8,7 +8,7 @@ export class LayeringSystem extends EntitySystem {
   graphicsMapper: ComponentMapper;
   layerMapper: ComponentMapper;
   playerGroup: PIXI.display.Group;
-  spriteMapper: ComponentMapper;
+  renderMapper: ComponentMapper;
   starfieldGroup: PIXI.display.Group;
 
   constructor(app: PIXI.Application){
@@ -18,7 +18,7 @@ export class LayeringSystem extends EntitySystem {
 
   initialize(){
     this.layerMapper = new ComponentMapper(new Layer(), this.ecsInstance);
-    this.spriteMapper = new ComponentMapper(new SpriteRender(), this.ecsInstance);
+    this.renderMapper = new ComponentMapper(new Renderable(), this.ecsInstance);
     this.graphicsMapper = new ComponentMapper(new GraphicsRender(), this.ecsInstance);
     this.playerGroup = new PIXI.display.Group(LayerType.player, false);
     this.starfieldGroup = new PIXI.display.Group(LayerType.starfield, false);
@@ -27,8 +27,8 @@ export class LayeringSystem extends EntitySystem {
   }
 
   getDisplayObject(entity: Entity): PIXI.DisplayObject {
-    const sprite = this.spriteMapper.get(entity) as SpriteRender;
-    if(sprite) return sprite.sprite;
+    const renderable = this.renderMapper.get(entity) as Renderable;
+    if(renderable) return renderable.container;
 
     const graphics = this.graphicsMapper.get(entity) as GraphicsRender;
     if(graphics) return graphics.graphics;

@@ -6,11 +6,13 @@ import { Point } from 'pixi.js';
 import { Vector } from '../utils/vector';
 
 export class ControlSystem extends EntitySystem {
+  headingMap: ComponentMapper;
   rotationMap: ComponentMapper;
   velocityMap: ComponentMapper;
 
   initialize() {
     console.log('control system initializing...');
+    this.headingMap = new ComponentMapper(new Heading(), this.ecsInstance);
     this.rotationMap = new ComponentMapper(new Rotation(), this.ecsInstance);
     this.velocityMap = new ComponentMapper(new Velocity(), this.ecsInstance);
   }
@@ -18,6 +20,7 @@ export class ControlSystem extends EntitySystem {
   process(entity: Entity, delta: number) {
     const rotation = this.rotationMap.get(entity) as Rotation;
     const velocity = this.velocityMap.get(entity) as Velocity;
+    const heading = this.headingMap.get(entity) as Heading;
 
     // by default we point straight up
     let amount = 0;

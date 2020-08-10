@@ -6,7 +6,7 @@ import {
   CameraData,
   Layer,
   Starfield,
-  SpriteRender,
+  Renderable,
   Rotation,
 } from '../components';
 import { LayerType, STARS } from '../utils/constants';
@@ -33,14 +33,19 @@ export class EntityFactory {
           )
     );
     this.ecsInstance.addComponent(graphic, position);
-    const spriteName = STARS[
-      Math.floor(Math.random()*STARS.length)];
-    const renderable = new SpriteRender(
-        new PIXI.Sprite(resources[spriteName].texture),
-        new PIXI.Point(4, 4),
-        new PIXI.Point(0.5, 0.5)
+    const spriteName = STARS[Math.floor(Math.random() * STARS.length)];
+    const starContainer = new PIXI.Container();
+    const starSprite = new PIXI.Sprite(resources[spriteName].texture);
+    starContainer.addChild(starSprite);
+    const renderable = new Renderable(
+      starContainer,
+      new PIXI.Point(4, 4),
+      new PIXI.Point(0.5, 0.5)
     );
-    this.ecsInstance.addComponent(graphic, new Rotation(Math.random()*180, 0));
+    this.ecsInstance.addComponent(
+      graphic,
+      new Rotation(Math.random() * 180, 0)
+    );
     this.ecsInstance.addComponent(graphic, renderable);
     this.ecsInstance.addComponent(graphic, new Layer(LayerType.starfield));
     this.ecsInstance.addComponent(graphic, new Starfield());
@@ -64,7 +69,7 @@ export class EntityFactory {
     const cameraContainer = new PIXI.Container();
     cameraContainer.pivot.set(window.innerWidth / 2, window.innerHeight / 2);
     cameraContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
-    cameraContainer.scale.set(1280/640, 720/360);
+    cameraContainer.scale.set(1280 / 640, 720 / 360);
     const cameraData = new CameraData(cameraContainer);
     this.ecsInstance.addComponent(camera, cameraData);
 

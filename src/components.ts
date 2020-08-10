@@ -32,6 +32,14 @@ export class GraphicsRender extends Component {
   }
 }
 
+export class Heading extends Component {
+  vector: PIXI.Point;
+  constructor(vector?: PIXI.Point){
+    super();
+    this.vector = vector;
+  }
+}
+
 export class Layer extends Component {
   layer: LayerType;
   constructor(layer?: LayerType) {
@@ -67,14 +75,14 @@ export class Rotation extends Component {
   }
 }
 
-export class SpriteRender extends Component {
-  sprite: PIXI.Sprite;
+export class Renderable extends Component {
+  container: PIXI.Container;
   offset: PIXI.Point;
   anchor: PIXI.Point;
 
-  constructor(sprite?: PIXI.Sprite, offset?: PIXI.Point, anchor?: PIXI.Point) {
+  constructor(container?: PIXI.Container, offset?: PIXI.Point, anchor?: PIXI.Point) {
     super();
-    this.sprite = sprite;
+    this.container = container;
     this.offset = offset;
     this.anchor = anchor;
   }

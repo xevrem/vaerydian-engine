@@ -1,7 +1,7 @@
 import Stats from 'stats.js';
 import { ScreenManager, GameScreen } from './screens';
 
-const FRAME_TARGET_FPS = 60.0;
+const FRAME_TARGET_FPS = 30.0;
 const FRAME_TARGET_MS: number = 1000.0 / FRAME_TARGET_FPS;
 
 export class Engine {
@@ -24,8 +24,8 @@ export class Engine {
 
   startLoop(): void {
     console.log('engine running...');
-    // this.timeoutLoop();
-    window.requestAnimationFrame(this.runLoop);
+    this.timeoutLoop();
+    // window.requestAnimationFrame(this.runLoop);
   }
 
   runLoop = (time: number): void => {
