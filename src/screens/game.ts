@@ -201,7 +201,7 @@ export class GameScreen extends Screen {
     this.ecsInstance.systemManager.systemsLoadContent();
   }
 
-  unload(): void {}
+  unload(): void { }
 
   update(delta: number): void {
     this.ecsInstance.updateByDelta(delta);

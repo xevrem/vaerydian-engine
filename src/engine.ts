@@ -24,8 +24,8 @@ export class Engine {
 
   startLoop(): void {
     console.log('engine running...');
-    this.timeoutLoop();
-    // window.requestAnimationFrame(this.runLoop);
+    // this.timeoutLoop();
+    window.requestAnimationFrame(this.runLoop);
   }
 
   runLoop = (time: number): void => {

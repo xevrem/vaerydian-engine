@@ -1,5 +1,6 @@
 import { EntitySystem, Entity, ComponentMapper } from '../ecsf';
 import { Position, Velocity } from '../components';
+
 import { Vector } from '../utils/vector';
 
 export class StarfieldSystem extends EntitySystem {
@@ -18,7 +19,7 @@ export class StarfieldSystem extends EntitySystem {
     console.log('starfield system initializing...');
     this.positionMap = new ComponentMapper(new Position(), this.ecsInstance);
     this.velocityMap = new ComponentMapper(new Velocity(), this.ecsInstance);
-    this.distance = window.innerWidth/ 1.14;
+    this.distance = window.innerWidth / 1.14;
   }
 
   preLoadContent(): void {
@@ -35,8 +36,11 @@ export class StarfieldSystem extends EntitySystem {
       const projVec = Vector.normalize(
         Vector.rotateVectorDegrees(playerVel.vector, angle)
       );
-      const projPos = Vector.multScalar(projVec, this.distance - Math.random() * 200);
-      position.point = Vector.add(playerPos.point,projPos);
+      const projPos = Vector.multScalar(
+        projVec,
+        this.distance - Math.random() * 200
+      );
+      position.point = Vector.add(playerPos.point, projPos);
     }
   }
 }
