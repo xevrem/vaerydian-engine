@@ -179,7 +179,7 @@ export class GameScreen extends Screen {
     const resources: Partial<Record<
       string,
       LoaderResource
-    >> = await new Promise((res, _rej) => {
+    >> = await new Promise((res) => {
       this.app.loader.add(assets).load((_, resources) => {
         console.log('done loading...');
         res(resources);
