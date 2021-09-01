@@ -31,9 +31,9 @@ export class EntityFactory {
       location
         ? location
         : new Point(
-            (Math.random() * 2 - 1) * window.innerWidth,
-            (Math.random() * 2 - 1) * window.innerHeight
-          )
+          (Math.random() * 2 - 1) * window.innerWidth,
+          (Math.random() * 2 - 1) * window.innerHeight
+        )
     );
     this.ecsInstance.addComponent(graphic, position);
     const spriteName = STARS[Math.floor(Math.random() * STARS.length)];
