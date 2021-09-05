@@ -1,0 +1,31 @@
+{
+  "compilerOptions" : {
+    "target": "es2019",
+    "allowJs": true,
+    "sourceMap": true,
+    "removeComments": false,
+    "strict": false,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": false,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "baseUrl": "./src",
+    "paths": {
+      "~*": ["./*"]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "./src/**/*.test.ts"
+  ],
+  "parcelTsPluginOptions": {
+    "transpileOnly": false
+  }
+}

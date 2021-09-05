@@ -1,0 +1,219 @@
+#+title: Game Notes
+* Concept
+** Genre 
+   Top-down Space Simulation
+** Overview
+   Player is a captain of a spaceship and adventures throughout the galaxy. The 
+   game will perform a deep simulation of the player, their ship, their crew, 
+   and the galaxy. The game will have a procedurally generated universe, planets,
+   factions, enemies, items, etc. Enemies and NPCs will be given directed AI 
+   with behavior trees to allow them to behave intelligently and set their own 
+   goals based on their needs, desires, and game state. Everything should be 
+   craftable. Stories / plot should emerge through gameplay. 
+** Gameplay Loops
+*** Pimary Loop
+    travel between locations (systems, planets, asteroids, etc.) and defeat 
+    enemy ships, gain loot, find crew, become more powerful. 
+*** Secondary Loop 
+    Get tips on locations from space stations. crew and equipment improve your ship, repair damage, spot
+    enemies and spot/hear about interesting things, help find tips, etc.
+*** Tertiary Loop
+    crafting and exploration
+* Use Cases
+** Player
+*** Player can adventure throughout the galaxy
+*** Player can customize ship
+** Game
+*** sdads
+** Director
+*** askdasd
+* [2/25] Features & Architecture
+** DONE Movement
+   CLOSED: [2020-06-13 Sat 13:00]
+*** DONE Components
+    CLOSED: [2020-06-15 Mon 15:55]
+**** DONE Position
+    CLOSED: [2020-06-13 Sat 13:29]
+**** DONE Velocity
+    CLOSED: [2020-06-13 Sat 13:29]
+*** DONE Systems
+    CLOSED: [2020-06-15 Mon 15:55]
+**** Movement System
+** DONE Sprites 
+    CLOSED: [2020-06-13 Sat 13:00]
+*** DONE Components
+    CLOSED: [2020-06-15 Mon 15:54]
+**** DONE Position
+    CLOSED: [2020-06-13 Sat 13:29]
+**** DONE Sprite
+    CLOSED: [2020-06-13 Sat 13:29]
+*** DONE Systems
+    CLOSED: [2020-06-15 Mon 15:54]
+**** DONE Sprite Renderer
+     CLOSED: [2020-06-15 Mon 15:54]
+** TODO Input
+** TODO Spatial Queries
+** TODO Collisions
+** TODO Pathing
+** DOING [2/3] Camera
+*** DOING [1/2] Features
+**** DONE Follow CameraFocus
+     CLOSED: [2020-06-27 Sat 09:00]
+**** TODO Follow CameraFocus within circular range
+*** DONE [3/3] Components
+    CLOSED: [2020-06-27 Sat 09:01]
+**** DONE Position
+    CLOSED: [2020-06-13 Sat 13:29]
+**** DONE Velocity
+    CLOSED: [2020-06-13 Sat 13:29]
+**** DONE CameraFocus
+     CLOSED: [2020-06-27 Sat 08:59]
+*** DONE [1/1] Systems 
+    CLOSED: [2020-06-27 Sat 08:59]
+**** DONE CameraSystem
+     CLOSED: [2020-06-27 Sat 08:59]
+** TODO Abilities
+** TODO Progression
+** TODO Crafting
+** TODO [0/2] Combat
+*** TODO [0/5] Components
+**** TODO Health
+**** TODO Damage
+**** TODO Faction
+**** TODO Target
+**** TODO Aggression
+*** TODO [0/1] Systems
+**** TODO Combat System
+** TODO [0/1] Victories
+*** TODO [0/1] Components
+**** TODO Award
+** TODO Characters
+** DOING [0/4] Player
+*** DOING [0/9] Features
+**** DOING ship features
+***** DONE is controllable
+      CLOSED: [2020-06-27 Sat 09:03]
+***** DONE camera follows
+      CLOSED: [2020-06-27 Sat 09:03]
+***** DONE can shoot weapons
+***** DONE can respawn
+***** TODO can have items
+***** TODO can be upgraded
+***** TODO pick up debris items 
+***** TODO warp
+**** TODO captain features
+***** TODO can level up
+***** TODO can pick up items
+***** TODO shop 
+***** TODO equip items
+*** DOING Components
+**** DONE Controllable
+     CLOSED: [2020-06-27 Sat 09:02]
+**** DONE Sprite
+     CLOSED: [2020-06-15 Mon 16:00]
+**** DONE Position
+     CLOSED: [2020-06-15 Mon 16:00]
+**** DONE Velocity
+     CLOSED: [2020-06-15 Mon 16:00]
+
+**** TODO Equipment
+**** DONE Rotation
+     CLOSED: [2020-06-24 Wed 21:23]
+**** DONE CameraFocus
+     CLOSED: [2020-06-27 Sat 09:04]
+*** TODO Assets
+**** TODO [0/2] Player graphics
+***** TODO ship
+***** TODO explosion / death
+*** TODO Systems
+**** DONE PlayerInput
+     CLOSED: [2020-07-03 Fri 11:07]
+     we have rotation and thrust... progress???
+** TODO Crew
+** TODO [0/3] Enemies
+*** TODO [4/4] Features
+**** DONE fly
+     CLOSED: [2020-07-03 Fri 11:03]
+**** DONE shoot
+**** DONE can die
+**** DONE can respawn
+     CLOSED: [2020-07-03 Fri 12:35]
+*** TODO [/] Components
+*** TODO [/] Systems
+** TODO [0/6] Items
+**** TODO Weapons
+**** TODO Armor
+**** TODO Throwables
+**** TODO Consumables
+**** TODO Quest
+**** TODO Traps
+** DOING [2/6] Screens
+*** DONE Screen Manager
+    CLOSED: [2020-06-13 Sat 13:11]
+*** DONE Screen
+    CLOSED: [2020-06-13 Sat 13:11]
+*** DOING Game Screen
+*** TODO Loading Sreen 
+*** TODO Start Screen
+*** TODO Menu Screen
+** DOING [0/3] AI
+*** TODO Components
+**** TODO Behavior
+**** TODO Goal
+*** DOING Behavior Trees
+*** TODO Systems
+**** TODO Goals & Inference
+** TODO User Interface
+** TODO SpriteSheets
+** TODO Animations
+** TODO Sound
+** TODO [0/4] Game World / Maps
+*** DOING [1/2] Features
+**** DONE Initial basic world
+     - can spawn player
+     - can spawn enemies
+     - can spawn starfield 
+**** TODO More complex world
+***** TODO destinations
+****** TODO locations
+******* TODO space stations
+******* TODO ship internals
+****** TODO solar & planetary bodies 
+******* TODO planets
+******* TODO moons
+******* TODO asteroids
+******* TODO comets
+***** TODO varied enemies
+*** TODO Components
+**** Map
+**** Tile
+**** Features
+**** Effects?
+*** TODO Generation
+**** TODO Cave
+**** TODO Dungeon
+**** TODO Forest
+**** TODO Overworld
+*** TODO Transitions
+** DOING Starfield
+*** DOING [0/1] Features
+**** TODO fix respawn of player and crowded stars                       :BUG:
+
+*** DONE Components
+**** DONE Position
+**** DONE GraphicsRender
+**** DONE Starfield
+*** DONE Systems
+**** DONE StarfieldSystem
+     should take the current viewport and the starfield 'pips' and then poisiton 
+     them for the graphics renderer
+** TODO [3/19] unattached Components
+*** TODO Spatial
+*** TODO Skill
+*** TODO Knowledge
+*** TODO Light
+*** TODO Path
+*** TODO Material
+what things are made of and how that reflects its properties
+*** TODO Status Effect
+    

@@ -4,4 +4,5 @@
 /*.js
 /test/unit/coverage/
 /.cache/
+/.log/
 
