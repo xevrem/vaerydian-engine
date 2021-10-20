@@ -1,8 +1,8 @@
-import { Application, Point, LoaderResource } from 'pixi.js';
+import { Application, Point, LoaderResource, settings, SCALE_MODES } from 'pixi.js';
 import Stats from 'stats.js';
 import { Screen } from './screen';
 import {
-  Layer,
+  Layers,
   Position,
   GraphicsRender,
   Velocity,
@@ -37,6 +37,7 @@ import star4 from 'url:../assets/stars/star4.png';
 import star5 from 'url:../assets/stars/star5.png';
 import star6 from 'url:../assets/stars/star6.png';
 import star7 from 'url:../assets/stars/star7.png';
+import { Stage } from '@pixi/layers';
 
 const assets = [
   {
@@ -104,9 +105,9 @@ export class GameScreen extends Screen {
     });
 
     // Scale mode for all textures, will retain pixelation
-    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+    settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
-    this.app.stage = new PIXI.display.Stage();
+    this.app.stage = new Stage();
 
     this.app.ticker.autoStart = false;
     this.app.ticker.stop();
@@ -136,7 +137,7 @@ export class GameScreen extends Screen {
 
     this.layeringSystem = this.ecsInstance.systemManager.setSystem(
       new LayeringSystem(this.app),
-      Layer
+      Layers
     );
 
     this.movementSystem = this.ecsInstance.systemManager.setSystem(

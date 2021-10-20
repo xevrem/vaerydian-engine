@@ -2,15 +2,16 @@ import { EntitySystem, Entity, ComponentMapper } from '../ecsf';
 import { Position, Velocity } from '../components';
 
 import { Vector } from '../utils/vector';
+import { Application } from 'pixi.js';
 
 export class StarfieldSystem extends EntitySystem {
-  app: PIXI.Application;
+  app: Application;
   player: Entity;
   positionMap: ComponentMapper;
   velocityMap: ComponentMapper;
   distance: number;
 
-  constructor(app: PIXI.Application) {
+  constructor(app: Application) {
     super();
     this.app = app;
   }

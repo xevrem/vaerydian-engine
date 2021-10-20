@@ -105,3 +105,12 @@ dist
 
 # ignore parcel junk
 .parcel-cache/
+
+# yarn 2+ stuff
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
