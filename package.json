@@ -19,7 +19,7 @@
     "@types/jest": "^27",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
-    "eslint": "latest",
+    "eslint": "^7",
     "jest": "^27",
     "parcel": "^2",
     "prettier": "^2.4.1",
