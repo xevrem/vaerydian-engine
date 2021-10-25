@@ -109,11 +109,9 @@ export class EcsInstance {
 
   *query<T extends typeof Component[]>(
     components: [...T]
-  ): IterableIterator<
-    {
-      [P in keyof T]: T[P] extends new (...args: any) => infer U ? U : never;
-    }
-  > {
+  ): IterableIterator<{
+    [P in keyof T]: T[P] extends new (...args: any) => infer U ? U : never;
+  }> {
     for (let i = this.entityManager.entities.length; i--; ) {
       const entity = this.entityManager.entities.get(i);
       if (!entity) continue;

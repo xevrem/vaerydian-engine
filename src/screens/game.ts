@@ -75,22 +75,22 @@ const assets = [
 ];
 
 export class GameScreen extends Screen {
-  ecsInstance: EcsInstance;
-  app: Application;
-  stats: Stats;
+  ecsInstance!: EcsInstance;
+  app!: Application;
+  stats!: Stats;
   lastTime = 0;
 
-  animationSystem: EntitySystem;
-  cameraSystem: EntitySystem;
-  controlSystem: EntitySystem;
-  layeringSystem: EntitySystem;
-  movementSystem: EntitySystem;
-  graphicsRenderSystem: EntitySystem;
-  renderSystem: EntitySystem;
-  starfieldSystem: EntitySystem;
+  animationSystem!: EntitySystem;
+  cameraSystem!: EntitySystem;
+  controlSystem!: EntitySystem;
+  layeringSystem!: EntitySystem;
+  movementSystem!: EntitySystem;
+  graphicsRenderSystem!: EntitySystem;
+  renderSystem!: EntitySystem;
+  starfieldSystem!: EntitySystem;
 
-  entityFactory: EntityFactory;
-  playerFactory: PlayerFactory;
+  entityFactory!: EntityFactory;
+  playerFactory!: PlayerFactory;
 
   initialize(): void {
     console.log('game screen initialize...');

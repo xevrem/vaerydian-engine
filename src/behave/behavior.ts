@@ -5,7 +5,7 @@ export enum BehaviorCode {
 }
 
 export abstract class Behavior {
-  protected returnCode: BehaviorCode;
+  protected returnCode!: BehaviorCode;
   public abstract behave(): BehaviorCode;
 }
 
