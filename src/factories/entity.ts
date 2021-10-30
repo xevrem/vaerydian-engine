@@ -9,10 +9,7 @@ import {
   Rotation,
 } from '../components';
 import { LayerType, STARS } from '../utils/constants';
-import { Point } from '@pixi/math';
-import { LoaderResource } from '@pixi/loaders';
-import { Container } from '@pixi/display';
-import { Sprite } from '@pixi/sprite';
+import { Container, LoaderResource, Point, Sprite } from 'pixi.js';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;

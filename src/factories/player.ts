@@ -1,21 +1,15 @@
-import { EcsInstance } from '../ecsf';
+import { Container, LoaderResource, Point, Sprite } from 'pixi.js';
 import {
   CameraFocus,
-  Position,
-  Velocity,
-  Renderable,
   Controllable,
-  Rotation,
   Layers,
+  Position,
+  Renderable,
+  Rotation,
+  Velocity,
 } from '../components';
+import { EcsInstance } from '../ecsf';
 import { LayerType } from '../utils/constants';
-import {
-  Point, 
-  LoaderResource,
-  Container,
-  Sprite
-} from 'pixi.js';
-
 
 export class PlayerFactory {
   ecsInstance: EcsInstance;
@@ -25,7 +19,7 @@ export class PlayerFactory {
   }
 
   createPlayer(
-    resources: Partial<Record<string,LoaderResource>>,
+    resources: Partial<Record<string, LoaderResource>>,
     location: Point
   ): void {
     const player = this.ecsInstance.create();
@@ -33,21 +27,14 @@ export class PlayerFactory {
     this.ecsInstance.tagManager.tagEntity('player', player);
 
     this.ecsInstance.addComponent(player, new Position(location));
-    this.ecsInstance.addComponent(
-      player,
-      new Velocity(new Point(0, -1), 300)
-    );
+    this.ecsInstance.addComponent(player, new Velocity(new Point(0, -1), 300));
     this.ecsInstance.addComponent(player, new Rotation(0, 200));
     const playerContainer = new Container();
     const shipSprite = new Sprite(resources?.['playerShip']?.texture);
     playerContainer.addChild(shipSprite);
     this.ecsInstance.addComponent(
       player,
-      new Renderable(
-        playerContainer,
-        new Point(0, 0),
-        new Point(12, 12)
-      )
+      new Renderable(playerContainer, new Point(0, 0), new Point(12, 12))
     );
     this.ecsInstance.addComponent(player, new Layers(LayerType.player));
     this.ecsInstance.addComponent(player, new Controllable());
