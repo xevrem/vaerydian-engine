@@ -37,7 +37,7 @@ export class PlayerFactory {
     );
     this.ecsInstance.addComponent(player, new Rotation(0, 200));
     const playerContainer = new Container();
-    const shipSprite = new Sprite(resources['playerShip'].texture);
+    const shipSprite = new Sprite(resources.['playerShip'].texture);
     playerContainer.addChild(shipSprite);
     this.ecsInstance.addComponent(
       player,

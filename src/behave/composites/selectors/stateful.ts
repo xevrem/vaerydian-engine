@@ -1,4 +1,4 @@
-import { Behavior, BehaviorCode } from "../../behavior";
+import { Behavior, BehaviorCode } from "behave/behavior";
 
 export class StatefulSelector extends Behavior {
   behaviors: Array<Behavior>;

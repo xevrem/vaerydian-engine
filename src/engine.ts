@@ -1,5 +1,5 @@
 import Stats from 'stats.js';
-import { ScreenManager, GameScreen } from './screens';
+import { ScreenManager, GameScreen } from 'screens';
 
 const FRAME_TARGET_FPS = 30.0;
 const FRAME_TARGET_MS: number = 1000.0 / FRAME_TARGET_FPS;

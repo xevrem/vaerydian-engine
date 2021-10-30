@@ -1,6 +1,6 @@
 import { Application, Point, LoaderResource, settings, SCALE_MODES } from 'pixi.js';
 import Stats from 'stats.js';
-import { Screen } from './screen';
+import { Screen } from 'screens/screen';
 import {
   Layers,
   Position,
@@ -14,9 +14,9 @@ import {
   Starfield,
   Heading,
   Animatable,
-} from '../components';
-import { EcsInstance, EntitySystem } from '../ecsf';
-import { EntityFactory, PlayerFactory } from '../factories';
+} from 'components';
+import { EcsInstance, EntitySystem } from 'ecsf';
+import { EntityFactory, PlayerFactory } from 'factories';
 import {
   AnimationSystem,
   MovementSystem,
@@ -26,8 +26,8 @@ import {
   LayeringSystem,
   StarfieldSystem,
   RenderSystem,
-} from '../systems';
-import { KeyboardManager } from '../utils/keyboard';
+} from 'systems';
+import { KeyboardManager } from 'utils/keyboard';
 
 import playerShip from 'url:../assets/player/ship.png';
 import star1 from 'url:../assets/stars/star1.png';

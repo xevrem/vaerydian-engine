@@ -107,6 +107,47 @@ export class EcsInstance {
     this.tagManager.cleanUp();
   }
 
+  *join<
+    T extends typeof Component[],
+    V extends typeof Component[],
+    W extends typeof Component[]
+  >(
+    entities: Entity[],
+    needed?: [...T],
+    optional?: [...V],
+    unwanted?: [...W]
+  ): Generator<{
+    needed: {
+      [P in keyof T]: T[P] extends new () => infer U ? U : never;
+    };
+    optional: {
+      [P in keyof V]: V[P] extends new () => infer U ? U : never;
+    };
+  }> {
+    for (let i = entities.length; i--; ) {
+      const id = entities[i].id;
+      let valid = true;
+      const result: { needed: any; optional: any } = {
+        needed: [],
+        optional: [],
+      };
+
+      if (unwanted) {
+        for (let j = unwanted.length; j--; ) {
+          //
+        }
+      }
+
+      if (needed) {
+      }
+
+      if(optional){}
+
+      if (valid) yield result;
+    }
+    return;
+  }
+
   *query<T extends typeof Component[]>(
     components: [...T]
   ): IterableIterator<{
