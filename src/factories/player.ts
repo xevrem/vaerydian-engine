@@ -9,10 +9,12 @@ import {
   Layers,
 } from '../components';
 import { LayerType } from '../utils/constants';
-import { Point } from '@pixi/math';
-import { LoaderResource } from '@pixi/loaders';
-import { Container } from '@pixi/display';
-import { Sprite } from '@pixi/sprite';
+import {
+  Point, 
+  LoaderResource,
+  Container,
+  Sprite
+} from 'pixi.js';
 
 
 export class PlayerFactory {
@@ -37,7 +39,7 @@ export class PlayerFactory {
     );
     this.ecsInstance.addComponent(player, new Rotation(0, 200));
     const playerContainer = new Container();
-    const shipSprite = new Sprite(resources.['playerShip'].texture);
+    const shipSprite = new Sprite(resources?.['playerShip']?.texture);
     playerContainer.addChild(shipSprite);
     this.ecsInstance.addComponent(
       player,

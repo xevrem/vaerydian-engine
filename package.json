@@ -1,32 +1,31 @@
 {
-  "name": "vaerydian-engine",
-  "version": "0.0.1",
-  "description": "a 2d action rpg engine in javascript and pixi",
-  "main": "index.js",
-  "repository": "git@github.com:xevrem/vaerydian-engine",
-  "author": "Erika V. Jonell",
-  "license": "MIT",
-  "scripts": {
-    "start": "parcel -p 3000 ./src/index.html",
-    "watch": "tsc --watch --noEmit"
-  },
-  "dependencies": {
-    "@pixi/layers": "^1.0.8",
-    "pixi.js": "^6",
-    "stats.js": "^0.17.0"
-  },
-  "devDependencies": {
-    "@types/jest": "^27",
-    "@typescript-eslint/eslint-plugin": "^4.30.0",
-    "@typescript-eslint/parser": "^4.30.0",
-    "eslint": "^7",
-    "jest": "^27",
-    "parcel": "^2",
-    "prettier": "^2.4.1",
-    "typescript": "^4.4.2"
-  },
-  "moduleRoots": [
-    "./src"
-  ],
-  "packageManager": "yarn@3.0.2"
+    "name": "vaerydian-engine",
+    "version": "0.0.1",
+    "description": "a 2d action rpg engine in javascript and pixi",
+    "source": "src/index.html",
+    "repository": "git@github.com:xevrem/vaerydian-engine",
+    "author": "Erika V. Jonell",
+    "license": "MIT",
+    "scripts": {
+        "start": "parcel -p 3000",
+        "build": "parcel build"
+    },
+    "dependencies": {
+        "@pixi/layers": "^1.0.8",
+        "pixi.js": "^6",
+        "stats.js": "^0.17.0"
+    },
+    "devDependencies": {
+        "@types/jest": "^27",
+        "@typescript-eslint/eslint-plugin": "^4.30.0",
+        "@typescript-eslint/parser": "^4.30.0",
+        "babel-plugin-module-resolver": "^4.1.0",
+        "eslint": "^7",
+        "jest": "^27",
+        "parcel": "^2",
+        "prettier": "^2.4.1",
+        "typescript": "^4.4.2"
+    },
+    "browserslist": "> 0.5%, last 2 versions, not dead",
+    "packageManager": "yarn@3.0.2"
 }

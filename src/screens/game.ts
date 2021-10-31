@@ -1,6 +1,6 @@
 import { Application, Point, LoaderResource, settings, SCALE_MODES } from 'pixi.js';
 import Stats from 'stats.js';
-import { Screen } from 'screens/screen';
+import { Screen } from '../screens/screen';
 import {
   Layers,
   Position,
@@ -14,9 +14,9 @@ import {
   Starfield,
   Heading,
   Animatable,
-} from 'components';
-import { EcsInstance, EntitySystem } from 'ecsf';
-import { EntityFactory, PlayerFactory } from 'factories';
+} from '../components';
+import { EcsInstance, EntitySystem } from '../ecsf';
+import { EntityFactory, PlayerFactory } from '../factories';
 import {
   AnimationSystem,
   MovementSystem,
@@ -26,8 +26,8 @@ import {
   LayeringSystem,
   StarfieldSystem,
   RenderSystem,
-} from 'systems';
-import { KeyboardManager } from 'utils/keyboard';
+} from '../systems';
+import { KeyboardManager } from '../utils/keyboard';
 
 import playerShip from 'url:../assets/player/ship.png';
 import star1 from 'url:../assets/stars/star1.png';
@@ -200,7 +200,9 @@ export class GameScreen extends Screen {
     this.ecsInstance.systemManager.systemsLoadContent();
   }
 
-  unload(): void {}
+  unload(): void {
+    //
+  }
 
   update(delta: number): void {
     this.ecsInstance.updateByDelta(delta);
@@ -208,8 +210,8 @@ export class GameScreen extends Screen {
 
     // this.movementSystem.processAll();
     for (const [position, velocity] of this.ecsInstance.query([Position, Velocity])) {
-      let dx = position.point.x + velocity.vector.x * delta;
-      let dy = position.point.y + velocity.vector.y * delta;
+      const dx = position.point.x + velocity.vector.x * delta;
+      const dy = position.point.y + velocity.vector.y * delta;
       position.point.set(dx, dy);
     }
     this.starfieldSystem.processAll();

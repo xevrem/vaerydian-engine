@@ -1,11 +1,10 @@
-import { Engine } from 'engine';
-
 import * as PIXI from 'pixi.js';
+import { Engine } from './engine';
 
 declare global {
   interface Window {
     engine: Engine;
-    PIXI: any;
+    PIXI: Record<string, unknown>;
   }
 }
 
