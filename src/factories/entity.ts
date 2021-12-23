@@ -35,7 +35,7 @@ export class EntityFactory {
     this.ecsInstance.addComponent(graphic, position);
     const spriteName = STARS[Math.floor(Math.random() * STARS.length)];
     const starContainer = new Container();
-    const starSprite = new Sprite(resources[spriteName].texture);
+    const starSprite = new Sprite(resources?.[spriteName]?.texture);
     starContainer.addChild(starSprite);
     const renderable = new Renderable(
       starContainer,
