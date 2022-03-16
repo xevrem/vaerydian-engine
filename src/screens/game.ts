@@ -1,4 +1,10 @@
-import { Application, Point, LoaderResource, settings, SCALE_MODES } from 'pixi.js';
+import {
+  Application,
+  Point,
+  LoaderResource,
+  settings,
+  SCALE_MODES,
+} from 'pixi.js';
 import Stats from 'stats.js';
 import { Screen } from '../screens/screen';
 import {
@@ -15,7 +21,7 @@ import {
   Heading,
   Animatable,
 } from '../components';
-import { EcsInstance, EntitySystem } from '../ecsf';
+import { EcsInstance, EntitySystem, Query } from '../ecsf';
 import { EntityFactory, PlayerFactory } from '../factories';
 import {
   AnimationSystem,
@@ -164,6 +170,14 @@ export class GameScreen extends Screen {
       Animatable
     );
 
+    // this.ecsInstance.systemManager.registerFunction(
+    //   () => {
+    //     // pos.point.x;
+    //     // vel.vector.x;
+    //     // entity.id;
+    //   },
+    // );
+
     this.ecsInstance.componentManager.registerComponent(Controllable);
     this.ecsInstance.componentManager.registerComponent(CameraData);
     this.ecsInstance.componentManager.registerComponent(Heading);
@@ -209,7 +223,10 @@ export class GameScreen extends Screen {
     this.ecsInstance.resolveEntities();
 
     // this.movementSystem.processAll();
-    for (const [position, velocity] of this.ecsInstance.query([Position, Velocity])) {
+    for (const [position, velocity] of this.ecsInstance.query([
+      Position,
+      Velocity,
+    ])) {
       const dx = position.point.x + velocity.vector.x * delta;
       const dy = position.point.y + velocity.vector.y * delta;
       position.point.set(dx, dy);
