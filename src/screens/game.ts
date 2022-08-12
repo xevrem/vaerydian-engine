@@ -224,6 +224,10 @@ export class GameScreen extends Screen {
     //
   }
 
+  /**
+   * @param {number} delta - data
+   * @return {void}
+   */
   update(delta: number): void {
     this.ecs.updateByDelta(delta);
     this.ecs.resolveEntities();
