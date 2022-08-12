@@ -6,10 +6,10 @@ import { Application } from 'pixi.js';
 
 export class StarfieldSystem extends EntitySystem {
   app: Application;
-  player: Entity;
-  positionMap: ComponentMapper;
-  velocityMap: ComponentMapper;
-  distance: number;
+  player!: Entity;
+  positionMap!: ComponentMapper;
+  velocityMap!: ComponentMapper;
+  distance!: number;
 
   constructor(app: Application) {
     super();

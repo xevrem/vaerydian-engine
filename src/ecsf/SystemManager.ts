@@ -1,7 +1,27 @@
-import { EcsInstance } from "./EcsInstance";
-import { EntitySystem } from "./EntitySystem";
-import { Component } from "./Component";
-import { Entity } from "./Entity";
+import { EcsInstance } from './EcsInstance';
+import { EntitySystem } from './EntitySystem';
+import { Component } from './Component';
+import { Entity } from './Entity';
+import { Query } from './Query';
+
+// declare type Query<T extends typeof Component[]> = {
+//   needed: {
+//     [P in keyof T]: T[P] extends new (...args: any) => infer U ? U : never;
+//   };
+//   optional: {
+//     [P in keyof T]: T[P] extends new (...args: any) => infer U ? U : never;
+//   };
+// };
+declare type SystemFunc<T extends typeof Component[]> = (
+  ecs: EcsInstance,
+  entity: Entity,
+  result: Query<T>
+) => void;
+declare type SystemQuery<T extends typeof Component[]> = {
+  needed: [...T];
+  optional?: [...T];
+  unwanted?: [...T];
+};
 
 export class SystemManager {
   private __ecsInstance: EcsInstance;
@@ -16,7 +36,10 @@ export class SystemManager {
     return this.__systems;
   }
 
-  setSystem(system: EntitySystem, ...components: typeof Component[]): EntitySystem {
+  setSystem(
+    system: EntitySystem,
+    ...components: typeof Component[]
+  ): EntitySystem {
     components.forEach(component => {
       this.__ecsInstance.componentManager.registerComponent(component);
       system.componentTypes.push(component.type);
@@ -58,5 +81,12 @@ export class SystemManager {
   cleanUp(): void {
     this.__systems.forEach(system => system.cleanSystem());
     this.__systems = [];
+  }
+
+  registerFunction<T extends typeof Component[]>(
+    func: SystemFunc<T>,
+    query: Query<T>
+  ): void {
+    //
   }
 }

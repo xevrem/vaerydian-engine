@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-globalThis.PIXI = PIXI;
+window.PIXI = PIXI;
 
 window.addEventListener('load', async () => {
   console.log('load...');

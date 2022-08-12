@@ -21,9 +21,9 @@ export class CameraData extends Component {
   }
 }
 
-export class CameraFocus extends Component {}
+export class CameraFocus extends Component { }
 
-export class Controllable extends Component {}
+export class Controllable extends Component { }
 
 export class Position extends Component {
   point: Point;
@@ -72,7 +72,7 @@ export class QtSpatial extends Component {
   }
 }
 
-export class Qtree extends Component {}
+export class Qtree extends Component { }
 
 export class Rotation extends Component {
   amount: number;
@@ -97,7 +97,7 @@ export class Renderable extends Component {
   }
 }
 
-export class Starfield extends Component {}
+export class Starfield extends Component { }
 
 export class Velocity extends Component {
   vector: Point;
