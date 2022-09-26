@@ -34,23 +34,23 @@ export class ComponentManager {
     return this.__components;
   }
 
-  getComponent(entity: Entity, component: Component): Component {
-    return this.__components.get(component.type).get(entity.id);
+  getComponent(entity: Entity, component: Component): Component | undefined {
+    return this.__components.get(component.type)?.get(entity.id);
   }
 
   addComponent(entity: Entity, component: Component): void {
     component.owner = entity.id;
-    this.__components.get(component.type).set(entity.id, component);
+    this.__components.get(component.type)?.set(entity.id, component);
   }
 
   removeComponents(entity: Entity): void {
     for (let i = 0; i < this.__components.count; i++) {
-      this.__components.get(i).set(entity.id, undefined);
+      this.__components.get(i)?.set(entity.id, undefined);
     }
   }
 
   removeComponent(component: Component): void {
-    this.__components.get(component.type).set(component.owner, undefined);
+    this.__components.get(component.type)?.set(component.owner, undefined);
   }
 
   deleteEntity(entity: Entity): void {
@@ -59,8 +59,8 @@ export class ComponentManager {
 
   hasComponent(entity: Entity, type: number): boolean {
     if (type < this.__components.capacity) {
-      if (entity.id < this.__components.get(type).capacity) {
-        if (this.__components.get(type).get(entity.id) !== undefined) {
+      if (entity.id < this.__components.get(type)?.capacity) {
+        if (this.__components.get(type)?.get(entity.id) !== undefined) {
           return true;
         }
       }
@@ -71,7 +71,7 @@ export class ComponentManager {
   cleanUp(): void {
     for (let i = 0; i < this.__components.count; i++) {
       if (this.__components.get(i) !== undefined) {
-        this.__components.get(i).clear();
+        this.__components.get(i)?.clear();
       }
     }
   }

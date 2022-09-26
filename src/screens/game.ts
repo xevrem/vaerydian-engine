@@ -1,4 +1,10 @@
-import { Application, Point, LoaderResource, settings, SCALE_MODES } from 'pixi.js';
+import {
+  Application,
+  Point,
+  LoaderResource,
+  settings,
+  SCALE_MODES,
+} from 'pixi.js';
 import Stats from 'stats.js';
 import { Screen } from '../screens/screen';
 import {
@@ -15,7 +21,10 @@ import {
   Heading,
   Animatable,
 } from '../components';
-import { EcsInstance, EntitySystem } from '../ecsf';
+import {
+  EcsInstance,
+  EntitySystem,
+} from '../ecsf';
 import { EntityFactory, PlayerFactory } from '../factories';
 import {
   AnimationSystem,
@@ -75,7 +84,7 @@ const assets = [
 ];
 
 export class GameScreen extends Screen {
-  ecsInstance!: EcsInstance;
+  ecs!: EcsInstance;
   app!: Application;
   stats!: Stats;
   lastTime = 0;
@@ -114,64 +123,64 @@ export class GameScreen extends Screen {
 
     document.body.append(this.app.view);
 
-    this.ecsInstance = new EcsInstance();
+    this.ecs = new EcsInstance();
 
-    this.cameraSystem = this.ecsInstance.systemManager.setSystem(
+    this.cameraSystem = this.ecs.systemManager.setSystem(
       new CameraSystem(this.app),
       Position,
       CameraFocus
     );
 
-    this.controlSystem = this.ecsInstance.systemManager.setSystem(
+    this.controlSystem = this.ecs.systemManager.setSystem(
       new ControlSystem(),
       Controllable,
       Velocity,
       Rotation
     );
 
-    this.graphicsRenderSystem = this.ecsInstance.systemManager.setSystem(
+    this.graphicsRenderSystem = this.ecs.systemManager.setSystem(
       new GraphicsRenderSystem(this.app),
       GraphicsRender,
       Position
     );
 
-    this.layeringSystem = this.ecsInstance.systemManager.setSystem(
+    this.layeringSystem = this.ecs.systemManager.setSystem(
       new LayeringSystem(this.app),
       Layers
     );
 
-    this.movementSystem = this.ecsInstance.systemManager.setSystem(
+    this.movementSystem = this.ecs.systemManager.setSystem(
       new MovementSystem(),
       Position,
       Velocity
     );
 
-    this.renderSystem = this.ecsInstance.systemManager.setSystem(
+    this.renderSystem = this.ecs.systemManager.setSystem(
       new RenderSystem(this.app),
       Renderable,
       Position,
       Rotation
     );
 
-    this.starfieldSystem = this.ecsInstance.systemManager.setSystem(
+    this.starfieldSystem = this.ecs.systemManager.setSystem(
       new StarfieldSystem(this.app),
       Position,
       Starfield
     );
 
-    this.animationSystem = this.ecsInstance.systemManager.setSystem(
+    this.animationSystem = this.ecs.systemManager.setSystem(
       new AnimationSystem(),
       Animatable
     );
 
-    this.ecsInstance.componentManager.registerComponent(Controllable);
-    this.ecsInstance.componentManager.registerComponent(CameraData);
-    this.ecsInstance.componentManager.registerComponent(Heading);
+    this.ecs.componentManager.registerComponent(Controllable);
+    this.ecs.componentManager.registerComponent(CameraData);
+    this.ecs.componentManager.registerComponent(Heading);
 
-    this.ecsInstance.systemManager.initializeSystems();
+    this.ecs.systemManager.initializeSystems();
 
-    this.entityFactory = new EntityFactory(this.ecsInstance);
-    this.playerFactory = new PlayerFactory(this.ecsInstance);
+    this.entityFactory = new EntityFactory(this.ecs);
+    this.playerFactory = new PlayerFactory(this.ecs);
   }
 
   async load(): Promise<void> {
@@ -196,24 +205,34 @@ export class GameScreen extends Screen {
       .fill('')
       .forEach(() => this.entityFactory.createStar(resources));
 
-    this.ecsInstance.resolveEntities();
-    this.ecsInstance.systemManager.systemsLoadContent();
+    this.ecs.resolveEntities();
+    this.ecs.systemManager.systemsLoadContent();
+
+    this.ecs.withSystem(
+      (query, ecs) => {
+        for (const [position , velocity] of query.join()) {
+          const dx = position.point.x + velocity.vector.x * ecs.delta;
+          const dy = position.point.y + velocity.vector.y * ecs.delta;
+          position.point.set(dx, dy);
+        }
+      },
+      [Position, Velocity]
+    );
   }
 
   unload(): void {
     //
   }
 
+  /**
+   * @param {number} delta - data
+   * @return {void}
+   */
   update(delta: number): void {
-    this.ecsInstance.updateByDelta(delta);
-    this.ecsInstance.resolveEntities();
+    this.ecs.updateByDelta(delta);
+    this.ecs.resolveEntities();
 
-    // this.movementSystem.processAll();
-    for (const [position, velocity] of this.ecsInstance.query([Position, Velocity])) {
-      const dx = position.point.x + velocity.vector.x * delta;
-      const dy = position.point.y + velocity.vector.y * delta;
-      position.point.set(dx, dy);
-    }
+    this.ecs.runQuerySystems();
     this.starfieldSystem.processAll();
   }
 

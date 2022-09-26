@@ -6,6 +6,13 @@ import { GroupManager } from './GroupManager';
 import { Entity } from './Entity';
 import { Component } from './Component';
 import { ComponentMapper } from './ComponentMapper';
+import {
+  ComponentTuple,
+  Query,
+  QueryFunc,
+  QueryResult,
+  VariadricQuery,
+} from '.';
 
 export class EcsInstance {
   entityManager: EntityManager;
@@ -107,67 +114,44 @@ export class EcsInstance {
     this.tagManager.cleanUp();
   }
 
-  *join<
-    T extends typeof Component[],
-    V extends typeof Component[],
-    W extends typeof Component[]
-  >(
-    entities: Entity[],
-    needed?: [...T],
-    optional?: [...V],
-    unwanted?: [...W]
-  ): Generator<{
-    needed: {
-      [P in keyof T]: T[P] extends new () => infer U ? U : never;
-    };
-    optional: {
-      [P in keyof V]: V[P] extends new () => infer U ? U : never;
-    };
-  }> {
-    for (let i = entities.length; i--; ) {
-      const id = entities[i].id;
-      let valid = true;
-      const result: { needed: any; optional: any } = {
-        needed: [],
-        optional: [],
-      };
-
-      if (unwanted) {
-        for (let j = unwanted.length; j--; ) {
-          //
-        }
-      }
-
-      if (needed) {
-      }
-
-      if(optional){}
-
-      if (valid) yield result;
-    }
-    return;
-  }
-
-  *query<T extends typeof Component[]>(
-    components: [...T]
-  ): IterableIterator<{
-    [P in keyof T]: T[P] extends new (...args: any) => infer U ? U : never;
-  }> {
+  *query<T extends ComponentTuple>(
+    needed: VariadricQuery<T>
+  ): IterableIterator<QueryResult<T>> {
     for (let i = this.entityManager.entities.length; i--; ) {
       const entity = this.entityManager.entities.get(i);
       if (!entity) continue;
       let valid = true;
       const result: any = [];
-      for (let j = 0; j < components.length; j++) {
-        const value = this.componentManager.components
-          .get(components[j].type)
-          .get(i);
-        valid = value && valid;
-        if (!valid) break;
-        result.push(value);
+      for (let j = 0; j < needed.length; j++) {
+        const components = this.componentManager.components.get(needed[j].type);
+        if (components) {
+          const component = components.get(i);
+          valid = !!component && valid;
+          if (!valid) break;
+          result.push(component);
+        }
       }
       if (valid) yield result;
     }
     return;
+  }
+
+  qSysTuple: [
+    func: (query: Query<any>, ecs: EcsInstance) => void,
+    data: VariadricQuery<ComponentTuple>
+  ][] = [];
+
+  withSystem<T extends ComponentTuple>(
+    queryFunc: QueryFunc<T>, 
+    data: [...T],
+  ): void {
+    this.qSysTuple.push([queryFunc, data]);
+  }
+
+  runQuerySystems(): void {
+    for (let i = 0; i < this.qSysTuple.length; i++) {
+      const [func, data] = this.qSysTuple[i];
+      func(new Query(this, data), this);
+    }
   }
 }
