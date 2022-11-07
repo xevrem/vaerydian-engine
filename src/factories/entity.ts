@@ -1,4 +1,4 @@
-import { EcsInstance } from '../ecsf';
+import { EcsInstance } from 'ecsf';
 import {
   Position,
   Velocity,
@@ -7,9 +7,10 @@ import {
   Starfield,
   Renderable,
   Rotation,
-} from '../components';
-import { LayerType, STARS } from '../utils/constants';
+} from 'components';
+import { LayerType, STARS } from 'utils/constants';
 import { Assets, Container, Point, Sprite, Texture } from 'pixi.js';
+import { Group } from '@pixi/layers';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -18,18 +19,16 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createStar(
-    location?: Point
-  ): void {
+  createStar(group: Group, location?: Point): void {
     const graphic = this.ecsInstance.create();
 
     const position = new Position(
       location
         ? location
         : new Point(
-          (Math.random() * 2 - 1) * window.innerWidth,
-          (Math.random() * 2 - 1) * window.innerHeight
-        )
+            (Math.random() * 2 - 1) * window.innerWidth,
+            (Math.random() * 2 - 1) * window.innerHeight
+          )
     );
     this.ecsInstance.addComponent(graphic, position);
     const spriteName = STARS[Math.floor(Math.random() * STARS.length)];
@@ -40,7 +39,7 @@ export class EntityFactory {
     const renderable = new Renderable(
       starContainer,
       new Point(4, 4),
-      new Point(2,2)
+      new Point(2, 2)
     );
     this.ecsInstance.addComponent(
       graphic,

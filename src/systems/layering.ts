@@ -24,8 +24,8 @@ export class LayeringSystem extends EntitySystem {
       new GraphicsRender(),
       this.ecsInstance
     );
-    this.playerGroup = new Group(LayerType.player, false);
-    this.starfieldGroup = new Group(LayerType.starfield, false);
+    this.playerGroup = new Group(LayerType.player, true);
+    this.starfieldGroup = new Group(LayerType.starfield, true);
     this.app.stage.addChild(new Layer(this.starfieldGroup));
     this.app.stage.addChild(new Layer(this.playerGroup));
   }

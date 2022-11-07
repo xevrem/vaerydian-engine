@@ -27,6 +27,7 @@ export class Engine {
       antialias: false,
       view: canvas,
     });
+    this.app.stage.sortableChildren = true;
   }
 
   async start(): Promise<void> {

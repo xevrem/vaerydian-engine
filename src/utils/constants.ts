@@ -7,8 +7,9 @@ export enum KeyType {
 }
 
 export enum LayerType {
-  player = 10,
+  sprites = 0,
   starfield = 5,
+  player = 10,
 }
 
 export const STARS = [

@@ -1,14 +1,17 @@
-import { EntitySystem, ComponentMapper, Entity } from '../ecsf';
-import { Renderable, Position, Rotation } from '../components';
+import { EntitySystem, ComponentMapper, Entity } from 'ecsf';
+import { Renderable, Position, Rotation } from 'components';
+import { Application, Container } from 'pixi.js';
+import { Group, Layer } from '@pixi/layers';
+import { LayerType } from 'utils/constants';
 
 export class RenderSystem extends EntitySystem {
-  app: PIXI.Application;
-  spriteContainer: PIXI.Container;
-  renderMapper: ComponentMapper;
-  positionMapper: ComponentMapper;
-  rotationMapper: ComponentMapper;
+  app: Application;
+  spriteContainer!: Container;
+  renderMapper!: ComponentMapper;
+  positionMapper!: ComponentMapper;
+  rotationMapper!: ComponentMapper;
 
-  constructor(app: PIXI.Application) {
+  constructor(app: Application) {
     super();
     this.app = app;
   }
@@ -18,17 +21,20 @@ export class RenderSystem extends EntitySystem {
     this.renderMapper = new ComponentMapper(new Renderable(), this.ecsInstance);
     this.positionMapper = new ComponentMapper(new Position(), this.ecsInstance);
     this.rotationMapper = new ComponentMapper(new Rotation(), this.ecsInstance);
-    this.spriteContainer = new PIXI.Container();
+    // this.spriteContainer = new Container();
+    this.spriteContainer = new Layer(new Group(LayerType.sprites, true));
     this.app.stage.addChild(this.spriteContainer);
   }
 
   added(entity: Entity) {
     const spriteRender = this.renderMapper.get(entity) as Renderable;
+    // this.app.stage.addChild(spriteRender.container);
     this.spriteContainer.addChild(spriteRender.container);
   }
 
   removed(entity: Entity) {
     const spriteRender = this.renderMapper.get(entity) as Renderable;
+    // this.app.stage.removeChild(spriteRender.container);
     this.spriteContainer.removeChild(spriteRender.container);
   }
 
