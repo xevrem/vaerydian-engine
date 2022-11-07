@@ -1,12 +1,9 @@
 import {
-  Application,
-  Point,
-  LoaderResource,
-  settings,
-  SCALE_MODES,
+  Point, SCALE_MODES, settings, Texture,
 } from 'pixi.js';
+import {Assets} from '@pixi/assets';
 import Stats from 'stats.js';
-import { Screen } from '../screens/screen';
+import { Screen } from 'screens/screen';
 import {
   Layers,
   Position,
@@ -20,12 +17,12 @@ import {
   Starfield,
   Heading,
   Animatable,
-} from '../components';
+} from 'components';
 import {
   EcsInstance,
   EntitySystem,
-} from '../ecsf';
-import { EntityFactory, PlayerFactory } from '../factories';
+} from 'ecsf';
+import { EntityFactory, PlayerFactory } from 'factories';
 import {
   AnimationSystem,
   MovementSystem,
@@ -35,57 +32,57 @@ import {
   LayeringSystem,
   StarfieldSystem,
   RenderSystem,
-} from '../systems';
-import { KeyboardManager } from '../utils/keyboard';
+} from 'systems';
+import { KeyboardManager } from 'utils/keyboard';
 
-import playerShip from '../assets/player/ship.png';
-import star1 from '../assets/stars/star1.png';
-import star2 from '../assets/stars/star2.png';
-import star3 from '../assets/stars/star3.png';
-import star4 from '../assets/stars/star4.png';
-import star5 from '../assets/stars/star5.png';
-import star6 from '../assets/stars/star6.png';
-import star7 from '../assets/stars/star7.png';
-import { Stage } from '@pixi/layers';
+
+import playerShip from 'assets/player/ship.png';
+import star1 from 'assets/stars/star1.png';
+import star2 from 'assets/stars/star2.png';
+import star3 from 'assets/stars/star3.png';
+import star4 from 'assets/stars/star4.png';
+import star5 from 'assets/stars/star5.png';
+import star6 from 'assets/stars/star6.png';
+import star7 from 'assets/stars/star7.png';
 
 const assets = [
   {
-    url: playerShip,
+    src: playerShip,
     name: 'playerShip',
   },
   {
-    url: star1,
+    src: star1,
     name: 'star1',
   },
   {
-    url: star2,
+    src: star2,
     name: 'star2',
   },
   {
-    url: star3,
+    src: star3,
     name: 'star3',
   },
   {
-    url: star4,
+    src: star4,
     name: 'star4',
   },
   {
-    url: star5,
+    src: star5,
     name: 'star5',
   },
   {
-    url: star6,
+    src: star6,
     name: 'star6',
   },
   {
-    url: star7,
+    src: star7,
     name: 'star7',
   },
 ];
 
 export class GameScreen extends Screen {
   ecs!: EcsInstance;
-  app!: Application;
+  assets!: typeof Assets;
   stats!: Stats;
   lastTime = 0;
 
@@ -106,22 +103,13 @@ export class GameScreen extends Screen {
 
     KeyboardManager.init();
 
-    this.app = new Application({
-      width: window.innerWidth,
-      height: window.innerHeight,
-      backgroundColor: 0x000000,
-      antialias: false,
-    });
-
     // Scale mode for all textures, will retain pixelation
     settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
-    this.app.stage = new Stage();
+    // this.app.stage = new Stage();
+    // this.app.ticker.autoStart = false;
+    // this.app.ticker.stop();
 
-    this.app.ticker.autoStart = false;
-    this.app.ticker.stop();
-
-    document.body.append(this.app.view);
 
     this.ecs = new EcsInstance();
 
@@ -186,24 +174,21 @@ export class GameScreen extends Screen {
   async load(): Promise<void> {
     console.log('game screen loading...');
 
-    const resources: Partial<Record<string, LoaderResource>> =
-      await new Promise(res => {
-        this.app.loader.add(assets).load((_, resources) => {
-          console.log('done loading...');
-          res(resources);
-        });
-      });
+    const resources = await Promise.all(assets.map(asset => {
+      Assets.add(asset.name, asset.src);
+      return Assets.load<Texture>(asset.name);
+    }));
+    console.log({resources});
 
     this.entityFactory.createCamera();
 
     this.playerFactory.createPlayer(
-      resources,
       new Point(this.app.renderer.width / 2, this.app.renderer.height / 2)
     );
 
     Array(100)
       .fill('')
-      .forEach(() => this.entityFactory.createStar(resources));
+      .forEach(() => this.entityFactory.createStar());
 
     this.ecs.resolveEntities();
     this.ecs.systemManager.systemsLoadContent();

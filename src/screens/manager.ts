@@ -21,16 +21,22 @@ export class ScreenManager {
 
   update(delta: number): void {
     this._screens.forEach(screen => {
-      screen.screenState === ScreenState.Active && screen.update(delta);
+      screen &&
+        screen.screenState === ScreenState.Active &&
+        screen.update(delta);
     });
 
-    this._screens.slice(this._screens.count - 1).forEach(screen => screen.focusUpdate(delta));
+    this._screens
+      .slice(this._screens.count - 1)
+      .forEach(screen => screen && screen.focusUpdate(delta));
   }
 
   draw(delta: number): void {
     this._screens.forEach(
       screen =>
-        screen.screenState !== ScreenState.Inactive && screen.draw(delta)
+        screen &&
+        screen.screenState !== ScreenState.Inactive &&
+        screen.draw(delta)
     );
   }
 }

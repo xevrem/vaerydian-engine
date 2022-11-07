@@ -9,7 +9,7 @@ import {
   Rotation,
 } from '../components';
 import { LayerType, STARS } from '../utils/constants';
-import { Container, LoaderResource, Point, Sprite } from 'pixi.js';
+import { Assets, Container, Point, Sprite, Texture } from 'pixi.js';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -19,7 +19,6 @@ export class EntityFactory {
   }
 
   createStar(
-    resources: Partial<Record<string, LoaderResource>>,
     location?: Point
   ): void {
     const graphic = this.ecsInstance.create();
@@ -35,7 +34,8 @@ export class EntityFactory {
     this.ecsInstance.addComponent(graphic, position);
     const spriteName = STARS[Math.floor(Math.random() * STARS.length)];
     const starContainer = new Container();
-    const starSprite = new Sprite(resources?.[spriteName]?.texture);
+    const texture = Assets.cache.get<Texture>(spriteName);
+    const starSprite = new Sprite(texture);
     starContainer.addChild(starSprite);
     const renderable = new Renderable(
       starContainer,

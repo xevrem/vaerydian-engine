@@ -1,10 +1,12 @@
 import Stats from 'stats.js';
-import { GameScreen, ScreenManager } from '~/src/screens';
+import { Application } from 'pixi.js';
+import { GameScreen, ScreenManager } from 'screens';
 
 const FRAME_TARGET_FPS = 30.0;
 const FRAME_TARGET_MS: number = 1000.0 / FRAME_TARGET_FPS;
 
 export class Engine {
+  app: Application;
   lastTime = 0;
   screenManager: ScreenManager;
   stats: Stats;
@@ -14,10 +16,21 @@ export class Engine {
 
     this.stats = new Stats();
     document.body.append(this.stats.dom);
+
+    const canvas = document.createElement('canvas');
+    document.body.append(canvas);
+
+    this.app = new Application({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      backgroundColor: 0x000000,
+      antialias: false,
+      view: canvas,
+    });
   }
 
   async start(): Promise<void> {
-    await this.screenManager.addScreen(new GameScreen());
+    await this.screenManager.addScreen(new GameScreen(this.app));
 
     this.startLoop();
   }

@@ -1,3 +1,4 @@
+import { Application } from 'pixi.js';
 import { ScreenManager } from './manager';
 
 export enum ScreenState {
@@ -7,18 +8,20 @@ export enum ScreenState {
   Inactive,
 }
 
-export class Screen {
-  screenManger: ScreenManager;
+export abstract class Screen {
+  app: Application;
+  screenManger!: ScreenManager;
   screenState: ScreenState;
 
-  constructor() {
+  constructor(app: Application) {
+    this.app = app;
     this.screenState = ScreenState.Inactive;
   }
 
-  initialize(): void {}
-  async load(): Promise<any> {}
-  unload(): void {}
-  update(_delta: number): void {}
-  focusUpdate(_delta: number): void {}
-  draw(_delta: number): void {}
+  abstract initialize(): void;
+  abstract load(): Promise<any>;
+  abstract unload(): void;
+  abstract update(_delta: number): void;
+  abstract focusUpdate(_delta: number): void;
+  abstract draw(_delta: number): void;
 }
