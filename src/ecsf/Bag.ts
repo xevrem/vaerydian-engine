@@ -9,6 +9,23 @@ export class Bag<T> {
   }
 
   /**
+   * WARNING: experimental... still needs refinement
+   */
+  [Symbol.iterator]() {
+    let i = this._length - 1;
+    return {
+      next: () => ({
+        value: this._data[i],
+        done: !i--,
+      }),
+    };
+  }
+
+  iter() {
+    return this[Symbol.iterator];
+  }
+
+  /**
    * total number indicies the bag contains
    */
   get capacity(): number {
@@ -43,11 +60,32 @@ export class Bag<T> {
     return this._data;
   }
 
+  lastIndex(start: number): number {
+    for (let i = start; i--; ) {
+      if (this._data[i]) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   /**
-   * return the last modified index
+   * return the last populated item
    */
   get last(): T | undefined {
-    return this._data[this._length - 1];
+    return this._data[this.lastIndex(this._data.length)];
+  }
+
+  /**
+   * return the first item
+   */
+  get first(): T | undefined {
+    const size = this._data.length;
+    for (let i = 0; i < size; i++) {
+      const item = this.get(i);
+      if (item) return item;
+    }
+    return undefined;
   }
 
   /**
@@ -76,7 +114,7 @@ export class Bag<T> {
     args: (
       item: T | undefined,
       index: number,
-      array?: Array<T | undefined>
+      array: Array<T | undefined>
     ) => T | undefined,
     context?: Bag<T>
   ): Array<T | undefined> {
@@ -103,29 +141,39 @@ export class Bag<T> {
   /**
    * perform a functional `reduce` operation on this bag
    * @param args args the standard `reduce` arguments
-   * @param [context] the optional context to use
+   * @param init the optional context to use
    * @returns the results of the `reduce` operation
    */
-  reduce(
+  reduce<V>(
     args: (
-      acc: unknown,
+      acc: V,
       item: T | undefined,
       index: number,
       array: Array<T | undefined>
-    ) => unknown,
-    init: unknown
-  ): unknown {
+    ) => V,
+    init: V
+  ): V {
     return this._data.reduce(args, init);
   }
 
   /**
    * perform a functional `slice` operation on this bag
-   * @param args args the standard `slice` arguments
-   * @param [context] the optional context to use
+   * @param start the standard `slice` arguments
+   * @param end the optional context to use
    * @returns the results of the `slice` operation
    */
   slice(start?: number, end?: number): Array<T | undefined> {
     return this._data.slice(start, end);
+  }
+
+  some(
+    predicate: (
+      value: T | undefined,
+      index: number,
+      array: Array<T | undefined>
+    ) => boolean
+  ): boolean {
+    return this._data.some(predicate);
   }
 
   /**
@@ -149,9 +197,28 @@ export class Bag<T> {
     }
     if (index >= this._data.length) {
       this.grow(index * 2);
-    } else if (index >= this._length) {
-      this._length = index + 1;
     }
+    // IF we are setting a valid value larger than the current index
+    // THEN update our length
+    if (index >= this._length && value) {
+      this._length = index + 1;
+    } else if (
+      // IF we already are the furthest item
+      index === this._length - 1 &&
+      // AND we're unassignining it
+      !value
+    ) {
+      // THEN get the furthest index lower than ours
+      const last = this.lastIndex(index);
+      if (last === index) {
+        // throw an error if for whatever reason we get our index as the last
+        // even though we are "unset"-ing ourself
+        throw new Error('Last Index Invalid');
+      } else {
+        this._length = last + 1;
+      }
+    }
+
     if (!this._data[index] && value) this._count += 1;
     if (this._data[index] && !value) this._count -= 1;
     this._data[index] = value;
@@ -182,12 +249,32 @@ export class Bag<T> {
   }
 
   /**
+   * sets each defined item of the bag into this one
+   * @param bag - the bag to set with
+   */
+  setBag(bag: Bag<T>): void {
+    for (let i = bag.length; i--; ) {
+      const item = bag.get(i);
+      // only set the item if it exists
+      item && this.set(i, item);
+    }
+  }
+
+  /**
    * clears the contents of the bag
    */
   clear(): void {
     this._data = new Array(this._data.length);
     this._length = 0;
     this._count = 0;
+  }
+
+  /**
+   * checks if an element with the given id is populated
+   */
+  has(id: number): boolean {
+    if (id < 0 || id > this._length) return false;
+    return !!this._data[id];
   }
 
   /**
@@ -231,11 +318,8 @@ export class Bag<T> {
   removeAt(index: number): T | undefined {
     if (index < this._data.length && index >= 0) {
       const item = this._data[index];
-      if (item) this._count -= 1;
-      this._length--;
+      this.set(index, undefined);
       if (this._length < 0) this._length = 0;
-      this._data[index] = this._data[this._length];
-      this._data[this._length] = undefined;
       return item;
     } else {
       return undefined;
@@ -247,11 +331,10 @@ export class Bag<T> {
    * @returns the element if found or `undefined` if not
    */
   removeLast(): T | undefined {
-    this._length--;
+    const index = this._length - 1;
+    const item = this._data[index];
+    this.set(index, undefined);
     if (this._length < 0) this._length = 0;
-    const item = this._data[this._length];
-    if (item) this._count -= 1;
-    this._data[this._length] = undefined;
     return item;
   }
 

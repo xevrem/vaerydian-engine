@@ -38,14 +38,14 @@ import {
 } from '../systems';
 import { KeyboardManager } from '../utils/keyboard';
 
-import playerShip from 'url:../assets/player/ship.png';
-import star1 from 'url:../assets/stars/star1.png';
-import star2 from 'url:../assets/stars/star2.png';
-import star3 from 'url:../assets/stars/star3.png';
-import star4 from 'url:../assets/stars/star4.png';
-import star5 from 'url:../assets/stars/star5.png';
-import star6 from 'url:../assets/stars/star6.png';
-import star7 from 'url:../assets/stars/star7.png';
+import playerShip from '../assets/player/ship.png';
+import star1 from '../assets/stars/star1.png';
+import star2 from '../assets/stars/star2.png';
+import star3 from '../assets/stars/star3.png';
+import star4 from '../assets/stars/star4.png';
+import star5 from '../assets/stars/star5.png';
+import star6 from '../assets/stars/star6.png';
+import star7 from '../assets/stars/star7.png';
 import { Stage } from '@pixi/layers';
 
 const assets = [
