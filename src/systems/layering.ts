@@ -1,20 +1,20 @@
 import { EntitySystem, Entity, ComponentMapper } from 'ecsf';
 import { Layers, Renderable, GraphicsRender } from 'components';
 import { LayerType } from 'utils/constants';
-import { Application, DisplayObject } from 'pixi.js';
-import { Group, Layer } from '@pixi/layers';
+import { DisplayObject } from 'pixi.js';
+import { Group } from '@pixi/layers';
 
 export class LayeringSystem extends EntitySystem {
-  app: Application;
+  groups: Record<string, Group>;
   graphicsMapper!: ComponentMapper;
   layerMapper!: ComponentMapper;
   playerGroup!: Group;
   renderMapper!: ComponentMapper;
   starfieldGroup!: Group;
 
-  constructor(app: Application) {
+  constructor(groups: Record<string, Group>) {
     super();
-    this.app = app;
+    this.groups = groups;
   }
 
   initialize() {
@@ -24,10 +24,8 @@ export class LayeringSystem extends EntitySystem {
       new GraphicsRender(),
       this.ecsInstance
     );
-    this.playerGroup = new Group(LayerType.player, true);
-    this.starfieldGroup = new Group(LayerType.starfield, true);
-    this.app.stage.addChild(new Layer(this.starfieldGroup));
-    this.app.stage.addChild(new Layer(this.playerGroup));
+    this.playerGroup = this.groups[LayerType.player];
+    this.starfieldGroup = this.groups[LayerType.starfield];
   }
 
   getDisplayObject(entity: Entity): DisplayObject {
@@ -42,20 +40,10 @@ export class LayeringSystem extends EntitySystem {
     const layer = this.layerMapper.get(entity) as Layers;
     const displayObject = this.getDisplayObject(entity);
     if (null) return;
-
-    switch (layer.layer) {
-      case LayerType.player: {
-        displayObject.parentGroup = this.playerGroup;
-        break;
-      }
-      case LayerType.starfield: {
-        displayObject.parentGroup = this.starfieldGroup;
-        break;
-      }
-      default:
-        break;
-    }
+    displayObject.parentGroup = this.groups[layer.layer];
   }
 
-  removed(_entity: Entity) {}
+  removed(_entity: Entity) {
+
+  }
 }

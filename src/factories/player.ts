@@ -8,8 +8,8 @@ import {
   Rotation,
   Velocity,
 } from '../components';
-import { EcsInstance } from '../ecsf';
-import { LayerType } from '../utils/constants';
+import { EcsInstance } from 'ecsf';
+import { LayerType } from 'utils/constants';
 
 export class PlayerFactory {
   ecsInstance: EcsInstance;

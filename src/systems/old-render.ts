@@ -1,13 +1,14 @@
 import { ComponentMapper, Entity, EntitySystem } from '../ecsf';
 import { GraphicsRender, Position } from '../components';
+import { Application, Container } from 'pixi.js';
 
 export class GraphicsRenderSystem extends EntitySystem {
-  app: PIXI.Application;
-  graphicsContainer: PIXI.Container;
-  renderMap: ComponentMapper;
-  positionMap: ComponentMapper;
+  app: Application;
+  graphicsContainer!: Container;
+  renderMap!: ComponentMapper;
+  positionMap!: ComponentMapper;
 
-  constructor(app: PIXI.Application) {
+  constructor(app: Application) {
     super();
     this.app = app;
   }
@@ -19,7 +20,7 @@ export class GraphicsRenderSystem extends EntitySystem {
       this.ecsInstance
     );
     this.positionMap = new ComponentMapper(new Position(), this.ecsInstance);
-    this.graphicsContainer = new PIXI.Container();
+    this.graphicsContainer = new Container();
     this.app.stage.addChild(this.graphicsContainer);
   }
 

@@ -1,4 +1,11 @@
-import { Point, SCALE_MODES, settings, Texture } from 'pixi.js';
+import {
+  Container,
+  Graphics,
+  Point,
+  SCALE_MODES,
+  settings,
+  Texture,
+} from 'pixi.js';
 import { Assets } from '@pixi/assets';
 import Stats from 'stats.js';
 import { Screen } from 'screens/screen';
@@ -126,7 +133,7 @@ export class GameScreen extends Screen {
     );
 
     this.layeringSystem = this.ecs.systemManager.setSystem(
-      new LayeringSystem(this.app),
+      new LayeringSystem(this.groups),
       Layers
     );
 
@@ -198,6 +205,20 @@ export class GameScreen extends Screen {
       },
       [Position, Velocity]
     );
+
+    const graphic = new Graphics();
+    graphic
+      .clear()
+      .lineStyle({
+        color: 0xff5555,
+        width: 10,
+      })
+      .drawCircle(200, 200, 100);
+    graphic.cacheAsBitmap = true;
+    const cont = new Container();
+    cont.addChild(graphic);
+
+    this.app.stage.addChild(cont);
   }
 
   unload(): void {

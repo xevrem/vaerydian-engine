@@ -6,9 +6,9 @@ import { Point } from 'pixi.js';
 import { Vector } from '../utils/vector';
 
 export class ControlSystem extends EntitySystem {
-  headingMap: ComponentMapper;
-  rotationMap: ComponentMapper;
-  velocityMap: ComponentMapper;
+  headingMap!: ComponentMapper;
+  rotationMap!: ComponentMapper;
+  velocityMap!: ComponentMapper;
 
   initialize() {
     console.log('control system initializing...');
@@ -28,6 +28,7 @@ export class ControlSystem extends EntitySystem {
     let thrust: Point = new Point(0, -1);
 
     if (KeyboardManager.isKeyPressed(KeyType.A)) {
+      // console.log('a pressed', delta);
       //rotate left
       amount -= rotation.rate * delta;
     }
@@ -58,7 +59,7 @@ export class ControlSystem extends EntitySystem {
       const [vec, mag] = Vector.normalizeMag(
         Vector.rotateVectorDegrees(velocity.vector, 180)
       );
-      thrust = Vector.multScalar(vec, mag*delta);
+      thrust = Vector.multScalar(vec, mag * delta);
     }
 
     rotation.amount += amount;

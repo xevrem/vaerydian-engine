@@ -20,9 +20,15 @@ export class KeyboardManager {
 
   static init(): void {
     KeyboardManager.state = { prev: {}, curr: {} };
-    window.addEventListener('keydown', KeyboardManager.handleKeyDown);
-    window.addEventListener('keyup', KeyboardManager.handleKeyUp);
-    window.addEventListener('keypress', KeyboardManager.handleKeyPress);
+    window.addEventListener('keydown', KeyboardManager.handleKeyDown, {
+      passive: true,
+    });
+    window.addEventListener('keyup', KeyboardManager.handleKeyUp, {
+      passive: true,
+    });
+    window.addEventListener('keypress', KeyboardManager.handleKeyPress, {
+      passive: true,
+    });
   }
 
   static preProcess(event: KeyboardEvent): void {
@@ -59,6 +65,7 @@ export class KeyboardManager {
   }
 
   static isKeyPressed(key: KeyType): boolean {
+    // console.log(key, KeyboardManager.state);
     return (
       (KeyboardManager?.state?.curr?.[key]?.press ?? false) &&
       (KeyboardManager?.state?.prev?.[key]?.press ?? false)

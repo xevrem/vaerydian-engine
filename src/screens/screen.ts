@@ -1,3 +1,4 @@
+import { Group, Layer } from '@pixi/layers';
 import { Application } from 'pixi.js';
 import { ScreenManager } from './manager';
 
@@ -10,12 +11,16 @@ export enum ScreenState {
 
 export abstract class Screen {
   app: Application;
+  layers: Record<string, Layer>;
+  groups: Record<string, Group>;
   screenManger!: ScreenManager;
   screenState: ScreenState;
   id: number = -1;
 
-  constructor(app: Application) {
+  constructor(app: Application, layers: Record<string, Layer>, groups: Record<string, Group>) {
     this.app = app;
+    this.layers = layers;
+    this.groups = groups;
     this.screenState = ScreenState.Inactive;
   }
 
