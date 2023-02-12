@@ -3,10 +3,10 @@ import { Position, Velocity, CameraData } from '../components';
 import { Application } from '@pixi/app';
 
 export class CameraSystem extends EntitySystem {
-  cameraDataMap: ComponentMapper;
-  positionMap: ComponentMapper;
-  velocityMap: ComponentMapper;
-  camera: Entity;
+  cameraDataMap!: ComponentMapper;
+  positionMap!: ComponentMapper;
+  velocityMap!: ComponentMapper;
+  camera!: Entity;
   app: Application;
   constructor(app: Application) {
     super();
@@ -41,7 +41,7 @@ export class CameraSystem extends EntitySystem {
   process(cameraFocus: Entity, _delta: number) {
     const focusPosition = this.positionMap.get(cameraFocus) as Position;
     const cameraPosition = this.positionMap.get(this.camera) as Position;
-    cameraPosition.point.set(focusPosition.point.x, focusPosition.point.y);
+    // cameraPosition.point.set(focusPosition.point.x, focusPosition.point.y);
 
     this.camera = this.ecsInstance.tagManager.getEntityByTag('camera');
     const cameraData = this.cameraDataMap.get(this.camera) as CameraData;

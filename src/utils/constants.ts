@@ -6,10 +6,10 @@ export enum KeyType {
   SPACE = ' ',
 }
 
-export enum LayerType {
-  sprites = 0,
-  starfield = 5,
-  player = 10,
+export const LayerType = {
+  sprites : 0,
+  starfield : 5,
+  player : 10,
 }
 
 export const STARS = [
@@ -32,7 +32,7 @@ type Ok<T> = T;
 
 type Err<E extends Error = Error> = E;
 
-type Result<T, E> = Ok<T> | Err<E>;
+type Result<T, E extends Error = Error> = Ok<T> | Err<E>;
 
 const some_or_none = <T>(val: T): Option<T> => {
   return val ? val : null;

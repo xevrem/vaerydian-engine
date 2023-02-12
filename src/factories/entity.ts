@@ -10,7 +10,6 @@ import {
 } from 'components';
 import { LayerType, STARS } from 'utils/constants';
 import { Assets, Container, Point, Sprite, Texture } from 'pixi.js';
-import { Group } from '@pixi/layers';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -19,7 +18,7 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createStar(group: Group, location?: Point): void {
+  createStar(location?: Point): void {
     const graphic = this.ecsInstance.create();
 
     const position = new Position(

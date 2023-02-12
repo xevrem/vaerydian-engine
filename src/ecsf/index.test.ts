@@ -1,14 +1,3 @@
-// export { Bag } from './Bag';
-// export { Component } from './Component';
-// export { ComponentManager } from './ComponentManager';
-// export { ComponentMapper } from './ComponentMapper';
-// export { EcsInstance } from './EcsInstance';
-// export { Entity } from './Entity';
-// export { EntityManager } from './EntityManager';
-// export { EntitySystem } from './EntitySystem';
-// export { GroupManager } from './GroupManager';
-// export { SystemManager } from './SystemManager';
-// export { TagManager } from './TagManager';
 import { Bag } from './Bag';
 import { ComponentManager } from './ComponentManager';
 import { ComponentMapper } from './ComponentMapper';
@@ -22,7 +11,6 @@ import { Component } from './Component';
 import { EntityManager } from './EntityManager';
 
 describe('Library', () => {
-
   describe('import/instantiation', () => {
     it('Bag should be importable and instantiable', () => {
       const instance = new Bag();
@@ -33,11 +21,11 @@ describe('Library', () => {
       expect(instance).toBeDefined();
     });
     it('ComponentManager should be importable and instantiable', () => {
-      const cm = new ComponentManager(new EcsInstance());
+      const cm = new ComponentManager();
       expect(cm).toBeDefined();
     });
     it('ComponentMapper should be importable and instantiable', () => {
-      class Comp extends Component { };
+      class Comp extends Component {}
       const cm = new ComponentMapper(Comp, new EcsInstance());
       expect(cm).toBeDefined();
     });
@@ -50,9 +38,8 @@ describe('Library', () => {
       expect(instance).toBeDefined();
     });
     it('EntitySystem should be importable and instantiable', () => {
-      class Foo extends EntitySystem {
-      }
-      const foo = new Foo();
+      class Foo extends EntitySystem {}
+      const foo = new Foo({});
       expect(foo).toBeDefined();
     });
     it('GroupManager should be importable and instantiable', () => {
@@ -69,6 +56,6 @@ describe('Library', () => {
     });
   });
   describe('setup', () => {
-    it('should...', () => { });
+    it('should...', () => {});
   });
 });

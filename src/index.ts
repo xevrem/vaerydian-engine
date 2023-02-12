@@ -1,4 +1,6 @@
 import * as PIXI from 'pixi.js';
+import '@pixi/layers';
+import '@pixi/mixin-cache-as-bitmap';
 import { Engine } from './engine';
 
 declare global {
