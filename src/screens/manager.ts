@@ -10,13 +10,14 @@ export class ScreenManager {
     screen.initialize();
     await screen.load();
     screen.screenState = ScreenState.Active;
-    this._screens.add(screen);
+    const index = this._screens.add(screen);
+    screen.id = index;
   }
 
   removeScreen(screen: Screen): void {
     screen.screenState = ScreenState.Deactivating;
     screen.unload();
-    this._screens.remove(screen);
+    this._screens.removeAt(screen.id);
   }
 
   update(delta: number): void {
@@ -26,9 +27,10 @@ export class ScreenManager {
         screen.update(delta);
     });
 
-    this._screens
-      .slice(this._screens.count - 1)
-      .forEach(screen => screen && screen.focusUpdate(delta));
+    this._screens.last?.focusUpdate(delta);
+    // this._screens
+    //   .slice(this._screens.count - 1)
+    //   .forEach(screen => screen && screen.focusUpdate(delta));
   }
 
   draw(delta: number): void {

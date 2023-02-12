@@ -1,7 +1,5 @@
-import {
-  Point, SCALE_MODES, settings, Texture,
-} from 'pixi.js';
-import {Assets} from '@pixi/assets';
+import { Point, SCALE_MODES, settings, Texture } from 'pixi.js';
+import { Assets } from '@pixi/assets';
 import Stats from 'stats.js';
 import { Screen } from 'screens/screen';
 import {
@@ -18,10 +16,7 @@ import {
   Heading,
   Animatable,
 } from 'components';
-import {
-  EcsInstance,
-  EntitySystem,
-} from 'ecsf';
+import { EcsInstance, EntitySystem } from 'ecsf';
 import { EntityFactory, PlayerFactory } from 'factories';
 import {
   AnimationSystem,
@@ -34,7 +29,6 @@ import {
   RenderSystem,
 } from 'systems';
 import { KeyboardManager } from 'utils/keyboard';
-
 
 import playerShip from 'assets/player/ship.png';
 import star1 from 'assets/stars/star1.png';
@@ -110,7 +104,6 @@ export class GameScreen extends Screen {
     // this.app.ticker.autoStart = false;
     // this.app.ticker.stop();
 
-
     this.ecs = new EcsInstance();
 
     this.cameraSystem = this.ecs.systemManager.setSystem(
@@ -174,11 +167,13 @@ export class GameScreen extends Screen {
   async load(): Promise<void> {
     console.log('game screen loading...');
 
-    const resources = await Promise.all(assets.map(asset => {
-      Assets.add(asset.name, asset.src);
-      return Assets.load<Texture>(asset.name);
-    }));
-    console.log({resources});
+    const resources = await Promise.all(
+      assets.map(asset => {
+        Assets.add(asset.name, asset.src);
+        return Assets.load<Texture>(asset.name);
+      })
+    );
+    console.log({ resources });
 
     this.entityFactory.createCamera();
 
@@ -195,7 +190,7 @@ export class GameScreen extends Screen {
 
     this.ecs.withSystem(
       (query, ecs) => {
-        for (const [position , velocity] of query.join()) {
+        for (const [position, velocity] of query.join()) {
           const dx = position.point.x + velocity.vector.x * ecs.delta;
           const dy = position.point.y + velocity.vector.y * ecs.delta;
           position.point.set(dx, dy);

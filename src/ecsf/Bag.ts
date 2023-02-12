@@ -2,6 +2,8 @@ export class Bag<T> {
   private _data: Array<T | undefined> = [];
   private _length = 0;
   private _count = 0;
+  private _last = -1;
+  private _invalidated = true;
 
   constructor(capacity = 16) {
     this._data = new Array(capacity);
@@ -61,8 +63,11 @@ export class Bag<T> {
   }
 
   lastIndex(start: number): number {
+    if (this._last !== -1 && !this._invalidated) return this._last;
     for (let i = start; i--; ) {
       if (this._data[i]) {
+        this._last = i;
+        this._invalidated = false;
         return i;
       }
     }
@@ -221,6 +226,7 @@ export class Bag<T> {
 
     if (!this._data[index] && value) this._count += 1;
     if (this._data[index] && !value) this._count -= 1;
+    if (index > this._last) this._last = index;
     this._data[index] = value;
     return value;
   }
@@ -229,13 +235,16 @@ export class Bag<T> {
    * adds the given element to the end of the bags contents
    * @param element the element to add
    */
-  add(element: T | undefined): void {
+  add(element: T | undefined): number {
     if (this._length >= this._data.length) {
       this.grow();
     }
+    const index = this._length;
     this._data[this._length] = element;
     this._length++;
     this._count += 1;
+    if (index > this._last) this._last = index;
+    return index;
   }
 
   /**
@@ -258,6 +267,7 @@ export class Bag<T> {
       // only set the item if it exists
       item && this.set(i, item);
     }
+    this._invalidated = true;
   }
 
   /**
@@ -307,6 +317,7 @@ export class Bag<T> {
    */
   remove(element: T): T | undefined {
     const index = this._data.indexOf(element);
+    if (index === this._last) this._invalidated = true;
     return this.removeAt(index);
   }
 
@@ -335,6 +346,7 @@ export class Bag<T> {
     const item = this._data[index];
     this.set(index, undefined);
     if (this._length < 0) this._length = 0;
+    this._invalidated = true;
     return item;
   }
 

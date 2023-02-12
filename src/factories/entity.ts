@@ -19,7 +19,7 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createStar(group: Group, location?: Point): void {
+  createStar(location?: Point): void {
     const graphic = this.ecsInstance.create();
 
     const position = new Position(

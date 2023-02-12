@@ -12,6 +12,7 @@ export abstract class Screen {
   app: Application;
   screenManger!: ScreenManager;
   screenState: ScreenState;
+  id: number = -1;
 
   constructor(app: Application) {
     this.app = app;

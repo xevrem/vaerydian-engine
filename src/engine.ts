@@ -33,10 +33,6 @@ export class Engine {
   async start(): Promise<void> {
     await this.screenManager.addScreen(new GameScreen(this.app));
 
-    this.startLoop();
-  }
-
-  startLoop(): void {
     console.log('engine running...');
     // this.timeoutLoop();
     window.requestAnimationFrame(this.runLoop);
