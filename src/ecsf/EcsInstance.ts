@@ -9,10 +9,9 @@ import { ComponentMapper } from './ComponentMapper';
 import { Scheduler } from './Scheduler';
 import { EntitySystem, EntitySystemArgs } from './EntitySystem';
 import { Bag } from './Bag';
-import { RootReducer } from 'types/modules';
 import { EntityBuilder, makeEntityBuilder } from './EntityBuilder';
 
-export declare type ComponentTuple = typeof Component[];
+export declare type ComponentTuple = (typeof Component)[];
 
 export declare type OrderedTuple<T extends ComponentTuple = ComponentTuple> = {
   [P in keyof T]: T[P] extends new () => infer U ? U : undefined;
@@ -30,9 +29,6 @@ export class EcsInstance {
 
   private _creating: Bag<Entity>;
   private _resolving: Bag<[Entity, boolean[]]>;
-  // IDEA: for when we introduce smart resolves
-  // private _resolveAdd: Bag<Component[]>;
-  // private _resolveRemove: Bag<Component[]>;
   private _deleting: Bag<Entity>;
   private _updatingEntities: Entity[];
   private _updating: Bag<Bag<SmartUpdate>>;
@@ -49,9 +45,6 @@ export class EcsInstance {
     this.groupManager = new GroupManager();
     this.scheduler = new Scheduler();
     this._creating = new Bag<Entity>();
-    // IDEA: for smart resolves
-    // this._resolveAdd = new Bag<Component[]>();
-    // this._resolveRemove = new Bag<Component[]>();
     this._resolving = new Bag<[Entity, boolean[]]>();
     this._deleting = new Bag<Entity>();
     this._updatingEntities = [];
@@ -90,14 +83,10 @@ export class EcsInstance {
    */
   addComponent(entity: Entity, component: Component): void {
     this.componentManager.addComponent(entity, component);
-    // IDEA: for smart resolves
-    // this.resolveAdd(entity.id, component);
   }
 
   addComponentById(id: number, component: Component): void {
     this.componentManager.addComponentById(id, component);
-    // IDEA: for smart resolves
-    // this.resolveAdd(id, component);
   }
 
   /**
@@ -136,7 +125,7 @@ export class EcsInstance {
     this._deleting.setBag(entities);
   }
 
-  getComponentsByType(component: typeof Component): Bag<Component> | undefined {
+  getComponentsByType(component: typeof Component): Option<Bag<Component>> {
     return this.componentManager.getComponentsByType(component);
   }
 
@@ -146,17 +135,14 @@ export class EcsInstance {
    * @param component the class of component to retrieve
    * @returns the component for the entity or `undefined` if it doesnt exist
    */
-  getComponent(
+  getComponent<C extends typeof Component>(
     entity: Entity,
-    component: typeof Component
-  ): Component | undefined {
-    return this.componentManager.getComponent(entity, component);
+    component: C
+  ): Option<InstanceType<C>> {
+    return this.componentManager.getComponent<C>(entity, component);
   }
 
-  getComponentById(
-    id: number,
-    component: typeof Component
-  ): Component | undefined {
+  getComponentById(id: number, component: typeof Component): Option<Component> {
     return this.componentManager.getComponentById(id, component);
   }
 
@@ -169,8 +155,8 @@ export class EcsInstance {
   getComponentOfType<T extends typeof Component>(
     entity: Entity,
     component: T
-  ): InstanceType<T> {
-    return this.getComponent(entity, component) as InstanceType<T>;
+  ): Option<InstanceType<T>> {
+    return this.getComponent(entity, component);
   }
 
   /**
@@ -182,7 +168,7 @@ export class EcsInstance {
   getComponentOfTypeById<T extends typeof Component>(
     id: number,
     component: T
-  ): InstanceType<T> {
+  ): Option<InstanceType<T>> {
     return this.getComponentById(id, component) as InstanceType<T>;
   }
 
@@ -207,7 +193,7 @@ export class EcsInstance {
    * @param id the id of the entity requested
    * @returns the required entity if found or `undefined`
    */
-  getEntity(id: number): Entity | undefined {
+  getEntity(id: number): Option<Entity> {
     return this.entityManager.getEntity(id);
   }
 
@@ -216,7 +202,7 @@ export class EcsInstance {
    * @param tag the tag to retrieve
    * @returns the entity if tagged, otherwise `undefined`
    */
-  getEntityByTag(tag: string): Entity | undefined {
+  getEntityByTag(tag: string): Option<Entity> {
     return this.tagManager.getEntityByTag(tag);
   }
 
@@ -225,7 +211,7 @@ export class EcsInstance {
    * @param group the group to retrieve
    * @returns the bag for the specified group
    */
-  getGroup(group: string): Bag<Entity> | undefined {
+  getGroup(group: string): Option<Bag<Entity>> {
     return this.groupManager.getGroup(group);
   }
 
@@ -245,7 +231,10 @@ export class EcsInstance {
    * @param componentType type to check
    * @returns `true` if the entity has the component otherwise `false`
    */
-  hasComponentOfType(entity: Entity, componentType: typeof Component): boolean {
+  hasComponentOfType<C extends typeof Component>(
+    entity: Entity,
+    componentType: C
+  ): boolean {
     return this.componentManager.hasComponent(entity, componentType.type);
   }
 
@@ -255,7 +244,10 @@ export class EcsInstance {
    * @param componentType type to check
    * @returns `true` if the entity has the component otherwise `false`
    */
-  hasComponentOfTypeById(id: number, componentType: typeof Component): boolean {
+  hasComponentOfTypeById<C extends typeof Component>(
+    id: number,
+    componentType: C
+  ): boolean {
     return this.componentManager.hasComponentById(id, componentType.type);
   }
 
@@ -284,7 +276,10 @@ export class EcsInstance {
    * @param component the componen type to check
    * @returns `true` if the entity has the component otherwise `false`
    */
-  hasComponentOfTypeByTag(tag: string, component: typeof Component): boolean {
+  hasComponentOfTypeByTag<C extends typeof Component>(
+    tag: string,
+    component: C
+  ): boolean {
     return this.componentManager.hasComponentOfTypeByTag(tag, component);
   }
 
@@ -301,20 +296,20 @@ export class EcsInstance {
    * @param component a component type to use to build the mapper
    * @return a component mapper for the given component type
    */
-  makeMapper<T extends Component>(component: new () => T): ComponentMapper<T> {
-    return new ComponentMapper(component, this);
+  makeMapper<C extends Component>(component: new () => C): ComponentMapper<C> {
+    return new ComponentMapper<C>(component, this);
   }
 
   /**
    * registeres a component with the component manager
    * @param component the component type to register
    */
-  registerComponent(component: typeof Component): void {
+  registerComponent<C extends typeof Component>(component: C): void {
     this.componentManager.registerComponent(component);
   }
 
-  registerSystem<T extends EntitySystem>(
-    System: new (props: EntitySystemArgs) => T,
+  registerSystem<U, T extends EntitySystem<U>>(
+    System: new (props: EntitySystemArgs<U>) => T,
     { reactive = false, priority = 0, ...props }: SystemRegistrationArgs
   ): T {
     return this.systemManager.registerSystem(System, {
@@ -329,7 +324,6 @@ export class EcsInstance {
    * @param component the component to remove
    */
   removeComponent(component: Component): void {
-    // this.resolveRemove(component.owner, component);
     this.componentManager.removeComponent(component);
   }
 
@@ -339,16 +333,10 @@ export class EcsInstance {
    * @param component the component type to remove
    */
   removeComponentType(entity: Entity, component: typeof Component): void {
-    // IDEA: for when we introduce smart resolves
-    // const comp = this.componentManager.getComponentById(entity.id, component);
-    // comp && this.resolveRemove(comp.owner, comp);
     this.componentManager.removeComponentType(entity, component);
   }
 
   removeComponentTypeById(id: number, component: typeof Component): void {
-    // IDEA: for when we introduce smart resolves
-    // const comp = this.componentManager.getComponentById(id, component);
-    // comp && this.resolveRemove(comp.owner, comp);
     this.componentManager.removeComponentTypeById(id, component);
   }
 
@@ -366,19 +354,6 @@ export class EcsInstance {
     this._resolving.set(entity.id, [entity, ignored]);
   }
 
-  // IDEA: for when we add smart resolves
-  // resolveAdd(id: number, component: Component): void {
-  //   // don't add if its a new component
-  //   if (this._creating.has(id)) return;
-  //   if (!this._resolveAdd.has(id)) this._resolveAdd.set(id, []);
-  //   this._resolveAdd.get(id)?.push(component);
-  // }
-
-  // IDEA: for when we add smart resolves
-  // resolveRemove(id: number, component: Component): void {
-  //   if (!this._resolveRemove.has(id)) this._resolveRemove.set(id, []);
-  //   this._resolveRemove.get(id)?.push(component);
-  // }
 
   /**
    * resolve the entity that has the given id against he current ecs instance.
@@ -434,10 +409,7 @@ export class EcsInstance {
     // processes cause an update to any of them, they are not possibly lost
     const deleting = this._deleting,
       resolving = this._resolving,
-      // IDEA: for when we introduce smart resolves
-      // resolveAdd = this._resolveAdd,
-      // resolveRemove = this._resolveRemove,
-      updating = this._updating, //Object.values(this._updating),
+      updating = this._updating,
       updatingEntities = this._updatingEntities,
       // NOTE: `this._creating` doesn't get reset immediately because we want to wait until later
       //       this helps prevent system-spammy creates
@@ -445,9 +417,6 @@ export class EcsInstance {
 
     this._deleting = new Bag<Entity>(deleting.capacity);
     this._resolving = new Bag<[Entity, boolean[]]>(resolving.capacity);
-    // IDEA: for when we introduce smart resolves
-    // this._resolveAdd = new Bag<Component[]>(resolveAdd.capacity);
-    // this._resolveRemove = new Bag<Component[]>(resolveRemove.capacity);
     this._updating = new Bag<Bag<SmartUpdate>>(updating.capacity);
     this._updatingEntities = [];
 
@@ -460,67 +429,12 @@ export class EcsInstance {
         this.groupManager.deleteEntity(entity);
         this.componentManager.deleteEntity(entity);
         this.entityManager.deleteEntity(entity);
-        // IDEA: for when we introduce smart resolves
-        // resolveAdd.set(entity.id, undefined);
-        // resolveRemove.set(entity.id, undefined);
       }
     }
 
     if (resolving.count > 0) {
-      // for (let i = resolving.length; i--; ) {
-      //   const entity = resolving.get(i);
-      //   if (!entity) continue;
-      // IDEA: for when we introduce smart resolves
-      // if (resolveAdd.has(entity.id)) {
-      //   // we need to add the smart resolves components first
-      //   const components = resolveAdd.get(entity.id);
-      //   if(components){
-      //     console.log('ei:re:r-ra::', entity.id);
-      //     this.componentManager.addComponents(entity.id, components);
-      //     this.systemManager.resolveAdd(components);
-      //     resolveAdd.set(i, undefined);
-      //     continue;
-      //   }
-      // }
-      // if (resolveRemove.has(entity.id)) {
-      //   // we need to remove the smart resolves components first
-      //   const components = resolveRemove.get(entity.id);
-      //   if(components){
-      //     console.log('ei:re:r-rr::', entity.id);
-      //     this.systemManager.resolveRemove(components);
-      //     this.componentManager.removeComponents(components);
-      //     resolveRemove.set(i, undefined);
-      //     continue;
-      //   }
-      // }
-      // this.systemManager.resolveEntity(entity);
-      // }
       this.systemManager.resolveEntities(resolving);
     }
-
-    // IDEA: for when we introduce smart resolves
-    // verify there is work to do in the sparse bag
-    // if (resolveAdd.count > 0) {
-    //   for (let i = resolveAdd.length; i--; ) {
-    //     const components = resolveAdd.get(i);
-    //     if (components) {
-    //       this.componentManager.addComponents(i, components);
-    //       this.systemManager.resolveAdd(components);
-    //     }
-    //   }
-    // }
-
-    // IDEA: for when we introduce smart resolves
-    // verify there is work to do in the sparse bag
-    // if (resolveRemove.count > 0) {
-    //   for (let i = resolveRemove.length; i--; ) {
-    //     const components = resolveRemove.get(i);
-    //     if (components) {
-    //       this.systemManager.resolveRemove(components);
-    //       this.componentManager.removeComponents(components);
-    //     }
-    //   }
-    // }
 
     if (updating.count > 0) {
       this.systemManager.update(updating);
@@ -544,8 +458,8 @@ export class EcsInstance {
   /**
    * request the scheduler to run all registered systems
    */
-  runSystems(state: RootReducer): void {
-    this.scheduler.runSystems(state);
+  runSystems(): void {
+    this.scheduler.runSystems();
   }
 
   /**

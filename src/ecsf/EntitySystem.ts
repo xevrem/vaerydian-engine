@@ -2,17 +2,15 @@ import { Bag } from './Bag';
 import { Entity } from './Entity';
 import { ComponentTuple, EcsInstance, OrderedTuple } from './EcsInstance';
 import { Query } from './Query';
-import { RootReducer } from 'types/modules';
 
-export declare interface EntitySystemArgs {
+export declare type EntitySystemArgs<U> = {
   id: number;
   ecsInstance: EcsInstance;
   reactive: boolean;
   priority: number;
-  [option: string]: unknown;
-}
+} & U;
 
-export class EntitySystem<
+export class EntitySystem<U = void,
   T extends ComponentTuple = ComponentTuple,
   V extends ComponentTuple = ComponentTuple,
   W extends ComponentTuple = ComponentTuple
@@ -25,12 +23,12 @@ export class EntitySystem<
   private _query!: Query<T, V, W>;
   private _active = true;
   private _dirty = false;
-  props: EntitySystemArgs;
+  props: EntitySystemArgs<U>;
   needed!: [...T];
   optional!: [...V];
   unwanted!: [...W];
 
-  constructor(props: EntitySystemArgs) {
+  constructor(props: EntitySystemArgs<U>) {
     this.props = props;
     this._id = props.id;
     this._ecsInstance = props.ecsInstance;
@@ -216,16 +214,16 @@ export class EntitySystem<
   /**
    * process all entities
    */
-  processAll(state: RootReducer): void {
-    if (this.shouldProcess(state)) {
-      this.begin && this.begin(state);
-      this.processEntities(state);
-      this.processJoin(state);
-      this.end && this.end(state);
+  processAll(): void {
+    if (this.shouldProcess()) {
+      this.begin && this.begin();
+      this.processEntities();
+      this.processJoin();
+      this.end && this.end();
     }
   }
 
-  processJoin(state: RootReducer): void {
+  processJoin(): void {
     if (!this.join) return;
     // if we have no entities, don't bother running
     if (!this._entities.count) return;
@@ -233,7 +231,7 @@ export class EntitySystem<
     const data = this._query.data;
     for (let i = data.length; i--; ) {
       const [components, entity] = data[i];
-      this.join(entity, components, state);
+      this.join(entity, components);
     }
   }
 
@@ -241,7 +239,7 @@ export class EntitySystem<
    * processes entities one by one calling the system's `process` function
    * and passing the results of the systems `Query`
    */
-  processEntities(state: RootReducer): void {
+  processEntities(): void {
     if (!this.process) return;
     // if we have no entiteis, don't bother
     if (!this._entities.count) return;
@@ -249,7 +247,7 @@ export class EntitySystem<
     for (let i = this._entities.length; i--; ) {
       const entity = this._entities.get(i);
       entity &&
-        this.process(entity, this._query, this._ecsInstance.delta, state);
+        this.process(entity, this._query, this._ecsInstance.delta);
     }
   }
 
@@ -257,8 +255,6 @@ export class EntitySystem<
    * determine whether or not this system should process
    */
   shouldProcess(
-    // eslint-disable-next-line
-    _state: RootReducer
   ): boolean {
     return true;
   }
@@ -284,13 +280,12 @@ export class EntitySystem<
   removed?(entity: Entity): void;
   cleanUp?(entities: Bag<Entity>): void;
   reset?(): void;
-  begin?(state: RootReducer): void;
-  end?(state: RootReducer): void;
+  begin?(): void;
+  end?(): void;
   process?(
     entity: Entity,
     query: Query<T, V, W>,
     delta: number,
-    state: RootReducer
   ): void;
   /**
    * alternate to `process`, but auto-retrieves all needed/optional components
@@ -300,6 +295,5 @@ export class EntitySystem<
   join?(
     entity: Entity,
     components: [...OrderedTuple<T>, ...OrderedTuple<V>],
-    state: RootReducer
   ): void;
 }

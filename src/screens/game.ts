@@ -87,14 +87,14 @@ export class GameScreen extends Screen {
   stats!: Stats;
   lastTime = 0;
 
-  animationSystem!: EntitySystem;
-  cameraSystem!: EntitySystem;
-  controlSystem!: EntitySystem;
-  layeringSystem!: EntitySystem;
-  movementSystem!: EntitySystem;
-  graphicsRenderSystem!: EntitySystem;
-  renderSystem!: EntitySystem;
-  starfieldSystem!: EntitySystem;
+  // animationSystem!: EntitySystem;
+  // cameraSystem!: EntitySystem;
+  // controlSystem!: EntitySystem;
+  // layeringSystem!: EntitySystem;
+  // movementSystem!: EntitySystem;
+  // graphicsRenderSystem!: EntitySystem;
+  // renderSystem!: EntitySystem;
+  // starfieldSystem!: EntitySystem;
 
   entityFactory!: EntityFactory;
   playerFactory!: PlayerFactory;
@@ -113,17 +113,20 @@ export class GameScreen extends Screen {
 
     this.ecs = new EcsInstance();
 
-    this.cameraSystem = this.ecs.systemManager.setSystem(
-      new CameraSystem(this.app),
-      Position,
-      CameraFocus
+    this.ecs.systemManager.registerSystem(
+      CameraSystem,
+      {
+        app: this.app,
+      }
+      // Position,
+      // CameraFocus
     );
 
-    this.controlSystem = this.ecs.systemManager.setSystem(
-      new ControlSystem(),
-      Controllable,
-      Velocity,
-      Rotation
+    this.ecs.systemManager.registerSystem(
+      ControlSystem,
+      // Controllable,
+      // Velocity,
+      // Rotation
     );
 
     this.graphicsRenderSystem = this.ecs.systemManager.setSystem(

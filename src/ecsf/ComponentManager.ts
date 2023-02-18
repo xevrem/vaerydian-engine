@@ -23,7 +23,7 @@ export class ComponentManager {
    * registers the given component class
    * @param component the component class to register
    */
-  registerComponent(component: typeof Component): void {
+  registerComponent<C extends typeof Component>(component: C): void {
     if (component.type < 0) {
       component.type = this._nextTypeId++;
       this._componentTypes[component.name] = component;
@@ -50,7 +50,7 @@ export class ComponentManager {
    */
   getAllEntityComponents(entity: Entity): Record<string, Component> {
     const allComponents: Record<string, Component> = {};
-    this._components.forEach((components) => {
+    this._components.forEach(components => {
       if (!components) return;
       const component = components.get(entity.id);
       if (!component) return;
@@ -67,7 +67,7 @@ export class ComponentManager {
    */
   getAllEntityComponentsById(
     id: number
-  ): Record<string, Component> | undefined {
+  ): Option<Record<string, Component>> {
     const entity = this._ecsInstance.getEntity(id);
     if (!entity) return undefined;
     return this.getAllEntityComponents(entity);
@@ -88,7 +88,9 @@ export class ComponentManager {
    * @param component component type to retrieve
    * @returns a bag of components of the type specified
    */
-  getComponentsByType(component: typeof Component): Bag<Component> | undefined {
+  getComponentsByType<C extends typeof Component>(
+    component: C
+  ): Option<Bag<InstanceType<C>>> {
     return this._components.get(component.type);
   }
 
@@ -98,10 +100,10 @@ export class ComponentManager {
    * @param component the class of component to retrieve
    * @returns the component for the entity or `undefined` if it doesnt exist
    */
-  getComponent(
+  getComponent<C extends typeof Component>(
     entity: Entity,
-    component: typeof Component
-  ): Component | undefined {
+    component: C
+  ): Option<InstanceType<C>> {
     const components = this._components.get(component.type);
     return components ? components.get(entity.id) : undefined;
   }
@@ -112,20 +114,26 @@ export class ComponentManager {
    * @param component the class of component to retrieve
    * @returns the component for the entity or `undefined` if it doesnt exist
    */
-  getComponentById(
+  getComponentById<C extends typeof Component>(
     id: number,
-    component: typeof Component
-  ): Component | undefined {
+    component: C
+  ): Option<InstanceType<C>> {
     const components = this._components.get(component.type);
     return components ? components.get(id) : undefined;
   }
 
-  getComponentByType(entity: Entity, type: number): Component | undefined {
+  getComponentByType<C extends typeof Component>(
+    entity: Entity,
+    type: number
+  ): Option<InstanceType<C>> {
     const components = this._components.get(type);
     return components ? components.get(entity.id) : undefined;
   }
 
-  getComponentByTypeAndId(id: number, type: number): Component | undefined {
+  getComponentByTypeAndId<C extends typeof Component>(
+    id: number,
+    type: number
+  ): Option<InstanceType<C>> {
     const components = this._components.get(type);
     return components ? components.get(id) : undefined;
   }
@@ -135,7 +143,7 @@ export class ComponentManager {
    * @param entity the entity to add the component to
    * @param component the component instance to add to the entity
    */
-  addComponent(entity: Entity, component: Component): void {
+  addComponent<C extends Component>(entity: Entity, component: C): void {
     component.owner = entity.id;
     const components = this._components.get(component.type);
     if (components) {
@@ -148,7 +156,7 @@ export class ComponentManager {
    * @param id the id of the entity to which to add the component
    * @param component the component instance to add to the entity
    */
-  addComponentById(id: number, component: Component): void {
+  addComponentById<C extends Component>(id: number, component: C): void {
     component.owner = id;
     const components = this._components.get(component.type);
     if (components) {
@@ -156,7 +164,7 @@ export class ComponentManager {
     }
   }
 
-  addComponents(id: number, components: Component[]): void {
+  addComponents<C extends Component>(id: number, components: C[]): void {
     for (let i = components.length; i--; ) {
       this.addComponentById(id, components[i]);
     }
@@ -179,14 +187,14 @@ export class ComponentManager {
    * remove the specific component instance from its owner
    * @param component the component instance to remove
    */
-  removeComponent(component: Component): void {
+  removeComponent<C extends Component>(component: C): void {
     const components = this._components.get(component.type);
     if (components) {
       components.set(component.owner, undefined);
     }
   }
 
-  removeComponents(components: Component[]): void {
+  removeComponents<C extends Component>(components: C[]): void {
     for (const component of components) {
       this._components.get(component.type)?.set(component.owner, undefined);
       // const bag = this._components.get(component.type);
@@ -200,14 +208,20 @@ export class ComponentManager {
    * remove the specific component instance from its owner
    * @param component the component instance to remove
    */
-  removeComponentType(entity: Entity, component: typeof Component): void {
+  removeComponentType<C extends typeof Component>(
+    entity: Entity,
+    component: C
+  ): void {
     const components = this._components.get(component.type);
     if (components) {
       components.set(entity.id, undefined);
     }
   }
 
-  removeComponentTypeById(id: number, component: typeof Component): void {
+  removeComponentTypeById<C extends typeof Component>(
+    id: number,
+    component: C
+  ): void {
     const components = this._components.get(component.type);
     if (components) {
       components.set(id, undefined);
@@ -231,12 +245,6 @@ export class ComponentManager {
   hasComponent(entity: Entity, type: number): boolean {
     if (type < this._components.capacity) {
       return this._components.get(type)?.has(entity.id) ?? false;
-      // return val
-      // const components = this._components.get(type);
-      // if (components && entity.id < components.capacity) {
-      //   const components = this._components.get(type);
-      //   return components && components.has(entity.id);
-      // }
     }
     return false;
   }
@@ -250,11 +258,6 @@ export class ComponentManager {
   hasComponentById(id: number, type: number): boolean {
     if (type < this._components.capacity) {
       return this._components.get(type)?.has(id) ?? false;
-      // const components = this._components.get(type);
-      // if (components && id < components.capacity) {
-      //   const components = this._components.get(type);
-      //   return !!(components && components.get(id));
-      // }
     }
     return false;
   }
@@ -266,7 +269,7 @@ export class ComponentManager {
    * @returns `true` if the entity has the component otherwise `false`
    */
   hasComponentByTag(tag: string, type: number): boolean {
-    const entity = this._ecsInstance.tagManager.getEntityByTag(tag);
+    const entity = this._ecsInstance.getEntityByTag(tag);
     if (!entity) return false;
     return !!this._components.get(type)?.get(entity.id) ?? false;
   }

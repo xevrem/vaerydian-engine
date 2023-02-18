@@ -186,8 +186,8 @@ export class Bag<T> {
    * @param index the index of the item to retrieve
    * @returns the item if found otherwise `undefined`
    */
-  get(index: number): T | undefined {
-    return this._data[index];
+  get<U extends T>(index: number): Option<U> {
+    return this._data[index] as U;
   }
 
   /**

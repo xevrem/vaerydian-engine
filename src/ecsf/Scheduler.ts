@@ -1,20 +1,19 @@
-import { RootReducer } from 'types/modules';
 import { EntitySystem } from './EntitySystem';
 
 export class Scheduler {
-  private _systems: EntitySystem[] = [];
+  private _systems: EntitySystem<any>[] = [];
 
   /**
    * currently scheduled systems
    */
-  get systems(): EntitySystem[] {
+  get systems(): EntitySystem<any>[] {
     return this._systems;
   }
 
   /**
    * set the scheduled systems
    */
-  set systems(value: EntitySystem[]) {
+  set systems(value: EntitySystem<any>[]) {
     this._systems = value;
   }
 
@@ -30,19 +29,19 @@ export class Scheduler {
    */
   sortSystems(): void {
     this._systems.sort(
-      (a: EntitySystem, b: EntitySystem) => b.priority - a.priority
+      (a: EntitySystem<any>, b: EntitySystem<any>) => b.priority - a.priority
     );
   }
 
   /**
    * run the systems in order of priority
    */
-  runSystems(state: RootReducer): void {
+  runSystems(): void {
     const systems = this._systems;
     for (let i = systems.length; i--; ) {
       const system = systems[i];
       if (system.active) {
-        system.processAll(state);
+        system.processAll();
         if (system.reactive) system.entities.clear();
       }
     }

@@ -1,50 +1,55 @@
-import { Entity, EntitySystem, ComponentMapper } from '../ecsf';
-import { Position, Velocity, CameraData } from '../components';
+import {
+  Entity,
+  EntitySystem,
+  EntitySystemArgs,
+  Query,
+} from '../ecsf';
+import { Position, Velocity, CameraData, CameraFocus } from '../components';
 import { Application } from '@pixi/app';
+import { is_none, is_some } from 'utils';
 
-export class CameraSystem extends EntitySystem {
-  cameraDataMap!: ComponentMapper;
-  positionMap!: ComponentMapper;
-  velocityMap!: ComponentMapper;
+interface CSProps {
+  app: Application;
+}
+
+export class CameraSystem extends EntitySystem<CSProps> {
+  needed = [CameraData, Position, Velocity, CameraFocus];
   camera!: Entity;
   app: Application;
-  constructor(app: Application) {
-    super();
-    this.app = app;
+  constructor(props: EntitySystemArgs<CSProps>) {
+    super(props);
+    this.app = props.app;
   }
 
-  initialize() {
-    console.log('camera system initializing...');
-    this.cameraDataMap = new ComponentMapper(
-      new CameraData(),
-      this.ecsInstance
-    );
-    this.positionMap = new ComponentMapper(new Position(), this.ecsInstance);
-    this.velocityMap = new ComponentMapper(new Velocity(), this.ecsInstance);
+  override load() {
+    const maybeCamera = this.ecsInstance.getEntityByTag('camera');
+    if (!is_some(maybeCamera)) return;
+    this.camera = maybeCamera;
+    const maybeData = this.ecs.getComponentOfType(maybeCamera, CameraData);
+    if (is_none(maybeData)) return;
+    this.app.stage.addChild(maybeData.view);
   }
 
-  preLoadContent() {
-    this.camera = this.ecsInstance.tagManager.getEntityByTag('camera');
-    const cameraData = this.cameraDataMap.get(this.camera) as CameraData;
+  // override end() {
+  //   const maybeCamera = this.ecsInstance.getEntityByTag('camera');
+  //   if (!is_some(maybeCamera)) return;
+  //   this.camera = maybeCamera;
+  //   const maybeData = this.ecs.getComponentOfType(maybeCamera, CameraData);
+  //   if (is_none(maybeData)) return;
+  //   this.app.renderer.render(this.app.stage, {
+  //     transform: maybeData.view.localTransform,
+  //   });
+  // }
 
-    this.app.stage.addChild(cameraData.view);
-  }
-
-  end() {
-    this.camera = this.ecsInstance.tagManager.getEntityByTag('camera');
-    const cameraData = this.cameraDataMap.get(this.camera) as CameraData;
-    this.app.renderer.render(this.app.stage, {
-      transform: cameraData.view.localTransform,
-    });
-  }
-
-  process(cameraFocus: Entity, _delta: number) {
-    const focusPosition = this.positionMap.get(cameraFocus) as Position;
-    const cameraPosition = this.positionMap.get(this.camera) as Position;
+  override process(cameraFocus: Entity, query: Query, _delta: number) {
+    const focusPosition = query.get(cameraFocus, Position);
+    // const cameraPosition = query.get(this.camera, Position);
     // cameraPosition.point.set(focusPosition.point.x, focusPosition.point.y);
 
-    this.camera = this.ecsInstance.tagManager.getEntityByTag('camera');
-    const cameraData = this.cameraDataMap.get(this.camera) as CameraData;
+    // this.camera = this.ecsInstance.tagManager.getEntityByTag('camera');
+    const cameraData = query.get(this.camera, CameraData);
+    if (is_none(cameraData)) return;
     cameraData.view.pivot.set(focusPosition.point.x, focusPosition.point.y);
+    // this.ecs.update(cameraData);
   }
 }

@@ -1,10 +1,12 @@
-export const KeyType = {
+export const KEYS = {
   A: 'a',
   D: 'd',
   S: 's',
   W: 'w',
   SPACE: ' ',
 } as const;
+
+export type KeyType = ValueOf<typeof KEYS>;
 
 export const LayerType = {
   sprites: 0,
@@ -21,3 +23,18 @@ export const STARS = [
   'star6',
   'star7',
 ] as const;
+
+export function is_some<T>(val: Option<T>): val is Some<T> {
+  if (
+    val ||
+    typeof val === 'number' ||
+    (typeof val === 'boolean' && val === false)
+  )
+    return true;
+  return false;
+}
+
+export function is_none<T>(val: Option<T>): val is None {
+  if (is_some(val)) return false;
+  return true;
+}

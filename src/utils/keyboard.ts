@@ -6,9 +6,7 @@ type KeyState = {
   press: boolean;
 };
 
-export type KeyboardKeyState = {
-  [key: string]: KeyState;
-};
+export type KeyboardKeyState = Record<KeyType, KeyState>;
 
 export type KeyboardState = {
   prev: KeyboardKeyState;
@@ -19,7 +17,7 @@ export class KeyboardManager {
   static state: KeyboardState;
 
   static init(): void {
-    KeyboardManager.state = { prev: {}, curr: {} };
+    KeyboardManager.state = { prev: {}, curr: {} } as KeyboardState;
     window.addEventListener('keydown', KeyboardManager.handleKeyDown, {
       passive: true,
     });
@@ -33,7 +31,7 @@ export class KeyboardManager {
 
   static preProcess(event: KeyboardEvent): void {
     if (!KeyboardManager.state.curr.hasOwnProperty(event.key)) {
-      KeyboardManager.state.curr[event.key] = {
+      KeyboardManager.state.curr[event.key as KeyType] = {
         up: false,
         down: false,
         press: false,
@@ -45,23 +43,23 @@ export class KeyboardManager {
   static handleKeyDown(event: KeyboardEvent): void {
     // console.log('km:hkd::', event);
     KeyboardManager.preProcess(event);
-    KeyboardManager.state.curr[event.key].down = true;
-    KeyboardManager.state.curr[event.key].up = false;
+    KeyboardManager.state.curr[event.key as KeyType].down = true;
+    KeyboardManager.state.curr[event.key as KeyType].up = false;
   }
 
   static handleKeyUp(event: KeyboardEvent): void {
     // console.log('km:hku::', event);
     KeyboardManager.preProcess(event);
-    KeyboardManager.state.curr[event.key].up = true;
-    KeyboardManager.state.curr[event.key].down = false;
-    KeyboardManager.state.curr[event.key].press = false;
+    KeyboardManager.state.curr[event.key as KeyType].up = true;
+    KeyboardManager.state.curr[event.key as KeyType].down = false;
+    KeyboardManager.state.curr[event.key as KeyType].press = false;
   }
 
   static handleKeyPress(event: KeyboardEvent): void {
     // console.log('km:hkp::', event);
     KeyboardManager.preProcess(event);
-    KeyboardManager.state.curr[event.key].press = true;
-    KeyboardManager.state.curr[event.key].up = false;
+    KeyboardManager.state.curr[event.key as KeyType].press = true;
+    KeyboardManager.state.curr[event.key as KeyType].up = false;
   }
 
   static isKeyPressed(key: KeyType): boolean {
