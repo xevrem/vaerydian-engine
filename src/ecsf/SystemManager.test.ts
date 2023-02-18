@@ -1,6 +1,9 @@
 import { EcsInstance } from './EcsInstance';
 import { SystemManager } from './SystemManager';
 import ecsRig from './EcsRig';
+import { Bag } from './Bag';
+import { RootReducer } from 'types/modules';
+import { SmartResolve } from 'types/ecs';
 
 describe('SystemManager', () => {
   it('should instantiate without crashing', () => {
@@ -59,7 +62,9 @@ describe('SystemManager', () => {
       rig.ecs.systemManager.createEntity(entity);
       expect(system.entities.count).toEqual(1);
       rig.ecs.removeComponent(comp);
-      rig.ecs.systemManager.resolveEntities(entity);
+      const resolving = new Bag<SmartResolve>();
+      resolving.set(entity.id, [entity, []]);
+      rig.ecs.systemManager.resolveEntities(resolving);
       expect(system.entities.count).toEqual(0);
     });
   });
@@ -83,7 +88,9 @@ describe('SystemManager', () => {
       expect(system.entities.count).toEqual(1);
       const other = new OtherComp();
       rig.ecs.addComponent(entity, other);
-      rig.ecs.systemManager.resolveEntities(entity);
+      const resolving = new Bag<SmartResolve>();
+      resolving.set(entity.id, [entity, []]);
+      rig.ecs.systemManager.resolveEntities(resolving);
       expect(system.entities.count).toEqual(0);
     });
   });
@@ -106,7 +113,7 @@ describe('SystemManager', () => {
       rig.ecs.resolveEntities();
       expect(system.entities.count).toEqual(1);
       rig.ecs.scheduleSystems();
-      rig.ecs.runSystems();
+      rig.ecs.runSystems({} as RootReducer);
       expect(system.entities.count).toEqual(0);
       rig.ecs.update(comp);
       rig.ecs.resolveEntities();
@@ -127,7 +134,9 @@ describe('SystemManager', () => {
       const comp = new Foo();
       rig.ecs.addComponent(entity, comp);
       expect(system.entities.count).toEqual(0);
-      rig.ecs.systemManager.resolveEntities(entity);
+      const resolving = new Bag<SmartResolve>();
+      resolving.set(entity.id, [entity, []]);
+      rig.ecs.systemManager.resolveEntities(resolving);
       expect(system.entities.count).toEqual(1);
       rig.ecs.systemManager.deleteEntity(entity);
       expect(system.entities.count).toEqual(0);

@@ -1,4 +1,5 @@
 import { RootReducer } from 'types/modules';
+import { globalGetState } from 'utils/utils';
 import { EntitySystem } from './EntitySystem';
 
 export class Scheduler {
@@ -37,13 +38,13 @@ export class Scheduler {
   /**
    * run the systems in order of priority
    */
-  runSystems(state: RootReducer): void {
+  runSystems(state: RootReducer = globalGetState()): void {
     const systems = this._systems;
     for (let i = systems.length; i--; ) {
       const system = systems[i];
       if (system.active) {
         system.processAll(state);
-        if (system.reactive) system.entities.clear();
+        if (system.isReactive) system.entities.clear();
       }
     }
   }

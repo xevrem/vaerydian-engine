@@ -11,14 +11,17 @@ import { EntitySystem, EntitySystemArgs } from './EntitySystem';
 import { Bag } from './Bag';
 import { RootReducer } from 'types/modules';
 import { EntityBuilder, makeEntityBuilder } from './EntityBuilder';
-
-export declare type ComponentTuple = typeof Component[];
-
-export declare type OrderedTuple<T extends ComponentTuple = ComponentTuple> = {
-  [P in keyof T]: T[P] extends new () => infer U ? U : undefined;
-};
-
-export declare type SmartUpdate = [component: Component, systems: boolean[]];
+import { globalGetState } from 'utils/utils';
+import { Option, UUID } from 'types';
+import {
+  ComponentTuple,
+  OrderedOptionComponentTuple,
+  OrderedComponentTuple,
+  SmartResolve,
+  SmartUpdate,
+  JoinResult,
+} from 'types/ecs';
+import { isNone } from 'utils/helpers';
 
 export class EcsInstance {
   entityManager: EntityManager;
@@ -29,7 +32,7 @@ export class EcsInstance {
   scheduler: Scheduler;
 
   private _creating: Bag<Entity>;
-  private _resolving: Bag<[Entity, boolean[]]>;
+  private _resolving: Bag<SmartResolve>;
   // IDEA: for when we introduce smart resolves
   // private _resolveAdd: Bag<Component[]>;
   // private _resolveRemove: Bag<Component[]>;
@@ -52,7 +55,7 @@ export class EcsInstance {
     // IDEA: for smart resolves
     // this._resolveAdd = new Bag<Component[]>();
     // this._resolveRemove = new Bag<Component[]>();
-    this._resolving = new Bag<[Entity, boolean[]]>();
+    this._resolving = new Bag<SmartResolve>();
     this._deleting = new Bag<Entity>();
     this._updatingEntities = [];
     this._updating = new Bag<Bag<SmartUpdate>>();
@@ -136,7 +139,7 @@ export class EcsInstance {
     this._deleting.setBag(entities);
   }
 
-  getComponentsByType(component: typeof Component): Bag<Component> | undefined {
+  getComponentsByType(component: typeof Component): Option<Bag<Component>> {
     return this.componentManager.getComponentsByType(component);
   }
 
@@ -146,18 +149,24 @@ export class EcsInstance {
    * @param component the class of component to retrieve
    * @returns the component for the entity or `undefined` if it doesnt exist
    */
-  getComponent(
+  getComponent<C extends typeof Component>(
     entity: Entity,
-    component: typeof Component
-  ): Component | undefined {
+    component: C
+  ): Option<InstanceType<C>> {
     return this.componentManager.getComponent(entity, component);
   }
 
-  getComponentById(
-    id: number,
-    component: typeof Component
-  ): Component | undefined {
+  getComponentById(id: number, component: typeof Component): Option<Component> {
     return this.componentManager.getComponentById(id, component);
+  }
+
+  getComponentByTag<T extends typeof Component>(
+    tag: string,
+    component: T
+  ): Option<InstanceType<T>> {
+    const entity = this.getEntityByTag(tag);
+    if (!entity) return undefined;
+    return this.componentManager.getComponent(entity, component);
   }
 
   /**
@@ -169,7 +178,7 @@ export class EcsInstance {
   getComponentOfType<T extends typeof Component>(
     entity: Entity,
     component: T
-  ): InstanceType<T> {
+  ): Option<InstanceType<T>> {
     return this.getComponent(entity, component) as InstanceType<T>;
   }
 
@@ -182,8 +191,15 @@ export class EcsInstance {
   getComponentOfTypeById<T extends typeof Component>(
     id: number,
     component: T
-  ): InstanceType<T> {
+  ): Option<InstanceType<T>> {
     return this.getComponentById(id, component) as InstanceType<T>;
+  }
+
+  getComponentOfTypeByTag<T extends typeof Component>(
+    tag: string,
+    component: T
+  ): Option<InstanceType<T>> {
+    return this.getComponentByTag(tag, component) as InstanceType<T>;
   }
 
   /**
@@ -195,7 +211,7 @@ export class EcsInstance {
   getComponentByTypeId<T extends typeof Component>(
     entity: Entity,
     typeId: number
-  ): InstanceType<T> {
+  ): Option<InstanceType<T>> {
     return this.componentManager.getComponentByType(
       entity,
       typeId
@@ -207,7 +223,7 @@ export class EcsInstance {
    * @param id the id of the entity requested
    * @returns the required entity if found or `undefined`
    */
-  getEntity(id: number): Entity | undefined {
+  getEntity(id: number): Option<Entity> {
     return this.entityManager.getEntity(id);
   }
 
@@ -216,8 +232,12 @@ export class EcsInstance {
    * @param tag the tag to retrieve
    * @returns the entity if tagged, otherwise `undefined`
    */
-  getEntityByTag(tag: string): Entity | undefined {
+  getEntityByTag(tag: string): Option<Entity> {
     return this.tagManager.getEntityByTag(tag);
+  }
+
+  tagExists(tag: string): boolean {
+    return this.tagManager.tagExists(tag);
   }
 
   /**
@@ -225,7 +245,7 @@ export class EcsInstance {
    * @param group the group to retrieve
    * @returns the bag for the specified group
    */
-  getGroup(group: string): Bag<Entity> | undefined {
+  getGroup(group: string): Option<Bag<Entity>> {
     return this.groupManager.getGroup(group);
   }
 
@@ -315,7 +335,7 @@ export class EcsInstance {
 
   registerSystem<T extends EntitySystem>(
     System: new (props: EntitySystemArgs) => T,
-    { reactive = false, priority = 0, ...props }: SystemRegistrationArgs
+    { reactive = undefined, priority = 0, ...props }: SystemRegistrationArgs
   ): T {
     return this.systemManager.registerSystem(System, {
       reactive,
@@ -444,7 +464,7 @@ export class EcsInstance {
       creating = this._creating;
 
     this._deleting = new Bag<Entity>(deleting.capacity);
-    this._resolving = new Bag<[Entity, boolean[]]>(resolving.capacity);
+    this._resolving = new Bag<SmartResolve>(resolving.capacity);
     // IDEA: for when we introduce smart resolves
     // this._resolveAdd = new Bag<Component[]>(resolveAdd.capacity);
     // this._resolveRemove = new Bag<Component[]>(resolveRemove.capacity);
@@ -544,7 +564,7 @@ export class EcsInstance {
   /**
    * request the scheduler to run all registered systems
    */
-  runSystems(state: RootReducer): void {
+  runSystems(state: RootReducer = globalGetState()): void {
     this.scheduler.runSystems(state);
   }
 
@@ -678,9 +698,12 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ):
-    | [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-    | null {
+  ): Option<
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
+  > {
     const id = entity.id;
     let valid = true;
     const result: unknown[] = [];
@@ -722,7 +745,7 @@ export class EcsInstance {
 
     if (valid)
       return [result, entity] as [
-        components: [...OrderedTuple<T>, ...OrderedTuple<V>],
+        components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
         entity: Entity
       ];
     return null;
@@ -737,9 +760,15 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<[...OrderedTuple<T>, ...OrderedTuple<V>]> {
+  ): IterableIterator<
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
+  > {
     for (let i = entities.length; i--; ) {
-      const id = entities[i].id;
+      const entity = entities[i];
+      const id = entity.id;
       let valid = true;
       const result: unknown[] = [];
 
@@ -778,7 +807,14 @@ export class EcsInstance {
         }
       }
 
-      if (valid) yield result as [...OrderedTuple<T>, ...OrderedTuple<V>];
+      if (valid)
+        yield [result, entity] as [
+          components: [
+            ...OrderedComponentTuple<T>,
+            ...OrderedComponentTuple<V>
+          ],
+          entity: Entity
+        ];
     }
     return;
   }
@@ -793,7 +829,10 @@ export class EcsInstance {
     optional?: [...V],
     unwanted?: [...W]
   ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
   > {
     for (let i = bag.length; i--; ) {
       const entity = bag.get(i);
@@ -815,7 +854,10 @@ export class EcsInstance {
     optional?: [...V],
     unwanted?: [...W]
   ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
   > {
     for (let i = bag.length; i--; ) {
       const component = bag.get(i);
@@ -839,7 +881,10 @@ export class EcsInstance {
     optional?: [...V],
     unwanted?: [...W]
   ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
   > {
     const bag = this.groupManager.getGroup(group);
     if (!bag) return [];
@@ -856,7 +901,10 @@ export class EcsInstance {
     optional?: [...V],
     unwanted?: [...W]
   ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
   > {
     for (let i = ids.length; i--; ) {
       const id = ids[i];
@@ -902,7 +950,7 @@ export class EcsInstance {
 
       if (valid)
         yield [result, entity] as [
-          [...OrderedTuple<T>, ...OrderedTuple<V>],
+          [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
           Entity
         ];
     }
@@ -919,7 +967,10 @@ export class EcsInstance {
     optional?: [...V],
     unwanted?: [...W]
   ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
   > {
     for (let i = tags.length; i--; ) {
       const tag = tags[i];
@@ -965,7 +1016,10 @@ export class EcsInstance {
 
       if (valid)
         yield [result, entity] as [
-          components: [...OrderedTuple<T>, ...OrderedTuple<V>],
+          components: [
+            ...OrderedComponentTuple<T>,
+            ...OrderedComponentTuple<V>
+          ],
           entity: Entity
         ];
     }
@@ -983,12 +1037,12 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<[...OrderedTuple<T>, ...OrderedTuple<V>]> {
+  ): IterableIterator<JoinResult<T, V>> {
     for (let i = this.entityManager.entities.length; i--; ) {
       const entity = this.entityManager.entities.get(i);
       if (!entity) continue;
       let valid = true;
-      const result: unknown[] = [];
+      const result: Option<Component>[] = [];
 
       if (unwanted) {
         for (let j = unwanted ? unwanted.length : 0; j--; ) {
@@ -1036,7 +1090,7 @@ export class EcsInstance {
         }
       }
 
-      if (valid) yield result as [...OrderedTuple<T>, ...OrderedTuple<V>];
+      if (valid) yield [result, entity] as JoinResult<T, V>;
     }
     return;
   }
@@ -1051,7 +1105,10 @@ export class EcsInstance {
     optional?: [...V],
     unwanted?: [...W]
   ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
   > {
     for (const entity of set) {
       const value = this._joiner(entity, needed, optional, unwanted);
@@ -1071,7 +1128,10 @@ export class EcsInstance {
     optional?: [...V],
     unwanted?: [...W]
   ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
   > {
     for (const component of set) {
       const entity = this.getEntity(component.owner);
@@ -1082,11 +1142,37 @@ export class EcsInstance {
     }
   }
 
+  *joinByRecords<
+    U,
+    T extends ComponentTuple,
+    V extends ComponentTuple,
+    W extends ComponentTuple
+  >(
+    records: (U & { id: UUID })[],
+    needed?: [...T],
+    optional?: [...V],
+    unwanted?: [...W]
+  ): IterableIterator<
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity,
+      record: U
+    ]
+  > {
+    for (let i = records.length; i--; ) {
+      const entity = this.getEntityByTag(records[i].id);
+      if (isNone(entity)) continue;
+      const value = this._joiner(entity, needed, optional, unwanted);
+      if (isNone(value)) continue;
+      yield [...value, records[i]];
+    }
+  }
+
   retrieve<T extends ComponentTuple>(
     entity: Entity,
     components: [...T]
-  ): OrderedTuple<T> {
-    const results: unknown[] = [];
+  ): OrderedOptionComponentTuple<T> {
+    const results: Option<Component>[] = [];
 
     for (let j = 0; j < components.length; j++) {
       const gotComponents = this.componentManager.components.get(
@@ -1096,14 +1182,14 @@ export class EcsInstance {
       results.push(value);
     }
 
-    return results as OrderedTuple<T>;
+    return results as OrderedOptionComponentTuple<T>;
   }
 
   retrieveById<T extends ComponentTuple>(
     id: number,
     components: [...T]
-  ): OrderedTuple<T> {
-    const results: unknown[] = [];
+  ): OrderedOptionComponentTuple<T> {
+    const results: Option<Component>[] = [];
 
     for (let j = 0; j < components.length; j++) {
       const gotComponents = this.componentManager.components.get(
@@ -1113,6 +1199,25 @@ export class EcsInstance {
       results.push(value);
     }
 
-    return results as OrderedTuple<T>;
+    return results as OrderedOptionComponentTuple<T>;
+  }
+
+  retrieveByTag<T extends ComponentTuple>(
+    tag: string,
+    components: [...T]
+  ): OrderedOptionComponentTuple<T> {
+    const results: Option<Component>[] = [];
+    const entity = this.getEntityByTag(tag);
+    if (!entity) return results as OrderedOptionComponentTuple<T>;
+
+    for (let j = 0; j < components.length; j++) {
+      const gotComponents = this.componentManager.components.get(
+        components[j].type
+      );
+      const value = gotComponents ? gotComponents.get(entity.id) : undefined;
+      results.push(value);
+    }
+
+    return results as OrderedOptionComponentTuple<T>;
   }
 }

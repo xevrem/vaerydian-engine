@@ -112,7 +112,7 @@ describe('EcsInstance', () => {
       rig.ecs.resolveEntities();
       let neededCount = 0,
         optionalCount = 0;
-      for (const [foo, bar] of rig.ecs.joinAll([Foo], [Bar], [Baz])) {
+      for (const [[foo, bar]] of rig.ecs.joinAll([Foo], [Bar], [Baz])) {
         foo && neededCount++;
         bar && optionalCount++;
       }
@@ -141,42 +141,8 @@ describe('EcsInstance', () => {
       rig.ecs.resolveEntities();
       let neededCount = 0,
         optionalCount = 0;
-      for (const [foo, bar] of rig.ecs.join(
+      for (const [[foo, bar]] of rig.ecs.join(
         [e1, e2, e3],
-        [Foo],
-        [Bar],
-        [Baz]
-      )) {
-        foo && neededCount++;
-        bar && optionalCount++;
-      }
-      expect(neededCount).toEqual(2);
-      expect(optionalCount).toEqual(1);
-    });
-  });
-
-  it('should be able to iterate over entity queries with join', () => {
-    ecsRig((rig) => {
-      const Foo = rig.makeComponentType();
-      rig.ecs.componentManager.registerComponent(Foo);
-      const Bar = rig.makeComponentType();
-      rig.ecs.componentManager.registerComponent(Bar);
-      const Baz = rig.makeComponentType();
-      rig.ecs.componentManager.registerComponent(Baz);
-      const e1 = rig.ecs.createEntity();
-      const e2 = rig.ecs.createEntity();
-      const e3 = rig.ecs.createEntity();
-
-      rig.ecs.addComponent(e1, new Foo());
-      rig.ecs.addComponent(e2, new Foo());
-      rig.ecs.addComponent(e3, new Foo());
-      rig.ecs.addComponent(e2, new Bar());
-      rig.ecs.addComponent(e3, new Baz());
-      rig.ecs.resolveEntities();
-      let neededCount = 0,
-        optionalCount = 0;
-      for (const [[foo, bar]] of rig.ecs.joinById(
-        [e1.id, e2.id, e3.id],
         [Foo],
         [Bar],
         [Baz]

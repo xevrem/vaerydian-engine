@@ -1,3 +1,4 @@
+import { Option } from 'types';
 import { Bag } from './Bag';
 import { Component } from './Component';
 import { EcsInstance } from './EcsInstance';
@@ -88,7 +89,7 @@ export class ComponentManager {
    * @param component component type to retrieve
    * @returns a bag of components of the type specified
    */
-  getComponentsByType(component: typeof Component): Bag<Component> | undefined {
+  getComponentsByType(component: typeof Component): Option<Bag<Component>> {
     return this._components.get(component.type);
   }
 
@@ -98,10 +99,10 @@ export class ComponentManager {
    * @param component the class of component to retrieve
    * @returns the component for the entity or `undefined` if it doesnt exist
    */
-  getComponent(
+  getComponent<C extends typeof Component>(
     entity: Entity,
-    component: typeof Component
-  ): Component | undefined {
+    component: C
+  ): Option<InstanceType<C>> {
     const components = this._components.get(component.type);
     return components ? components.get(entity.id) : undefined;
   }
@@ -112,20 +113,17 @@ export class ComponentManager {
    * @param component the class of component to retrieve
    * @returns the component for the entity or `undefined` if it doesnt exist
    */
-  getComponentById(
-    id: number,
-    component: typeof Component
-  ): Component | undefined {
+  getComponentById(id: number, component: typeof Component): Option<Component> {
     const components = this._components.get(component.type);
     return components ? components.get(id) : undefined;
   }
 
-  getComponentByType(entity: Entity, type: number): Component | undefined {
+  getComponentByType(entity: Entity, type: number): Option<Component> {
     const components = this._components.get(type);
     return components ? components.get(entity.id) : undefined;
   }
 
-  getComponentByTypeAndId(id: number, type: number): Component | undefined {
+  getComponentByTypeAndId(id: number, type: number): Option<Component> {
     const components = this._components.get(type);
     return components ? components.get(id) : undefined;
   }

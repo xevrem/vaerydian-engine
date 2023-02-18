@@ -83,9 +83,9 @@ describe('Component', () => {
       const bar = new Bar();
       const foo = new Foo();
       expect(bar.bar).toBeDefined();
-      expect(foo.bar).not.toBeDefined();
+      expect(foo).not.toHaveProperty('bar');
       expect(foo.foo).toBeDefined();
-      expect(bar.foo).not.toBeDefined();
+      expect(bar).not.toHaveProperty('foo');
     });
   });
 

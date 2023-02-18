@@ -1,5 +1,6 @@
 import { Option, Result } from 'types/common';
-import { isSome } from 'utils/helpers';
+import { FeatureFlags } from 'utils/features';
+import { isNone, isSome } from 'utils/helpers';
 import { Bag } from './Bag';
 import { Component } from './Component';
 import { EcsInstance } from './EcsInstance';
@@ -8,13 +9,23 @@ import { Entity } from './Entity';
 export declare type ComponentBuilderFunction = (
   builder: EntityBuilder
 ) => Component;
+export declare type ComponentMaybeBuilderFunction = (
+  builder: EntityBuilder
+) => Option<Component>;
 export declare type StringBuilderFunction = (builder: EntityBuilder) => string;
+export declare type DataBuilderFunction = (
+  builder: EntityBuilder
+) => EntityBuilder;
 
 /**
  * creates an Entity builder that allows you to chain common entity build patterns
  * NOTE: entity is not actually created until `build()` is called on this builder
  */
 export declare type EntityBuilder = {
+  /**
+   *
+   */
+  also(callback: DataBuilderFunction): EntityBuilder;
   /**
    * finalizes the build of this component
    * @return a `Result` that is either `Ok<Entity>` on success
@@ -33,6 +44,10 @@ export declare type EntityBuilder = {
    * @return this `EntityBuilder`
    */
   addMaybe(maybe: Option<Component>): EntityBuilder;
+  /**
+   *
+   */
+  addMaybeWith(callback: ComponentMaybeBuilderFunction): EntityBuilder;
   /**
    * add component to entity using a callback function
    * @param callback a `ComponentBuilderFunction` that returns a component
@@ -69,6 +84,10 @@ export declare type EntityBuilder = {
    */
   get<C extends typeof Component>(component: C): InstanceType<C>;
   /**
+   *
+   */
+  init(callback: DataBuilderFunction): EntityBuilder;
+  /**
    * insert data into builder to be used later in build chain
    * @param key location to store data
    * @param value data to store
@@ -99,41 +118,65 @@ export declare type EntityBuilder = {
 /**
  * creates a builder that allows you to chain calls to build up an entity
  * making creation of entities extremely easy while remaining lightweight
- * and performant
+ * and performant.
  */
 export function makeEntityBuilder(ecs: EcsInstance): EntityBuilder {
   let entity!: Entity;
+  const alsoCallbacks: DataBuilderFunction[] = [];
   const components = new Bag<Component>();
-  const componentCallbacks: ComponentBuilderFunction[] = [];
-  const tagCallbacks: StringBuilderFunction[] = [];
+  const componentCallbacks: (
+    | ComponentBuilderFunction
+    | ComponentMaybeBuilderFunction
+  )[] = [];
   const groupCallbacks: StringBuilderFunction[] = [];
-  const tags: string[] = [];
   const groups: string[] = [];
+  let initCallback: Option<DataBuilderFunction> = null;
+  const tags: string[] = [];
+  const tagCallbacks: StringBuilderFunction[] = [];
   const workingData: Record<PropertyKey, unknown> = {};
   const builder: EntityBuilder = {
-    build<E = Error>(): Result<Entity, E> {
+    build<E extends Error = Error>(): Result<Entity, E> {
       entity = ecs.createEntity();
+      let currentBuilder: EntityBuilder = this;
       try {
-        components.forEach(
-          (component) => component && ecs.addComponent(entity, component)
-        );
-        componentCallbacks.forEach((callback) => {
-          const component = callback(this);
-          components.set(component.type, component);
-          ecs.addComponent(entity, component);
-        });
-        tags.forEach((tag) => ecs.tagManager.tagEntity(tag, entity));
-        tagCallbacks.forEach((callback) =>
-          ecs.tagManager.tagEntity(callback(this), entity)
-        );
-        groups.forEach((group) =>
-          ecs.groupManager.addEntityToGroup(group, entity)
-        );
-        groupCallbacks.forEach((callback) =>
-          ecs.groupManager.addEntityToGroup(callback(this), entity)
-        );
+        currentBuilder = isSome(initCallback)
+          ? initCallback(currentBuilder)
+          : this;
+        for (let i = 0; i < componentCallbacks.length; i++) {
+          const component = componentCallbacks[i](currentBuilder);
+          if (isSome(component)) {
+            components.set(component.type, component);
+            ecs.addComponent(entity, component);
+          }
+        }
+        // we do standard adds after callbacks because callbacks can add inside them
+        for (let i = 0; i < components.length; i++) {
+          const component = components.get(i);
+          component && ecs.addComponent(entity, component);
+        }
+        for (let i = 0; i < alsoCallbacks.length; i++) {
+          currentBuilder = alsoCallbacks[i](currentBuilder);
+        }
+        for (let i = 0; i < tags.length; i++) {
+          ecs.tagManager.tagEntity(tags[i], entity);
+        }
+        for (let i = 0; i < tagCallbacks.length; i++) {
+          ecs.tagManager.tagEntity(tagCallbacks[i](currentBuilder), entity);
+        }
+        for (let i = 0; i < groups.length; i++) {
+          ecs.groupManager.addEntityToGroup(groups[i], entity);
+        }
+        for (let i = 0; i < groupCallbacks.length; i++) {
+          ecs.groupManager.addEntityToGroup(
+            groupCallbacks[i](currentBuilder),
+            entity
+          );
+        }
         return entity;
       } catch (e) {
+        if (FeatureFlags.DEBUG_TOOLS) {
+          console.error('ENTITY BUILDER ERROR:', e);
+        }
         ecs.abort(entity);
         return e as E;
       }
@@ -148,19 +191,29 @@ export function makeEntityBuilder(ecs: EcsInstance): EntityBuilder {
       }
       return this;
     },
-    insertData<T>(key: PropertyKey, value: T): EntityBuilder {
-      workingData[key] = value;
+    addMaybeWith(callback: ComponentMaybeBuilderFunction): EntityBuilder {
+      componentCallbacks.push(callback);
       return this;
     },
     addWith(callback: ComponentBuilderFunction): EntityBuilder {
       componentCallbacks.push(callback);
       return this;
     },
+    also(callback: DataBuilderFunction): EntityBuilder {
+      alsoCallbacks.push(callback);
+      return this;
+    },
     get<C extends typeof Component>(component: C): InstanceType<C> {
-      return components.get(component.type) as InstanceType<C>;
+      const comp = components.get(component.type);
+      if (isNone(comp))
+        throw new Error(`builder component ${component.name} is undefined`);
+      return comp as InstanceType<C>;
     },
     getData<T>(key: PropertyKey): T {
-      return workingData[key] as T;
+      const data = workingData[key];
+      if (isNone(data))
+        throw new Error(`builder data ${key as string} is undefined`);
+      return data as T;
     },
     getEntity(): Entity {
       return entity;
@@ -171,6 +224,14 @@ export function makeEntityBuilder(ecs: EcsInstance): EntityBuilder {
     },
     groupWith(callback: StringBuilderFunction): EntityBuilder {
       groupCallbacks.push(callback);
+      return this;
+    },
+    init(callback: DataBuilderFunction): EntityBuilder {
+      initCallback = callback;
+      return this;
+    },
+    insertData<T>(key: PropertyKey, value: T): EntityBuilder {
+      workingData[key] = value;
       return this;
     },
     setData<T>(key: PropertyKey, value: T): void {

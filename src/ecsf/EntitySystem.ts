@@ -1,13 +1,23 @@
 import { Bag } from './Bag';
 import { Entity } from './Entity';
-import { ComponentTuple, EcsInstance, OrderedTuple } from './EcsInstance';
+import { EcsInstance } from './EcsInstance';
 import { Query } from './Query';
 import { RootReducer } from 'types/modules';
+import {
+  ComponentTuple,
+  OrderedComponentTuple,
+  OrderedOptionComponentTuple,
+  SmartUpdate,
+} from 'types/ecs';
+import { makeTimeLog } from 'utils/utils';
+
+// log anything that takes more than half a standard frame (16ms)
+const timelog = makeTimeLog(8);
 
 export declare interface EntitySystemArgs {
   id: number;
   ecsInstance: EcsInstance;
-  reactive: boolean;
+  reactive?: boolean;
   priority: number;
   [option: string]: unknown;
 }
@@ -20,11 +30,11 @@ export class EntitySystem<
   private _id = -1;
   private _entities: Bag<Entity> = new Bag<Entity>();
   private _ecsInstance: EcsInstance;
-  private _reactive: boolean;
   private _priority: number;
   private _query!: Query<T, V, W>;
   private _active = true;
   private _dirty = false;
+  protected reactive = false;
   props: EntitySystemArgs;
   needed!: [...T];
   optional!: [...V];
@@ -34,7 +44,7 @@ export class EntitySystem<
     this.props = props;
     this._id = props.id;
     this._ecsInstance = props.ecsInstance;
-    this._reactive = props.reactive || false;
+    this.reactive = props.reactive || false;
     this._priority = props.priority || 0;
   }
 
@@ -58,8 +68,8 @@ export class EntitySystem<
     return this._entities;
   }
 
-  get reactive(): boolean {
-    return this._reactive;
+  get isReactive(): boolean {
+    return this.reactive;
   }
 
   get priority(): number {
@@ -192,7 +202,7 @@ export class EntitySystem<
   }
 
   deleteEntity(entity: Entity): void {
-    if (this._reactive) {
+    if (this.reactive) {
       this.deleted && this.deleted(entity);
       this._dirty = true;
     } else {
@@ -217,12 +227,14 @@ export class EntitySystem<
    * process all entities
    */
   processAll(state: RootReducer): void {
+    timelog.start();
     if (this.shouldProcess(state)) {
       this.begin && this.begin(state);
       this.processEntities(state);
       this.processJoin(state);
       this.end && this.end(state);
     }
+    timelog('processAll', this.constructor.name);
   }
 
   processJoin(state: RootReducer): void {
@@ -273,6 +285,15 @@ export class EntitySystem<
     this._entities.clear();
   }
 
+  updateById(id: number, updates: Bag<SmartUpdate>): void {
+    const entity = this.entities.get(id);
+    if (entity) this.updated?.(entity, updates);
+  }
+
+  update(entity: Entity): void {
+    this.updated?.(entity);
+  }
+
   /*
    * extendable lifecycle functions
    */
@@ -299,7 +320,14 @@ export class EntitySystem<
    */
   join?(
     entity: Entity,
-    components: [...OrderedTuple<T>, ...OrderedTuple<V>],
+    components: [
+      ...OrderedComponentTuple<T>,
+      ...OrderedOptionComponentTuple<V>
+    ],
     state: RootReducer
   ): void;
+  /**
+   * called for static systems when a given entity it owns has a component update
+   */
+  updated?(entity: Entity, updates?: Bag<SmartUpdate>): void;
 }
