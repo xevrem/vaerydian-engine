@@ -21,7 +21,7 @@ describe('Library', () => {
       expect(instance).toBeDefined();
     });
     it('ComponentManager should be importable and instantiable', () => {
-      const cm = new ComponentManager();
+      const cm = new ComponentManager(new EcsInstance());
       expect(cm).toBeDefined();
     });
     it('ComponentMapper should be importable and instantiable', () => {
@@ -38,8 +38,9 @@ describe('Library', () => {
       expect(instance).toBeDefined();
     });
     it('EntitySystem should be importable and instantiable', () => {
+      const ecs = new EcsInstance();
       class Foo extends EntitySystem {}
-      const foo = new Foo({});
+      const foo = new Foo({ id: 1, priority: 1, ecsInstance: ecs });
       expect(foo).toBeDefined();
     });
     it('GroupManager should be importable and instantiable', () => {
@@ -54,8 +55,5 @@ describe('Library', () => {
       const instance = new TagManager();
       expect(instance).toBeDefined();
     });
-  });
-  describe('setup', () => {
-    it('should...', () => {});
   });
 });

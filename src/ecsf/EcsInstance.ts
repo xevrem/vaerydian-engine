@@ -10,14 +10,41 @@ import { Scheduler } from './Scheduler';
 import { EntitySystem, EntitySystemArgs } from './EntitySystem';
 import { Bag } from './Bag';
 import { EntityBuilder, makeEntityBuilder } from './EntityBuilder';
+import { FuncQuery, QueryFunc, VariadricQuery } from './FuncQuery';
+import { PointTuple } from './vector';
 
-export declare type ComponentTuple = (typeof Component)[];
-
-export declare type OrderedTuple<T extends ComponentTuple = ComponentTuple> = {
+export declare type OrderedTuple<T extends any[]> = {
   [P in keyof T]: T[P] extends new () => infer U ? U : undefined;
 };
+export declare type ComponentTuple = (typeof Component)[]; //OrderedTuple<typeof Component>;
+export declare type ComponentOptionTuple = Option<typeof Component>[];
+
+
+export declare type OptionTuple<T extends Option<any>[]> = {
+  [P in keyof T]: T[P] extends Option<T[P]> ? Option<T[P]> : never; // new (...args: any) => infer R ? R : any;// ? InstanceType<T[P]> : None
+};
+
+export declare type SomeTuple<T extends Option<any>[]> = {
+  [P in keyof T]: T[P] extends Option<T[P]> ? Some<T[P]> : None; // new (...args: any) => infer R ? R : any;// ? InstanceType<T[P]> : None
+};
+
+export declare type NoneTuple<T extends Option<any>[]> = {
+  [P in keyof T]: T[P] extends Option<T[P]> ? None : Some<T[P]>; // new (...args: any) => infer R ? R : any;// ? InstanceType<T[P]> : None
+};
+
+
+export declare type QueryResult<T extends Option<any>[]> = {
+  [P in keyof T]: T[P] extends Some<T[P]> ? InstanceType<T[P]> : None; // new (...args: any) => infer R ? R : any;// ? InstanceType<T[P]> : None
+};
+
+export declare type JoinResult<
+  T extends ComponentTuple, ///OptionTuple<T, Option<T>, Option<T>[]>,
+  V extends ComponentTuple ///OptionTuple<V, Option<V>, Option<V>[]>
+> = [components: [...QueryResult<T>, ...OptionTuple<V>], entity: Entity];
 
 export declare type SmartUpdate = [component: Component, systems: boolean[]];
+
+export declare type SmartResolve = [entity: Entity, ignored: boolean[]];
 
 export class EcsInstance {
   entityManager: EntityManager;
@@ -28,7 +55,10 @@ export class EcsInstance {
   scheduler: Scheduler;
 
   private _creating: Bag<Entity>;
-  private _resolving: Bag<[Entity, boolean[]]>;
+  private _resolving: Bag<SmartResolve>;
+  // IDEA: for when we introduce smart resolves
+  // private _resolveAdd: Bag<Component[]>;
+  // private _resolveRemove: Bag<Component[]>;
   private _deleting: Bag<Entity>;
   private _updatingEntities: Entity[];
   private _updating: Bag<Bag<SmartUpdate>>;
@@ -45,7 +75,10 @@ export class EcsInstance {
     this.groupManager = new GroupManager();
     this.scheduler = new Scheduler();
     this._creating = new Bag<Entity>();
-    this._resolving = new Bag<[Entity, boolean[]]>();
+    // IDEA: for smart resolves
+    // this._resolveAdd = new Bag<Component[]>();
+    // this._resolveRemove = new Bag<Component[]>();
+    this._resolving = new Bag<SmartResolve>();
     this._deleting = new Bag<Entity>();
     this._updatingEntities = [];
     this._updating = new Bag<Bag<SmartUpdate>>();
@@ -83,10 +116,14 @@ export class EcsInstance {
    */
   addComponent(entity: Entity, component: Component): void {
     this.componentManager.addComponent(entity, component);
+    // IDEA: for smart resolves
+    // this.resolveAdd(entity.id, component);
   }
 
   addComponentById(id: number, component: Component): void {
     this.componentManager.addComponentById(id, component);
+    // IDEA: for smart resolves
+    // this.resolveAdd(id, component);
   }
 
   /**
@@ -139,11 +176,20 @@ export class EcsInstance {
     entity: Entity,
     component: C
   ): Option<InstanceType<C>> {
-    return this.componentManager.getComponent<C>(entity, component);
+    return this.componentManager.getComponent(entity, component);
   }
 
   getComponentById(id: number, component: typeof Component): Option<Component> {
     return this.componentManager.getComponentById(id, component);
+  }
+
+  getComponentByTag<T extends typeof Component>(
+    tag: string,
+    component: T
+  ): Option<InstanceType<T>> {
+    const entity = this.getEntityByTag(tag);
+    if (!entity) return undefined;
+    return this.componentManager.getComponent(entity, component);
   }
 
   /**
@@ -156,7 +202,7 @@ export class EcsInstance {
     entity: Entity,
     component: T
   ): Option<InstanceType<T>> {
-    return this.getComponent(entity, component);
+    return this.getComponent(entity, component) as InstanceType<T>;
   }
 
   /**
@@ -172,6 +218,13 @@ export class EcsInstance {
     return this.getComponentById(id, component) as InstanceType<T>;
   }
 
+  getComponentOfTypeByTag<T extends typeof Component>(
+    tag: string,
+    component: T
+  ): Option<InstanceType<T>> {
+    return this.getComponentByTag(tag, component) as InstanceType<T>;
+  }
+
   /**
    * gets a component for the given entity with the given typeId
    * @param entity to retrieve component from
@@ -181,7 +234,7 @@ export class EcsInstance {
   getComponentByTypeId<T extends typeof Component>(
     entity: Entity,
     typeId: number
-  ): InstanceType<T> {
+  ): Option<InstanceType<T>> {
     return this.componentManager.getComponentByType(
       entity,
       typeId
@@ -204,6 +257,10 @@ export class EcsInstance {
    */
   getEntityByTag(tag: string): Option<Entity> {
     return this.tagManager.getEntityByTag(tag);
+  }
+
+  tagExists(tag: string): boolean {
+    return this.tagManager.tagExists(tag);
   }
 
   /**
@@ -308,8 +365,8 @@ export class EcsInstance {
     this.componentManager.registerComponent(component);
   }
 
-  registerSystem<U, T extends EntitySystem<U>>(
-    System: new (props: EntitySystemArgs<U>) => T,
+  registerSystem<T extends EntitySystem>(
+    System: new (props: EntitySystemArgs) => T,
     { reactive = false, priority = 0, ...props }: SystemRegistrationArgs
   ): T {
     return this.systemManager.registerSystem(System, {
@@ -324,6 +381,7 @@ export class EcsInstance {
    * @param component the component to remove
    */
   removeComponent(component: Component): void {
+    // this.resolveRemove(component.owner, component);
     this.componentManager.removeComponent(component);
   }
 
@@ -333,10 +391,16 @@ export class EcsInstance {
    * @param component the component type to remove
    */
   removeComponentType(entity: Entity, component: typeof Component): void {
+    // IDEA: for when we introduce smart resolves
+    // const comp = this.componentManager.getComponentById(entity.id, component);
+    // comp && this.resolveRemove(comp.owner, comp);
     this.componentManager.removeComponentType(entity, component);
   }
 
   removeComponentTypeById(id: number, component: typeof Component): void {
+    // IDEA: for when we introduce smart resolves
+    // const comp = this.componentManager.getComponentById(id, component);
+    // comp && this.resolveRemove(comp.owner, comp);
     this.componentManager.removeComponentTypeById(id, component);
   }
 
@@ -354,6 +418,19 @@ export class EcsInstance {
     this._resolving.set(entity.id, [entity, ignored]);
   }
 
+  // IDEA: for when we add smart resolves
+  // resolveAdd(id: number, component: Component): void {
+  //   // don't add if its a new component
+  //   if (this._creating.has(id)) return;
+  //   if (!this._resolveAdd.has(id)) this._resolveAdd.set(id, []);
+  //   this._resolveAdd.get(id)?.push(component);
+  // }
+
+  // IDEA: for when we add smart resolves
+  // resolveRemove(id: number, component: Component): void {
+  //   if (!this._resolveRemove.has(id)) this._resolveRemove.set(id, []);
+  //   this._resolveRemove.get(id)?.push(component);
+  // }
 
   /**
    * resolve the entity that has the given id against he current ecs instance.
@@ -409,14 +486,20 @@ export class EcsInstance {
     // processes cause an update to any of them, they are not possibly lost
     const deleting = this._deleting,
       resolving = this._resolving,
-      updating = this._updating,
+      // IDEA: for when we introduce smart resolves
+      // resolveAdd = this._resolveAdd,
+      // resolveRemove = this._resolveRemove,
+      updating = this._updating, //Object.values(this._updating),
       updatingEntities = this._updatingEntities,
       // NOTE: `this._creating` doesn't get reset immediately because we want to wait until later
       //       this helps prevent system-spammy creates
       creating = this._creating;
 
     this._deleting = new Bag<Entity>(deleting.capacity);
-    this._resolving = new Bag<[Entity, boolean[]]>(resolving.capacity);
+    this._resolving = new Bag<SmartResolve>(resolving.capacity);
+    // IDEA: for when we introduce smart resolves
+    // this._resolveAdd = new Bag<Component[]>(resolveAdd.capacity);
+    // this._resolveRemove = new Bag<Component[]>(resolveRemove.capacity);
     this._updating = new Bag<Bag<SmartUpdate>>(updating.capacity);
     this._updatingEntities = [];
 
@@ -429,12 +512,67 @@ export class EcsInstance {
         this.groupManager.deleteEntity(entity);
         this.componentManager.deleteEntity(entity);
         this.entityManager.deleteEntity(entity);
+        // IDEA: for when we introduce smart resolves
+        // resolveAdd.set(entity.id, undefined);
+        // resolveRemove.set(entity.id, undefined);
       }
     }
 
     if (resolving.count > 0) {
+      // for (let i = resolving.length; i--; ) {
+      //   const entity = resolving.get(i);
+      //   if (!entity) continue;
+      // IDEA: for when we introduce smart resolves
+      // if (resolveAdd.has(entity.id)) {
+      //   // we need to add the smart resolves components first
+      //   const components = resolveAdd.get(entity.id);
+      //   if(components){
+      //     console.log('ei:re:r-ra::', entity.id);
+      //     this.componentManager.addComponents(entity.id, components);
+      //     this.systemManager.resolveAdd(components);
+      //     resolveAdd.set(i, undefined);
+      //     continue;
+      //   }
+      // }
+      // if (resolveRemove.has(entity.id)) {
+      //   // we need to remove the smart resolves components first
+      //   const components = resolveRemove.get(entity.id);
+      //   if(components){
+      //     console.log('ei:re:r-rr::', entity.id);
+      //     this.systemManager.resolveRemove(components);
+      //     this.componentManager.removeComponents(components);
+      //     resolveRemove.set(i, undefined);
+      //     continue;
+      //   }
+      // }
+      // this.systemManager.resolveEntity(entity);
+      // }
       this.systemManager.resolveEntities(resolving);
     }
+
+    // IDEA: for when we introduce smart resolves
+    // verify there is work to do in the sparse bag
+    // if (resolveAdd.count > 0) {
+    //   for (let i = resolveAdd.length; i--; ) {
+    //     const components = resolveAdd.get(i);
+    //     if (components) {
+    //       this.componentManager.addComponents(i, components);
+    //       this.systemManager.resolveAdd(components);
+    //     }
+    //   }
+    // }
+
+    // IDEA: for when we introduce smart resolves
+    // verify there is work to do in the sparse bag
+    // if (resolveRemove.count > 0) {
+    //   for (let i = resolveRemove.length; i--; ) {
+    //     const components = resolveRemove.get(i);
+    //     if (components) {
+    //       this.systemManager.resolveRemove(components);
+    //       this.componentManager.removeComponents(components);
+    //     }
+    //   }
+    // }
 
     if (updating.count > 0) {
       this.systemManager.update(updating);
@@ -592,9 +730,9 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ):
-    | [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-    | null {
+  ): Option<
+    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+  > {
     const id = entity.id;
     let valid = true;
     const result: unknown[] = [];
@@ -651,9 +789,12 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<[...OrderedTuple<T>, ...OrderedTuple<V>]> {
+  ): IterableIterator<
+    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+  > {
     for (let i = entities.length; i--; ) {
-      const id = entities[i].id;
+      const entity = entities[i];
+      const id = entity.id;
       let valid = true;
       const result: unknown[] = [];
 
@@ -692,7 +833,11 @@ export class EcsInstance {
         }
       }
 
-      if (valid) yield result as [...OrderedTuple<T>, ...OrderedTuple<V>];
+      if (valid)
+        yield [result, entity] as [
+          components: [...OrderedTuple<T>, ...OrderedTuple<V>],
+          entity: Entity
+        ];
     }
     return;
   }
@@ -897,12 +1042,12 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<[...OrderedTuple<T>, ...OrderedTuple<V>]> {
+  ): IterableIterator<JoinResult<T, V>> {
     for (let i = this.entityManager.entities.length; i--; ) {
       const entity = this.entityManager.entities.get(i);
       if (!entity) continue;
       let valid = true;
-      const result: unknown[] = [];
+      const result: Option<Component>[] = [];
 
       if (unwanted) {
         for (let j = unwanted ? unwanted.length : 0; j--; ) {
@@ -950,7 +1095,7 @@ export class EcsInstance {
         }
       }
 
-      if (valid) yield result as [...OrderedTuple<T>, ...OrderedTuple<V>];
+      if (valid) yield [result, entity] as JoinResult<T, V>;
     }
     return;
   }
@@ -999,8 +1144,8 @@ export class EcsInstance {
   retrieve<T extends ComponentTuple>(
     entity: Entity,
     components: [...T]
-  ): OrderedTuple<T> {
-    const results: unknown[] = [];
+  ): OptionTuple<T> {
+    const results: Option<Component>[] = [];
 
     for (let j = 0; j < components.length; j++) {
       const gotComponents = this.componentManager.components.get(
@@ -1010,14 +1155,14 @@ export class EcsInstance {
       results.push(value);
     }
 
-    return results as OrderedTuple<T>;
+    return results as OptionTuple<T>;
   }
 
   retrieveById<T extends ComponentTuple>(
     id: number,
     components: [...T]
-  ): OrderedTuple<T> {
-    const results: unknown[] = [];
+  ): OptionTuple<T> {
+    const results: Option<Component>[] = [];
 
     for (let j = 0; j < components.length; j++) {
       const gotComponents = this.componentManager.components.get(
@@ -1027,6 +1172,80 @@ export class EcsInstance {
       results.push(value);
     }
 
-    return results as OrderedTuple<T>;
+    return results as OptionTuple<T>;
   }
+
+  retrieveByTag<T extends ComponentTuple>(
+    tag: string,
+    components: [...T]
+  ): OptionTuple<T> {
+    const results: Option<Component>[] = [];
+    const entity = this.getEntityByTag(tag);
+    if (!entity) return results as OptionTuple<T>;
+
+    for (let j = 0; j < components.length; j++) {
+      const gotComponents = this.componentManager.components.get(
+        components[j].type
+      );
+      const value = gotComponents ? gotComponents.get(entity.id) : undefined;
+      results.push(value);
+    }
+
+    return results as OptionTuple<T>;
+  }
+
+  *query<T extends ComponentTuple>(
+    needed: VariadricQuery<T>
+  ): IterableIterator<QueryResult<T>> {
+    for (let i = this.entityManager.entities.length; i--; ) {
+      const entity = this.entityManager.entities.get(i);
+      if (!entity) continue;
+      let valid = true;
+      const result: QueryResult<T>[] = [];
+      for (let j = 0; j < needed.length; j++) {
+        const components = this.componentManager.components.get(needed[j].type);
+        if (components) {
+          const component = components.get(i);
+          valid = !!component && valid;
+          if (!valid) break;
+          result.push(component);
+        }
+      }
+      if (valid) yield result;// as OptionTuple<T>;
+    }
+    return;
+  }
+
+  qSysTuple: [
+    func: (query: FuncQuery<any>, ecs: EcsInstance) => void,
+    data: VariadricQuery<ComponentTuple>
+  ][] = [];
+
+  withSystem<T extends ComponentTuple>(
+    queryFunc: QueryFunc<T>,
+    data: [...T]
+  ): void {
+    this.qSysTuple.push([queryFunc, data]);
+  }
+
+  runQuerySystems(): void {
+    for (let i = 0; i < this.qSysTuple.length; i++) {
+      const [func, data] = this.qSysTuple[i];
+      func(new FuncQuery(this, data), this);
+    }
+  }
+}
+
+const e = new EcsInstance();
+
+class Foo extends Component {}
+
+class Bar extends Component {}
+
+for (const result of e.joinAll([Foo], [Bar])) {
+  const [comps, ent] = result;
+  const [a, b] = comps;
+  a;
+  b;
+  ent;
 }

@@ -21,6 +21,10 @@ export class TagManager {
     this._tags[tag] = entity;
   }
 
+  tagExists(tag: string): boolean {
+    return Object.hasOwn(this._tags, tag);
+  }
+
   /**
    * delete the given entity from all tags
    * @param entity the entity to delete

@@ -1,7 +1,8 @@
-import { EcsInstance, SmartUpdate } from './EcsInstance';
+import { EcsInstance } from './EcsInstance';
 import { EntitySystem, EntitySystemArgs } from './EntitySystem';
 import { Entity } from './Entity';
 import { Bag } from './Bag';
+import { SmartResolve, SmartUpdate } from 'types/ecs';
 
 export declare interface SystemRegistrationArgs {
   reactive?: boolean;
@@ -52,7 +53,7 @@ export class SystemManager {
    */
   registerSystem<T extends EntitySystem>(
     System: new (props: EntitySystemArgs) => T,
-    { reactive = false, priority = 0, ...props }: SystemRegistrationArgs
+    { reactive = undefined, priority = 0, ...props }: SystemRegistrationArgs
   ): T {
     const system = new System({
       id: this._nextId++,
@@ -67,7 +68,7 @@ export class SystemManager {
     system.componentTypes.forEach((component) => {
       this._ecsInstance.componentManager.registerComponent(component);
     });
-    if (system.reactive) {
+    if (system.isReactive) {
       this._reactiveSystems.push(system);
     } else {
       this._staticSystems.push(system);
@@ -135,7 +136,7 @@ export class SystemManager {
    * if it doesnt already have the entity or removed if invalid
    * @param resolving the entities to resolve
    */
-  resolveEntities(resolving: Bag<[Entity, boolean[]]>): void {
+  resolveEntities(resolving: Bag<SmartResolve>): void {
     for (let i = resolving.length; i--; ) {
       const data = resolving.get(i);
       if (!data) continue;
@@ -224,8 +225,8 @@ export class SystemManager {
    * @param updated the arrays of components by owner requiring updates
    */
   update(updated: Bag<Bag<SmartUpdate>>): void {
-    for (let i = this._reactiveSystems.length; i--; ) {
-      const system = this._reactiveSystems[i];
+    for (let i = this._systems.length; i--; ) {
+      const system = this._systems[i];
       for (let owner = updated.length; owner--; ) {
         const data = updated.get(owner);
         if (!data) continue;
@@ -242,7 +243,11 @@ export class SystemManager {
         // AND we're not an invalid entity
         if (maybeValid && system.query.isValidById(owner)) {
           // THEN add this entity
-          system.addByUpdateById(owner);
+          if (system.isReactive) system.addByUpdateById(owner);
+          else {
+            // static system
+            system.updateById(owner, data);
+          }
         }
       }
     }
@@ -254,9 +259,12 @@ export class SystemManager {
    * @param entity the entity to update
    */
   updateEntity(entity: Entity): void {
-    for (let i = this._reactiveSystems.length; i--; ) {
-      const system = this._reactiveSystems[i];
-      system.query.validate(entity) && system.addByUpdate(entity);
+    for (let i = this._systems.length; i--; ) {
+      const system = this._systems[i];
+      if (system.query.validate(entity)) {
+        system.isReactive && system.addByUpdate(entity);
+        !system.isReactive && system.update(entity);
+      }
     }
   }
 

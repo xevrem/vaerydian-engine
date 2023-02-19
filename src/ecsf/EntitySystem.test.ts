@@ -46,7 +46,6 @@ describe('EntitySystem', () => {
   });
 
   it('should handle loading', () => {
-    console.log('begin test');
     ecsRig((rig) => {
       const system = rig.ecs.systemManager.registerSystem(TestSystem, {});
       const spy = jest.spyOn(system, 'load');

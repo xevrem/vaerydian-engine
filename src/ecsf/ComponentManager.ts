@@ -50,7 +50,7 @@ export class ComponentManager {
    */
   getAllEntityComponents(entity: Entity): Record<string, Component> {
     const allComponents: Record<string, Component> = {};
-    this._components.forEach(components => {
+    this._components.forEach((components) => {
       if (!components) return;
       const component = components.get(entity.id);
       if (!component) return;

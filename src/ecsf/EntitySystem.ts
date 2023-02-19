@@ -1,16 +1,28 @@
 import { Bag } from './Bag';
 import { Entity } from './Entity';
-import { ComponentTuple, EcsInstance, OrderedTuple } from './EcsInstance';
+import { EcsInstance } from './EcsInstance';
 import { Query } from './Query';
+import { RootReducer } from 'types/modules';
+import {
+  ComponentTuple,
+  OrderedComponentTuple,
+  OrderedOptionComponentTuple,
+  SmartUpdate,
+} from 'types/ecs';
+import { makeTimeLog } from 'utils/utils';
 
-export declare type EntitySystemArgs<U> = {
+// log anything that takes more than half a standard frame (16ms)
+const timelog = makeTimeLog(8);
+
+export declare interface EntitySystemArgs {
   id: number;
   ecsInstance: EcsInstance;
-  reactive: boolean;
+  reactive?: boolean;
   priority: number;
-} & U;
+  [option: string]: unknown;
+}
 
-export class EntitySystem<U = void,
+export class EntitySystem<
   T extends ComponentTuple = ComponentTuple,
   V extends ComponentTuple = ComponentTuple,
   W extends ComponentTuple = ComponentTuple
@@ -18,21 +30,21 @@ export class EntitySystem<U = void,
   private _id = -1;
   private _entities: Bag<Entity> = new Bag<Entity>();
   private _ecsInstance: EcsInstance;
-  private _reactive: boolean;
   private _priority: number;
   private _query!: Query<T, V, W>;
   private _active = true;
   private _dirty = false;
-  props: EntitySystemArgs<U>;
+  protected reactive = false;
+  props: EntitySystemArgs;
   needed!: [...T];
   optional!: [...V];
   unwanted!: [...W];
 
-  constructor(props: EntitySystemArgs<U>) {
+  constructor(props: EntitySystemArgs) {
     this.props = props;
     this._id = props.id;
     this._ecsInstance = props.ecsInstance;
-    this._reactive = props.reactive || false;
+    this.reactive = props.reactive || false;
     this._priority = props.priority || 0;
   }
 
@@ -56,8 +68,8 @@ export class EntitySystem<U = void,
     return this._entities;
   }
 
-  get reactive(): boolean {
-    return this._reactive;
+  get isReactive(): boolean {
+    return this.reactive;
   }
 
   get priority(): number {
@@ -190,7 +202,7 @@ export class EntitySystem<U = void,
   }
 
   deleteEntity(entity: Entity): void {
-    if (this._reactive) {
+    if (this.reactive) {
       this.deleted && this.deleted(entity);
       this._dirty = true;
     } else {
@@ -214,16 +226,18 @@ export class EntitySystem<U = void,
   /**
    * process all entities
    */
-  processAll(): void {
-    if (this.shouldProcess()) {
-      this.begin && this.begin();
-      this.processEntities();
-      this.processJoin();
-      this.end && this.end();
+  processAll(state: RootReducer): void {
+    timelog.start();
+    if (this.shouldProcess(state)) {
+      this.begin && this.begin(state);
+      this.processEntities(state);
+      this.processJoin(state);
+      this.end && this.end(state);
     }
+    timelog('processAll', this.constructor.name);
   }
 
-  processJoin(): void {
+  processJoin(state: RootReducer): void {
     if (!this.join) return;
     // if we have no entities, don't bother running
     if (!this._entities.count) return;
@@ -231,7 +245,7 @@ export class EntitySystem<U = void,
     const data = this._query.data;
     for (let i = data.length; i--; ) {
       const [components, entity] = data[i];
-      this.join(entity, components);
+      this.join(entity, components, state);
     }
   }
 
@@ -239,7 +253,7 @@ export class EntitySystem<U = void,
    * processes entities one by one calling the system's `process` function
    * and passing the results of the systems `Query`
    */
-  processEntities(): void {
+  processEntities(state: RootReducer): void {
     if (!this.process) return;
     // if we have no entiteis, don't bother
     if (!this._entities.count) return;
@@ -247,7 +261,7 @@ export class EntitySystem<U = void,
     for (let i = this._entities.length; i--; ) {
       const entity = this._entities.get(i);
       entity &&
-        this.process(entity, this._query, this._ecsInstance.delta);
+        this.process(entity, this._query, this._ecsInstance.delta, state);
     }
   }
 
@@ -255,6 +269,8 @@ export class EntitySystem<U = void,
    * determine whether or not this system should process
    */
   shouldProcess(
+    // eslint-disable-next-line
+    _state: RootReducer
   ): boolean {
     return true;
   }
@@ -269,6 +285,15 @@ export class EntitySystem<U = void,
     this._entities.clear();
   }
 
+  updateById(id: number, updates: Bag<SmartUpdate>): void {
+    const entity = this.entities.get(id);
+    if (entity) this.updated?.(entity, updates);
+  }
+
+  update(entity: Entity): void {
+    this.updated?.(entity);
+  }
+
   /*
    * extendable lifecycle functions
    */
@@ -280,12 +305,13 @@ export class EntitySystem<U = void,
   removed?(entity: Entity): void;
   cleanUp?(entities: Bag<Entity>): void;
   reset?(): void;
-  begin?(): void;
-  end?(): void;
+  begin?(state: RootReducer): void;
+  end?(state: RootReducer): void;
   process?(
     entity: Entity,
     query: Query<T, V, W>,
     delta: number,
+    state: RootReducer
   ): void;
   /**
    * alternate to `process`, but auto-retrieves all needed/optional components
@@ -294,6 +320,14 @@ export class EntitySystem<U = void,
    */
   join?(
     entity: Entity,
-    components: [...OrderedTuple<T>, ...OrderedTuple<V>],
+    components: [
+      ...OrderedComponentTuple<T>,
+      ...OrderedOptionComponentTuple<V>
+    ],
+    state: RootReducer
   ): void;
+  /**
+   * called for static systems when a given entity it owns has a component update
+   */
+  updated?(entity: Entity, updates?: Bag<SmartUpdate>): void;
 }

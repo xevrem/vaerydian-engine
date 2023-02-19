@@ -1,17 +1,14 @@
 import { Bag } from './Bag';
 import { Component } from './Component';
-import { ComponentTuple, EcsInstance, OrderedTuple } from './EcsInstance';
+import {
+  OrderedOptionComponentTuple,
+  OrderedComponentTuple,
+  ComponentTuple,
+  JoinedQuery,
+  JoinResult,
+} from 'types/ecs';
 import { Entity } from './Entity';
-
-export declare type JoinedData<
-  T extends OrderedTuple,
-  V extends OrderedTuple
-> = [...T, ...V]; //[...OrderedTuple<T>, ...OrderedTuple<V>];
-
-export declare type JoinedQuery<
-  T extends ComponentTuple,
-  V extends ComponentTuple
-> = [components: JoinedData<OrderedTuple<T>, OrderedTuple<V>>, entity: Entity];
+import { EcsInstance } from './EcsInstance';
 
 export declare interface QueryArgs<
   T extends ComponentTuple,
@@ -20,8 +17,8 @@ export declare interface QueryArgs<
 > {
   ecsInstance: EcsInstance;
   needed: [...T];
-  optional: [...V];
-  unwanted: [...W];
+  optional?: [...V];
+  unwanted?: [...W];
 }
 
 export class Query<
@@ -38,8 +35,8 @@ export class Query<
   constructor(props: QueryArgs<T, V, W>) {
     this._ecsInstance = props.ecsInstance;
     this._needed = props.needed;
-    this._optional = props.optional || [];
-    this._unwanted = props.unwanted || [];
+    this._optional = props.optional || ([] as any);
+    this._unwanted = props.unwanted || ([] as any);
     this._data = [];
   }
 
@@ -196,7 +193,12 @@ export class Query<
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<[...OrderedTuple<T>, ...OrderedTuple<V>]> {
+  ): IterableIterator<
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
+  > {
     return this._ecsInstance.join(entities, needed, optional, unwanted);
   }
 
@@ -210,7 +212,10 @@ export class Query<
     optional?: [...V],
     unwanted?: [...W]
   ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    [
+      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
+      entity: Entity
+    ]
   > {
     return this._ecsInstance.joinById(ids, needed, optional, unwanted);
   }
@@ -223,21 +228,21 @@ export class Query<
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<[...OrderedTuple<T>, ...OrderedTuple<V>]> {
+  ): IterableIterator<JoinResult<T, V>> {
     return this._ecsInstance.joinAll(needed, optional, unwanted);
   }
 
   retrieve<T extends typeof Component[]>(
     entity: Entity,
     components: [...T]
-  ): OrderedTuple<T> {
+  ): OrderedOptionComponentTuple<T> {
     return this._ecsInstance.retrieve(entity, components);
   }
 
   retrieveById<T extends typeof Component[]>(
     id: number,
     components: [...T]
-  ): OrderedTuple<T> {
+  ): OrderedOptionComponentTuple<T> {
     return this._ecsInstance.retrieveById(id, components);
   }
 

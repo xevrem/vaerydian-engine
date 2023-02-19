@@ -1,12 +1,13 @@
+
 export class Bag<T> {
-  private _data: Array<T | undefined> = [];
+  private _data: Array<Option<T>> = [];
   private _length = 0;
   private _count = 0;
   private _last = -1;
   private _invalidated = true;
 
   constructor(capacity = 16) {
-    this._data = new Array(capacity);
+    this._data = new Array<Option<T>>(capacity);
     this._length = 0;
   }
 
@@ -14,12 +15,18 @@ export class Bag<T> {
    * WARNING: experimental... still needs refinement
    */
   [Symbol.iterator]() {
-    let i = this._length - 1;
+    let i = 0;
+    const next = (): { value: T; done: boolean } => {
+      const value = this._data[i++];
+      return value
+        ? {
+            value,
+            done: i >= this._length,
+          }
+        : next();
+    };
     return {
-      next: () => ({
-        value: this._data[i],
-        done: !i--,
-      }),
+      next,
     };
   }
 
@@ -58,7 +65,7 @@ export class Bag<T> {
   /**
    * the base data structure of the bag
    */
-  get data(): Array<T | undefined> {
+  get data(): Array<Option<T>> {
     return this._data;
   }
 
@@ -77,14 +84,14 @@ export class Bag<T> {
   /**
    * return the last populated item
    */
-  get last(): T | undefined {
+  get last(): Option<T> {
     return this._data[this.lastIndex(this._data.length)];
   }
 
   /**
    * return the first item
    */
-  get first(): T | undefined {
+  get first(): Option<T> {
     const size = this._data.length;
     for (let i = 0; i < size; i++) {
       const item = this.get(i);
@@ -99,11 +106,7 @@ export class Bag<T> {
    * @param [context] the optional context to use
    */
   forEach(
-    args: (
-      item: T | undefined,
-      index: number,
-      array: Array<T | undefined>
-    ) => void,
+    args: (item: Option<T>, index: number, array: Array<Option<T>>) => void,
     context?: Bag<T>
   ): void {
     return this._data.forEach(args, context);
@@ -117,12 +120,12 @@ export class Bag<T> {
    */
   map(
     args: (
-      item: T | undefined,
+      item: Option<T>,
       index: number,
-      array: Array<T | undefined>
-    ) => T | undefined,
+      array: Array<Option<T>>
+    ) => Option<T>,
     context?: Bag<T>
-  ): Array<T | undefined> {
+  ): Array<Option<T>> {
     return this._data.map(args, context);
   }
 
@@ -133,13 +136,9 @@ export class Bag<T> {
    * @returns the results of the `filter` operation
    */
   filter(
-    args: (
-      item: T | undefined,
-      index: number,
-      array: Array<T | undefined>
-    ) => boolean,
+    args: (item: Option<T>, index: number, array: Array<Option<T>>) => boolean,
     context?: Bag<T>
-  ): Array<T | undefined> {
+  ): Array<Option<T>> {
     return this._data.filter(args, context);
   }
 
@@ -152,9 +151,9 @@ export class Bag<T> {
   reduce<V>(
     args: (
       acc: V,
-      item: T | undefined,
+      item: Option<T>,
       index: number,
-      array: Array<T | undefined>
+      array: Array<Option<T>>
     ) => V,
     init: V
   ): V {
@@ -167,15 +166,15 @@ export class Bag<T> {
    * @param end the optional context to use
    * @returns the results of the `slice` operation
    */
-  slice(start?: number, end?: number): Array<T | undefined> {
+  slice(start?: number, end?: number): Array<Option<T>> {
     return this._data.slice(start, end);
   }
 
   some(
     predicate: (
-      value: T | undefined,
+      value: Option<T>,
       index: number,
-      array: Array<T | undefined>
+      array: Array<Option<T>>
     ) => boolean
   ): boolean {
     return this._data.some(predicate);
@@ -196,7 +195,7 @@ export class Bag<T> {
    * @param value the value to set
    * @returns a copy of the value if successfully inserted, otherwise `undefined`
    */
-  set(index: number, value: T | undefined): T | undefined {
+  set(index: number, value: Option<T>): Option<T> {
     if (index < 0) {
       return undefined;
     }
@@ -235,7 +234,7 @@ export class Bag<T> {
    * adds the given element to the end of the bags contents
    * @param element the element to add
    */
-  add(element: T | undefined): number {
+  add(element: Option<T>): number {
     if (this._length >= this._data.length) {
       this.grow();
     }
@@ -293,7 +292,7 @@ export class Bag<T> {
    * @param [compare] the optional comparator function to use
    * @returns `true` if found, `false` if not
    */
-  contains(element: T, compare = (a: T, b: T | undefined) => a === b): boolean {
+  contains(element: T, compare = (a: T, b: Option<T>) => a === b): boolean {
     for (let i = this._length; i--; ) {
       if (compare(element, this._data[i])) return true;
     }
@@ -315,7 +314,7 @@ export class Bag<T> {
    * @param element the element to remove
    * @returns the element removed or `undefined` if no element was found
    */
-  remove(element: T): T | undefined {
+  remove(element: T): Option<T> {
     const index = this._data.indexOf(element);
     if (index === this._last) this._invalidated = true;
     return this.removeAt(index);
@@ -326,7 +325,7 @@ export class Bag<T> {
    * @param index the index for the element to remove
    * @returns the removed element or `undefined` if it was empty or out of bounds
    */
-  removeAt(index: number): T | undefined {
+  removeAt(index: number): Option<T> {
     if (index < this._data.length && index >= 0) {
       const item = this._data[index];
       this.set(index, undefined);
@@ -341,7 +340,7 @@ export class Bag<T> {
    * remove the element in the last filled position
    * @returns the element if found or `undefined` if not
    */
-  removeLast(): T | undefined {
+  removeLast(): Option<T> {
     const index = this._length - 1;
     const item = this._data[index];
     this.set(index, undefined);
@@ -356,6 +355,8 @@ export class Bag<T> {
    */
   grow(size: number = 2 * this._data.length + 1): void {
     if (size <= this._data.length) return;
-    this._data = this._data.concat(new Array(size - this._data.length));
+    this._data = this._data.concat(
+      new Array<Option<T>>(size - this._data.length)
+    );
   }
 }

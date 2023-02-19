@@ -1,3 +1,4 @@
+import { Option } from 'types';
 import { Bag } from './Bag';
 import { Entity } from './Entity';
 
@@ -42,7 +43,7 @@ export class EntityManager {
    * @param id the id of the entity requested
    * @returns the requried entity if found or `undefined`
    */
-  getEntity(id: number): Entity | undefined {
+  getEntity(id: number): Option<Entity> {
     return this._entities.get(id);
   }
 
