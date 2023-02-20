@@ -1,6 +1,7 @@
 import { Entity } from './Entity';
 import { Component } from './Component';
 import { EcsInstance } from './EcsInstance';
+
 export class ComponentMapper<T extends Component> {
   private _type: number;
   private _ecsInstance: EcsInstance;

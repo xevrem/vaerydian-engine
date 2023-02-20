@@ -3,48 +3,23 @@ import { ComponentManager } from './ComponentManager';
 import { SystemManager, SystemRegistrationArgs } from './SystemManager';
 import { TagManager } from './TagManager';
 import { GroupManager } from './GroupManager';
-import { Entity } from './Entity';
-import { Component } from './Component';
 import { ComponentMapper } from './ComponentMapper';
 import { Scheduler } from './Scheduler';
 import { EntitySystem, EntitySystemArgs } from './EntitySystem';
 import { Bag } from './Bag';
 import { EntityBuilder, makeEntityBuilder } from './EntityBuilder';
-import { FuncQuery, QueryFunc, VariadricQuery } from './FuncQuery';
-import { PointTuple } from './vector';
-
-export declare type OrderedTuple<T extends any[]> = {
-  [P in keyof T]: T[P] extends new () => infer U ? U : undefined;
-};
-export declare type ComponentTuple = (typeof Component)[]; //OrderedTuple<typeof Component>;
-export declare type ComponentOptionTuple = Option<typeof Component>[];
-
-
-export declare type OptionTuple<T extends Option<any>[]> = {
-  [P in keyof T]: T[P] extends Option<T[P]> ? Option<T[P]> : never; // new (...args: any) => infer R ? R : any;// ? InstanceType<T[P]> : None
-};
-
-export declare type SomeTuple<T extends Option<any>[]> = {
-  [P in keyof T]: T[P] extends Option<T[P]> ? Some<T[P]> : None; // new (...args: any) => infer R ? R : any;// ? InstanceType<T[P]> : None
-};
-
-export declare type NoneTuple<T extends Option<any>[]> = {
-  [P in keyof T]: T[P] extends Option<T[P]> ? None : Some<T[P]>; // new (...args: any) => infer R ? R : any;// ? InstanceType<T[P]> : None
-};
-
-
-export declare type QueryResult<T extends Option<any>[]> = {
-  [P in keyof T]: T[P] extends Some<T[P]> ? InstanceType<T[P]> : None; // new (...args: any) => infer R ? R : any;// ? InstanceType<T[P]> : None
-};
-
-export declare type JoinResult<
-  T extends ComponentTuple, ///OptionTuple<T, Option<T>, Option<T>[]>,
-  V extends ComponentTuple ///OptionTuple<V, Option<V>, Option<V>[]>
-> = [components: [...QueryResult<T>, ...OptionTuple<V>], entity: Entity];
-
-export declare type SmartUpdate = [component: Component, systems: boolean[]];
-
-export declare type SmartResolve = [entity: Entity, ignored: boolean[]];
+import { FuncQuery, QueryFunc } from './FuncQuery';
+import { is_none } from 'utils/helpers';
+import { Entity } from './Entity';
+import { Component } from './Component';
+import {
+  ComponentTuple,
+  JoinedResult,
+  SmartUpdate,
+  SmartResolve,
+  OrderedComponentOptionTuple,
+  OrderedComponentTuple,
+} from 'types';
 
 export class EcsInstance {
   entityManager: EntityManager;
@@ -365,15 +340,12 @@ export class EcsInstance {
     this.componentManager.registerComponent(component);
   }
 
-  registerSystem<T extends EntitySystem>(
-    System: new (props: EntitySystemArgs) => T,
-    { reactive = false, priority = 0, ...props }: SystemRegistrationArgs
-  ): T {
-    return this.systemManager.registerSystem(System, {
-      reactive,
-      priority,
-      ...props,
-    });
+  registerSystem<
+    T extends EntitySystem<any, Props, any, any>,
+    Props extends Record<PropertyKey, any> = {},
+    Args extends EntitySystemArgs<any, Props, any, any> = any
+  >(System: new (props: Args) => T, args: SystemRegistrationArgs<Props>): T {
+    return this.systemManager.registerSystem<T, Props, Args>(System, args);
   }
 
   /**
@@ -730,9 +702,7 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): Option<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-  > {
+  ): Option<JoinedResult<T, V>> {
     const id = entity.id;
     let valid = true;
     const result: unknown[] = [];
@@ -772,11 +742,7 @@ export class EcsInstance {
       }
     }
 
-    if (valid)
-      return [result, entity] as [
-        components: [...OrderedTuple<T>, ...OrderedTuple<V>],
-        entity: Entity
-      ];
+    if (valid) return [result, entity] as JoinedResult<T, V>;
     return null;
   }
 
@@ -789,9 +755,9 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
+    //   [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    // > {
     for (let i = entities.length; i--; ) {
       const entity = entities[i];
       const id = entity.id;
@@ -833,11 +799,11 @@ export class EcsInstance {
         }
       }
 
-      if (valid)
-        yield [result, entity] as [
-          components: [...OrderedTuple<T>, ...OrderedTuple<V>],
-          entity: Entity
-        ];
+      if (valid) yield [result, entity] as JoinedResult<T, V>;
+      // [
+      //     components: [...OrderedTuple<T>, ...OrderedTuple<V>],
+      //     entity: Entity
+      //   ];
     }
     return;
   }
@@ -851,9 +817,7 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
     for (let i = bag.length; i--; ) {
       const entity = bag.get(i);
       if (!entity) continue;
@@ -873,9 +837,7 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
     for (let i = bag.length; i--; ) {
       const component = bag.get(i);
       if (!component) continue;
@@ -897,9 +859,7 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
     const bag = this.groupManager.getGroup(group);
     if (!bag) return [];
     yield* this.joinByBag(bag, needed, optional, unwanted);
@@ -914,15 +874,15 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
+    //   [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
+    // > {
     for (let i = ids.length; i--; ) {
       const id = ids[i];
       const entity = this.getEntity(id);
       if (!entity) continue;
       let valid = true;
-      const result: unknown[] = [];
+      const result: Option<Component>[] = [];
 
       if (unwanted) {
         for (let j = unwanted ? unwanted.length : 0; j--; ) {
@@ -942,7 +902,7 @@ export class EcsInstance {
           );
           const value = gotComponents ? gotComponents.get(id) : null;
           valid = (value && valid) as boolean;
-          if (!valid) break;
+          if (!valid || is_none(value)) break;
           result.push(value);
         }
 
@@ -959,11 +919,11 @@ export class EcsInstance {
         }
       }
 
-      if (valid)
-        yield [result, entity] as [
-          [...OrderedTuple<T>, ...OrderedTuple<V>],
-          Entity
-        ];
+      if (valid) yield [result, entity] as JoinedResult<T, V>;
+      // as [
+      //     [...OrderedTuple<T>, ...OrderedTuple<V>],
+      //     Entity
+      //   ];
     }
     return;
   }
@@ -977,9 +937,7 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
     for (let i = tags.length; i--; ) {
       const tag = tags[i];
       const entity = this.tagManager.getEntityByTag(tag);
@@ -1022,11 +980,7 @@ export class EcsInstance {
         }
       }
 
-      if (valid)
-        yield [result, entity] as [
-          components: [...OrderedTuple<T>, ...OrderedTuple<V>],
-          entity: Entity
-        ];
+      if (valid) yield [result, entity] as JoinedResult<T, V>;
     }
     return;
   }
@@ -1042,7 +996,7 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<JoinResult<T, V>> {
+  ): IterableIterator<JoinedResult<T, [...V]>> {
     for (let i = this.entityManager.entities.length; i--; ) {
       const entity = this.entityManager.entities.get(i);
       if (!entity) continue;
@@ -1095,7 +1049,7 @@ export class EcsInstance {
         }
       }
 
-      if (valid) yield [result, entity] as JoinResult<T, V>;
+      if (valid) yield [result, entity] as JoinedResult<T, V>;
     }
     return;
   }
@@ -1109,9 +1063,7 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
     for (const entity of set) {
       const value = this._joiner(entity, needed, optional, unwanted);
       if (value) {
@@ -1129,9 +1081,7 @@ export class EcsInstance {
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [components: [...OrderedTuple<T>, ...OrderedTuple<V>], entity: Entity]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
     for (const component of set) {
       const entity = this.getEntity(component.owner);
       if (!entity) continue;
@@ -1144,7 +1094,7 @@ export class EcsInstance {
   retrieve<T extends ComponentTuple>(
     entity: Entity,
     components: [...T]
-  ): OptionTuple<T> {
+  ): OrderedComponentOptionTuple<T> {
     const results: Option<Component>[] = [];
 
     for (let j = 0; j < components.length; j++) {
@@ -1155,13 +1105,13 @@ export class EcsInstance {
       results.push(value);
     }
 
-    return results as OptionTuple<T>;
+    return results as OrderedComponentOptionTuple<T>;
   }
 
   retrieveById<T extends ComponentTuple>(
     id: number,
     components: [...T]
-  ): OptionTuple<T> {
+  ): OrderedComponentOptionTuple<T> {
     const results: Option<Component>[] = [];
 
     for (let j = 0; j < components.length; j++) {
@@ -1172,16 +1122,16 @@ export class EcsInstance {
       results.push(value);
     }
 
-    return results as OptionTuple<T>;
+    return results as OrderedComponentOptionTuple<T>;
   }
 
   retrieveByTag<T extends ComponentTuple>(
     tag: string,
     components: [...T]
-  ): OptionTuple<T> {
+  ): OrderedComponentOptionTuple<T> {
     const results: Option<Component>[] = [];
     const entity = this.getEntityByTag(tag);
-    if (!entity) return results as OptionTuple<T>;
+    if (!entity) return results as OrderedComponentOptionTuple<T>;
 
     for (let j = 0; j < components.length; j++) {
       const gotComponents = this.componentManager.components.get(
@@ -1191,34 +1141,38 @@ export class EcsInstance {
       results.push(value);
     }
 
-    return results as OptionTuple<T>;
+    return results as OrderedComponentOptionTuple<T>;
   }
 
   *query<T extends ComponentTuple>(
-    needed: VariadricQuery<T>
-  ): IterableIterator<QueryResult<T>> {
+    needed: T
+  ): IterableIterator<OrderedComponentTuple<T>> {
     for (let i = this.entityManager.entities.length; i--; ) {
       const entity = this.entityManager.entities.get(i);
       if (!entity) continue;
       let valid = true;
-      const result: QueryResult<T>[] = [];
+      const result: OrderedComponentTuple<T> = [] as OrderedComponentTuple<T>;
       for (let j = 0; j < needed.length; j++) {
         const components = this.componentManager.components.get(needed[j].type);
         if (components) {
           const component = components.get(i);
+          if (is_none(component)) {
+            valid = false;
+            break;
+          }
           valid = !!component && valid;
           if (!valid) break;
           result.push(component);
         }
       }
-      if (valid) yield result;// as OptionTuple<T>;
+      if (valid) yield result; // as OptionTuple<T>;
     }
     return;
   }
 
   qSysTuple: [
     func: (query: FuncQuery<any>, ecs: EcsInstance) => void,
-    data: VariadricQuery<ComponentTuple>
+    data: ComponentTuple
   ][] = [];
 
   withSystem<T extends ComponentTuple>(
@@ -1242,9 +1196,7 @@ class Foo extends Component {}
 
 class Bar extends Component {}
 
-for (const result of e.joinAll([Foo], [Bar])) {
-  const [comps, ent] = result;
-  const [a, b] = comps;
+for (const [[a, b], ent] of e.joinAll([Foo], [Bar])) {
   a;
   b;
   ent;

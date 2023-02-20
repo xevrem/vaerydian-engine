@@ -1,7 +1,7 @@
 import { Bag } from './Bag';
-import { Component } from './Component';
 import { EcsInstance } from './EcsInstance';
 import { Entity } from './Entity';
+import { Component } from './Component';
 
 export class ComponentManager {
   private _ecsInstance: EcsInstance;

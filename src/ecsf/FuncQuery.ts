@@ -1,6 +1,5 @@
-import { EcsInstance, ComponentTuple, OptionTuple, OrderedTuple, ComponentOptionTuple } from './EcsInstance';
-
-// export declare type ComponentTuple = typeof Component[];
+import { EcsInstance } from './EcsInstance';
+import { ComponentTuple, OrderedComponentTuple } from 'types';
 
 export declare type VariadricQuery<T extends ComponentTuple> = [...T];
 
@@ -18,7 +17,7 @@ export class FuncQuery<T extends ComponentTuple> {
     this.data = data;
   }
 
-  join(): IterableIterator<OptionTuple<T>> {
+  join(): IterableIterator<OrderedComponentTuple<T>> {
     return this.ecs.query<T>(this.data);
   }
 }

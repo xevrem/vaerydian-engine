@@ -1,12 +1,13 @@
-
 declare module 'url:*' {
-  export default string;
+  type URLString = string;
+  export default URLString;
 }
 
-declare module "*.png" {
-   const value: any;
-   export = value;
+declare module '*.png' {
+  const value: any;
+  export = value;
 }
+
 
 declare type Some<T> = T;
 
@@ -20,4 +21,3 @@ declare type Err<E extends Error = Error> = E;
 
 declare type Result<T, E extends Error = Error> = Ok<T> | Err<E>;
 
-type ValueOf<T, K = keyof T> = K extends keyof T ? T[K] : never;

@@ -113,7 +113,7 @@ export class GameScreen extends Screen {
 
     this.ecs = new EcsInstance();
 
-    this.ecs.systemManager.registerSystem(
+    this.ecs.registerSystem(
       CameraSystem,
       {
         app: this.app,
@@ -122,46 +122,51 @@ export class GameScreen extends Screen {
       // CameraFocus
     );
 
-    this.ecs.systemManager.registerSystem(
-      ControlSystem,
+    this.ecs.registerSystem(
+      ControlSystem
+      // {}
       // Controllable,
       // Velocity,
       // Rotation
     );
 
-    this.graphicsRenderSystem = this.ecs.systemManager.setSystem(
-      new GraphicsRenderSystem(this.app),
-      GraphicsRender,
-      Position
+    this.ecs.registerSystem(
+      GraphicsRenderSystem,
+      { app: this.app }
+      // GraphicsRender,
+      // Position
     );
 
-    this.layeringSystem = this.ecs.systemManager.setSystem(
-      new LayeringSystem(this.groups),
-      Layers
+    this.ecs.registerSystem(
+      LayeringSystem,
+      { groups: this.groups }
+      // Layers
     );
 
-    this.movementSystem = this.ecs.systemManager.setSystem(
-      new MovementSystem(),
-      Position,
-      Velocity
+    this.ecs.registerSystem(
+      MovementSystem
+      // Position,
+      // Velocity
     );
 
-    this.renderSystem = this.ecs.systemManager.setSystem(
-      new RenderSystem(this.app),
-      Renderable,
-      Position,
-      Rotation
+    this.ecs.registerSystem(
+      RenderSystem,
+      { app: this.app }
+      // Renderable,
+      // Position,
+      // Rotation
     );
 
-    this.starfieldSystem = this.ecs.systemManager.setSystem(
-      new StarfieldSystem(this.app),
-      Position,
-      Starfield
+    this.ecs.registerSystem(
+      StarfieldSystem,
+      { app: this.app }
+      // Position,
+      // Starfield
     );
 
-    this.animationSystem = this.ecs.systemManager.setSystem(
-      new AnimationSystem(),
-      Animatable
+    this.ecs.registerSystem(
+      AnimationSystem
+      // Animatable
     );
 
     this.ecs.componentManager.registerComponent(Controllable);
@@ -196,7 +201,7 @@ export class GameScreen extends Screen {
       .forEach(() => this.entityFactory.createStar());
 
     this.ecs.resolveEntities();
-    this.ecs.systemManager.systemsLoadContent();
+    this.ecs.systemManager.loadSystems();
 
     this.ecs.withSystem(
       (query, ecs) => {
@@ -237,18 +242,18 @@ export class GameScreen extends Screen {
     this.ecs.resolveEntities();
 
     this.ecs.runQuerySystems();
-    this.starfieldSystem.processAll();
+    this.ecs.runSystems();
+    // this.starfieldSystem.processAll();
   }
 
   focusUpdate(_delta: number): void {
-    this.controlSystem.processAll();
+    // this.controlSystem.processAll();
   }
 
   draw(): void {
-    this.renderSystem.processAll();
-    this.graphicsRenderSystem.processAll();
-
+    // this.renderSystem.processAll();
+    // this.graphicsRenderSystem.processAll();
     // render scene according to camera position
-    this.cameraSystem.processAll();
+    // this.cameraSystem.processAll();
   }
 }

@@ -1,21 +1,24 @@
 import { EcsInstance } from './EcsInstance';
 import { EntitySystem, EntitySystemArgs } from './EntitySystem';
-import { Entity } from './Entity';
 import { Bag } from './Bag';
-import { SmartResolve, SmartUpdate } from 'types/ecs';
+import { Entity } from './Entity';
+import { SmartResolve, SmartUpdate } from 'types';
 
-export declare interface SystemRegistrationArgs {
+export declare type SystemRegistrationArgs<
+  Props extends Record<PropertyKey, any> = {}
+> = {
   reactive?: boolean;
   priority?: number;
-  [option: string]: unknown;
-}
+} & {
+  [Key in keyof Props]: Props[Key];
+};
 
 export class SystemManager {
   private _ecsInstance: EcsInstance;
-  private _staticSystems: EntitySystem[];
-  private _reactiveSystems: EntitySystem[];
-  private _systemTypes: Record<string, EntitySystem> = {};
-  private _systems!: EntitySystem[];
+  private _staticSystems: EntitySystem<any, any, any, any>[];
+  private _reactiveSystems: EntitySystem<any, any, any, any>[];
+  private _systemTypes: Record<string, EntitySystem<any, any, any, any>> = {};
+  private _systems!: EntitySystem<any, any, any, any>[];
   private _nextId: number;
 
   constructor(ecsInstance: EcsInstance) {
@@ -29,7 +32,7 @@ export class SystemManager {
    * an array of the currently managed systems
    * memoized on startup
    */
-  get systems(): EntitySystem[] {
+  get systems(): EntitySystem<any, any, any, any>[] {
     if (this._systems) return this._systems;
     this._systems = this._staticSystems.concat(this._reactiveSystems);
     return this._systems;
@@ -41,7 +44,9 @@ export class SystemManager {
    * @param name class name of the registered system
    * @returns the registered system with the given name
    */
-  getSystemByTypeName<T extends EntitySystem>(name: string): T {
+  getSystemByTypeName<T extends EntitySystem<any, any, any, any>>(
+    name: string
+  ): T {
     return this._systemTypes[name] as T;
   }
 
@@ -51,21 +56,23 @@ export class SystemManager {
    * @param args the system registration arguments
    * @returns a reference to the registered system
    */
-  registerSystem<T extends EntitySystem>(
-    System: new (props: EntitySystemArgs) => T,
-    { reactive = undefined, priority = 0, ...props }: SystemRegistrationArgs
-  ): T {
-    const system = new System({
+  registerSystem<
+    T extends EntitySystem<any, Props, any, any>,
+    Props extends Record<PropertyKey, any>,
+    Args extends EntitySystemArgs<any, Props, any, any>
+  >(System: new (props: Args) => T, args: SystemRegistrationArgs<Props>): T {
+    const props = {
       id: this._nextId++,
       ecsInstance: this._ecsInstance,
-      reactive,
-      priority,
-      ...props,
-    });
+      reactive: false,
+      priority: 0,
+      ...args,
+    };
+    const system = new System(props);
 
     system.buildQuery();
 
-    system.componentTypes.forEach((component) => {
+    system.componentTypes.forEach(component => {
       this._ecsInstance.componentManager.registerComponent(component);
     });
     if (system.isReactive) {
@@ -231,7 +238,7 @@ export class SystemManager {
         const data = updated.get(owner);
         if (!data) continue;
         // IF any of the components added are valid,
-        const maybeValid = data.some((item) => {
+        const maybeValid = data.some(item => {
           if (item) {
             const [component, ignored] = item;
             return (
@@ -279,7 +286,7 @@ export class SystemManager {
    * clean up all registred systems
    */
   cleanUp(): void {
-    this.systems.forEach((system) => system.cleanSystem());
+    this.systems.forEach(system => system.cleanSystem());
     this._staticSystems = [];
     this._reactiveSystems = [];
     this._systemTypes = {};

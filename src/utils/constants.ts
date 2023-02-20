@@ -1,3 +1,5 @@
+import { ValueOf } from "types";
+
 export const KEYS = {
   A: 'a',
   D: 'd',
@@ -23,18 +25,3 @@ export const STARS = [
   'star6',
   'star7',
 ] as const;
-
-export function is_some<T>(val: Option<T>): val is Some<T> {
-  if (
-    val ||
-    typeof val === 'number' ||
-    (typeof val === 'boolean' && val === false)
-  )
-    return true;
-  return false;
-}
-
-export function is_none<T>(val: Option<T>): val is None {
-  if (is_some(val)) return false;
-  return true;
-}

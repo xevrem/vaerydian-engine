@@ -2,30 +2,30 @@ import { Bag } from './Bag';
 import { Entity } from './Entity';
 import { EcsInstance } from './EcsInstance';
 import { Query } from './Query';
-import { RootReducer } from 'types/modules';
-import {
-  ComponentTuple,
-  OrderedComponentTuple,
-  OrderedOptionComponentTuple,
-  SmartUpdate,
-} from 'types/ecs';
-import { makeTimeLog } from 'utils/utils';
+import { ComponentTuple, JoinedResult, SmartUpdate } from 'types';
 
-// log anything that takes more than half a standard frame (16ms)
-const timelog = makeTimeLog(8);
-
-export declare interface EntitySystemArgs {
+export declare type EntitySystemArgs<
+  T extends ComponentTuple,
+  Props extends Record<PropertyKey, any> = {},
+  V extends ComponentTuple = [],
+  W extends ComponentTuple = []
+> = {
   id: number;
   ecsInstance: EcsInstance;
   reactive?: boolean;
   priority: number;
-  [option: string]: unknown;
-}
+  needed: [...T];
+  optional: [...V];
+  unwanted: [...W];
+} & {
+  [Key in keyof Props]: Props[Key];
+};
 
 export class EntitySystem<
-  T extends ComponentTuple = ComponentTuple,
-  V extends ComponentTuple = ComponentTuple,
-  W extends ComponentTuple = ComponentTuple
+  T extends ComponentTuple,
+  Props extends Record<PropertyKey, any> = {},
+  V extends ComponentTuple = [],
+  W extends ComponentTuple = []
 > {
   private _id = -1;
   private _entities: Bag<Entity> = new Bag<Entity>();
@@ -35,17 +35,20 @@ export class EntitySystem<
   private _active = true;
   private _dirty = false;
   protected reactive = false;
-  props: EntitySystemArgs;
+  props: EntitySystemArgs<T, Props, V, W>;
   needed!: [...T];
-  optional!: [...V];
-  unwanted!: [...W];
+  optional!: [...V]; //[...V];
+  unwanted!: [...W]; //[...W];
 
-  constructor(props: EntitySystemArgs) {
+  constructor(props: EntitySystemArgs<T, Props, V, W>) {
     this.props = props;
     this._id = props.id;
     this._ecsInstance = props.ecsInstance;
     this.reactive = props.reactive || false;
     this._priority = props.priority || 0;
+    this.needed = props.needed;
+    this.optional = props.optional;
+    this.unwanted = props.unwanted;
   }
 
   get id(): number {
@@ -88,15 +91,16 @@ export class EntitySystem<
     return this._dirty;
   }
 
-  get componentTypes(): [...ComponentTuple] {
-    let result: [...ComponentTuple] = this.needed;
-    if (this.optional) {
-      result = result.concat(this.optional);
-    }
-    if (this.unwanted) {
-      result = result.concat(this.unwanted);
-    }
-    return result;
+  get componentTypes(): [...T, ...V, ...W] {
+    // let result: [...T,...V,...W] = this.needed;
+    // if (this.optional) {
+    //   let foo = result.concat(this.optional);
+    //   result = foo;
+    // }
+    // if (this.unwanted) {
+    //   result = result.concat(this.unwanted);
+    // }
+    return [...this.needed, ...this.optional, ...this.unwanted];
   }
 
   /**
@@ -226,26 +230,23 @@ export class EntitySystem<
   /**
    * process all entities
    */
-  processAll(state: RootReducer): void {
-    timelog.start();
-    if (this.shouldProcess(state)) {
-      this.begin && this.begin(state);
-      this.processEntities(state);
-      this.processJoin(state);
-      this.end && this.end(state);
+  processAll(): void {
+    if (this.shouldProcess()) {
+      this.begin && this.begin();
+      this.processEntities();
+      this.processJoin();
+      this.end && this.end();
     }
-    timelog('processAll', this.constructor.name);
   }
 
-  processJoin(state: RootReducer): void {
+  processJoin(): void {
     if (!this.join) return;
     // if we have no entities, don't bother running
     if (!this._entities.count) return;
     if (this._dirty) this.resolveQuery();
     const data = this._query.data;
     for (let i = data.length; i--; ) {
-      const [components, entity] = data[i];
-      this.join(entity, components, state);
+      this.join(data[i]);
     }
   }
 
@@ -253,25 +254,21 @@ export class EntitySystem<
    * processes entities one by one calling the system's `process` function
    * and passing the results of the systems `Query`
    */
-  processEntities(state: RootReducer): void {
+  processEntities(): void {
     if (!this.process) return;
     // if we have no entiteis, don't bother
     if (!this._entities.count) return;
     // process up to the last inserted entity
     for (let i = this._entities.length; i--; ) {
       const entity = this._entities.get(i);
-      entity &&
-        this.process(entity, this._query, this._ecsInstance.delta, state);
+      entity && this.process(entity, this._query, this._ecsInstance.delta);
     }
   }
 
   /**
    * determine whether or not this system should process
    */
-  shouldProcess(
-    // eslint-disable-next-line
-    _state: RootReducer
-  ): boolean {
+  shouldProcess(): boolean {
     return true;
   }
 
@@ -305,27 +302,15 @@ export class EntitySystem<
   removed?(entity: Entity): void;
   cleanUp?(entities: Bag<Entity>): void;
   reset?(): void;
-  begin?(state: RootReducer): void;
-  end?(state: RootReducer): void;
-  process?(
-    entity: Entity,
-    query: Query<T, V, W>,
-    delta: number,
-    state: RootReducer
-  ): void;
+  begin?(): void;
+  end?(): void;
+  process?(entity: Entity, query: Query<T, V, W>, delta: number): void;
   /**
    * alternate to `process`, but auto-retrieves all needed/optional components
    * for entities in a very efficient data structure. Components are returned in
    * the exact order of the `needed` array followed by `optional` array
    */
-  join?(
-    entity: Entity,
-    components: [
-      ...OrderedComponentTuple<T>,
-      ...OrderedOptionComponentTuple<V>
-    ],
-    state: RootReducer
-  ): void;
+  join?(result: JoinedResult<T, V>): void;
   /**
    * called for static systems when a given entity it owns has a component update
    */

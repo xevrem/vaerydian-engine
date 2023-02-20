@@ -1,14 +1,8 @@
 import { Bag } from './Bag';
-import { Component } from './Component';
-import {
-  OrderedOptionComponentTuple,
-  OrderedComponentTuple,
-  ComponentTuple,
-  JoinedQuery,
-  JoinResult,
-} from 'types/ecs';
-import { Entity } from './Entity';
 import { EcsInstance } from './EcsInstance';
+import { Component } from './Component';
+import { Entity } from './Entity';
+import { ComponentTuple, JoinedQuery, JoinedResult, OrderedComponentOptionTuple } from 'types';
 
 export declare interface QueryArgs<
   T extends ComponentTuple,
@@ -43,7 +37,7 @@ export class Query<
   /**
    * current needed components
    */
-  get needed(): typeof Component[] {
+  get needed(): (typeof Component)[] {
     return this._needed;
   }
 
@@ -185,64 +179,54 @@ export class Query<
   }
 
   join<
-    T extends typeof Component[],
-    V extends typeof Component[],
-    W extends typeof Component[]
+    T extends (typeof Component)[],
+    V extends (typeof Component)[],
+    W extends (typeof Component)[]
   >(
     entities: Entity[],
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [
-      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
-      entity: Entity
-    ]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
     return this._ecsInstance.join(entities, needed, optional, unwanted);
   }
 
   joinById<
-    T extends typeof Component[],
-    V extends typeof Component[],
-    W extends typeof Component[]
+    T extends (typeof Component)[],
+    V extends (typeof Component)[],
+    W extends (typeof Component)[]
   >(
     ids: number[],
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<
-    [
-      components: [...OrderedComponentTuple<T>, ...OrderedComponentTuple<V>],
-      entity: Entity
-    ]
-  > {
+  ): IterableIterator<JoinedResult<T, V>> {
     return this._ecsInstance.joinById(ids, needed, optional, unwanted);
   }
 
   joinAll<
-    T extends typeof Component[],
-    V extends typeof Component[],
-    W extends typeof Component[]
+    T extends (typeof Component)[],
+    V extends (typeof Component)[],
+    W extends (typeof Component)[]
   >(
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<JoinResult<T, V>> {
+  ): IterableIterator<JoinedResult<T, V>> {
     return this._ecsInstance.joinAll(needed, optional, unwanted);
   }
 
-  retrieve<T extends typeof Component[]>(
+  retrieve<T extends ComponentTuple>(
     entity: Entity,
     components: [...T]
-  ): OrderedOptionComponentTuple<T> {
+  ): OrderedComponentOptionTuple<T> {
     return this._ecsInstance.retrieve(entity, components);
   }
 
-  retrieveById<T extends typeof Component[]>(
+  retrieveById<T extends (typeof Component)[]>(
     id: number,
     components: [...T]
-  ): OrderedOptionComponentTuple<T> {
+  ): OrderedComponentOptionTuple<T> {
     return this._ecsInstance.retrieveById(id, components);
   }
 
