@@ -2,17 +2,17 @@ import { Bag } from './Bag';
 import { Entity } from './Entity';
 import { EcsInstance } from './EcsInstance';
 import { Query } from './Query';
-import { ComponentTuple, JoinedResult, SmartUpdate } from 'types';
+import { ComponentOptionTuple, ComponentTuple, JoinedResult, SmartUpdate } from 'types';
 
 export declare type EntitySystemArgs<
-  T extends ComponentTuple,
-  Props extends Record<PropertyKey, any> = {},
-  V extends ComponentTuple = [],
-  W extends ComponentTuple = []
+  T extends ComponentTuple = ComponentTuple,
+  Props extends Record<PropertyKey, any> = Record<PropertyKey, any>,
+  V extends ComponentOptionTuple = ComponentOptionTuple,
+  W extends ComponentTuple = ComponentTuple
 > = {
   id: number;
   ecsInstance: EcsInstance;
-  reactive?: boolean;
+  reactive: Option<boolean>;
   priority: number;
   needed: [...T];
   optional: [...V];
@@ -22,10 +22,10 @@ export declare type EntitySystemArgs<
 };
 
 export class EntitySystem<
-  T extends ComponentTuple,
-  Props extends Record<PropertyKey, any> = {},
-  V extends ComponentTuple = [],
-  W extends ComponentTuple = []
+  T extends ComponentTuple = ComponentTuple,
+  Props extends Record<PropertyKey, any> = Record<PropertyKey, any>,
+  V extends ComponentOptionTuple = ComponentOptionTuple,
+  W extends ComponentTuple = ComponentTuple
 > {
   private _id = -1;
   private _entities: Bag<Entity> = new Bag<Entity>();
@@ -261,7 +261,9 @@ export class EntitySystem<
     // process up to the last inserted entity
     for (let i = this._entities.length; i--; ) {
       const entity = this._entities.get(i);
-      entity && this.process(entity, this._query, this._ecsInstance.delta);
+      if (!entity) continue;
+      this._query.entity = entity;
+      this.process(entity, this._query, this._ecsInstance.delta);
     }
   }
 

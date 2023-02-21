@@ -1,31 +1,37 @@
-import { EntitySystem, Entity, Query } from '../ecsf';
+import { EntitySystem, Entity, Query, EntitySystemArgs } from '../ecsf';
 import { Rotation, Velocity, Heading, Controllable } from '../components';
 import { KeyboardManager } from '../utils/keyboard';
 import { KEYS } from '../utils/constants';
 import { Point } from 'pixi.js';
 import { Vector } from '../utils/vector';
+import { JoinedResult } from 'types/index';
+import { all_some } from 'utils/helpers';
 
-export class ControlSystem extends EntitySystem {
-  needed = [Controllable, Velocity, Rotation];
-  // headingMap!: ComponentMapper;
-  // rotationMap!: ComponentMapper;
-  // velocityMap!: ComponentMapper;
+export class ControlSystem extends EntitySystem<
+  [typeof Rotation, typeof Velocity, typeof Heading, typeof Controllable]
+> {
+  constructor(props: EntitySystemArgs) {
+    super({
+      ...props,
+      needed: [Rotation, Velocity, Heading, Controllable],
+    });
+  }
 
-  // initialize() {
-  //   console.log('control system initializing...');
-  //   // this.headingMap = new ComponentMapper(new Heading(), this.ecsInstance);
-  //   // this.rotationMap = new ComponentMapper(new Rotation(), this.ecsInstance);
-  //   // this.velocityMap = new ComponentMapper(new Velocity(), this.ecsInstance);
-  // }
+  join(result: JoinedResult<typeof this.needed, []>): void {
+    const [[a, b, c], ent] = result;
+  }
 
-  process(entity: Entity, query: Query, delta: number) {
-    const [rotation, velocity, heading] = query.retrieve(entity, [
-      Rotation,
-      Velocity,
-      Heading,
-    ]);
-    // const velocity = this.velocityMap.get(entity) as Velocity;
-    // const heading = this.headingMap.get(entity) as Heading;
+  process(
+    _entity: Entity,
+    query: Query<typeof this.needed, [], []>,
+    delta: number
+  ) {
+    const results = query.retrieve();
+    if (!all_some(results)) {
+      results;
+      return;
+    }
+    const [rotation, velocity, _heading] = results;
 
     // by default we point straight up
     let amount = 0;
@@ -33,7 +39,6 @@ export class ControlSystem extends EntitySystem {
     let thrust: Point = new Point(0, -1);
 
     if (KeyboardManager.isKeyPressed(KEYS.A)) {
-      // console.log('a pressed', delta);
       //rotate left
       amount -= rotation.rate * delta;
     }

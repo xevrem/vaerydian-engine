@@ -13,16 +13,19 @@ interface CSProps {
 }
 
 export class CameraSystem extends EntitySystem<CSProps> {
-  needed = [CameraData, Position, Velocity, CameraFocus];
   camera!: Entity;
   app: Application;
-  constructor(props: EntitySystemArgs<CSProps>) {
+  constructor(
+    props: EntitySystemArgs<CSProps> = {
+      needed: [CameraData, Position, Velocity, CameraFocus],
+    }
+  ) {
     super(props);
     this.app = props.app;
   }
 
   override load() {
-    const maybeCamera = this.ecsInstance.getEntityByTag('camera');
+    const maybeCamera = this.ecs.getEntityByTag('camera');
     if (!is_some(maybeCamera)) return;
     this.camera = maybeCamera;
     const maybeData = this.ecs.getComponentOfType(maybeCamera, CameraData);
@@ -51,5 +54,11 @@ export class CameraSystem extends EntitySystem<CSProps> {
     if (is_none(cameraData)) return;
     cameraData.view.pivot.set(focusPosition.point.x, focusPosition.point.y);
     // this.ecs.update(cameraData);
+  }
+
+  override join(
+    result: JoinResult<typeof this.needed, typeof this.optional>
+  ): void {
+    const foo = result;
   }
 }

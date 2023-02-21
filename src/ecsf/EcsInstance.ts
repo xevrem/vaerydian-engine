@@ -19,6 +19,8 @@ import {
   SmartResolve,
   OrderedComponentOptionTuple,
   OrderedComponentTuple,
+  ComponentOptionTuple,
+  JoinedData,
 } from 'types';
 
 export class EcsInstance {
@@ -990,13 +992,13 @@ export class EcsInstance {
    */
   *joinAll<
     T extends ComponentTuple,
-    V extends ComponentTuple,
+    V extends ComponentOptionTuple,
     W extends ComponentTuple
   >(
     needed?: [...T],
     optional?: [...V],
     unwanted?: [...W]
-  ): IterableIterator<JoinedResult<T, [...V]>> {
+  ): IterableIterator<JoinedResult<T, V>> {
     for (let i = this.entityManager.entities.length; i--; ) {
       const entity = this.entityManager.entities.get(i);
       if (!entity) continue;
@@ -1039,13 +1041,14 @@ export class EcsInstance {
 
       if (optional) {
         for (let j = 0; j < optional.length; j++) {
+          const compType = optional[j];
+          if (is_none(compType)) continue;
           const gotComponents = this.componentManager.components.get(
-            optional[j].type
+            compType.type
           );
-          if (gotComponents) {
-            const value = gotComponents.get(i);
-            result.push(value);
-          }
+          if (is_none(gotComponents)) continue;
+          const value = gotComponents.get(i);
+          result.push(value);
         }
       }
 
@@ -1091,38 +1094,40 @@ export class EcsInstance {
     }
   }
 
-  retrieve<T extends ComponentTuple>(
+  retrieve<T extends ComponentTuple, V extends ComponentOptionTuple>(
     entity: Entity,
-    components: [...T]
-  ): OrderedComponentOptionTuple<T> {
+    components: [...T, ...V]
+  ): JoinedData<T, V> {
     const results: Option<Component>[] = [];
 
-    for (let j = 0; j < components.length; j++) {
-      const gotComponents = this.componentManager.components.get(
-        components[j].type
-      );
-      const value = gotComponents ? gotComponents.get(entity.id) : undefined;
+    for (let i = 0; i < components.length; i++) {
+      const compType = components[i];
+      if (is_none(compType)) continue;
+      const gotComponents = this.componentManager.components.get(compType.type);
+      if (is_none(gotComponents)) continue;
+      const value = gotComponents.get(entity.id);
       results.push(value);
     }
 
-    return results as OrderedComponentOptionTuple<T>;
+    return results as JoinedData<T, V>;
   }
 
-  retrieveById<T extends ComponentTuple>(
+  retrieveById<T extends ComponentTuple, V extends ComponentOptionTuple>(
     id: number,
-    components: [...T]
-  ): OrderedComponentOptionTuple<T> {
+    components: [...T, ...V]
+  ): JoinedData<T, V> {
     const results: Option<Component>[] = [];
 
-    for (let j = 0; j < components.length; j++) {
-      const gotComponents = this.componentManager.components.get(
-        components[j].type
-      );
-      const value = gotComponents ? gotComponents.get(id) : undefined;
+    for (let i = 0; i < components.length; i++) {
+      const compType = components[i];
+      if (is_none(compType)) continue;
+      const gotComponents = this.componentManager.components.get(compType.type);
+      if (is_none(gotComponents)) continue;
+      const value = gotComponents.get(id);
       results.push(value);
     }
 
-    return results as OrderedComponentOptionTuple<T>;
+    return results as JoinedData<T, V>;
   }
 
   retrieveByTag<T extends ComponentTuple>(

@@ -1,4 +1,11 @@
-import { OptionTuple, OrderedOptionTuple, OrderedSomeTuple } from 'types';
+import {
+  NoneTuple,
+  OptionTuple,
+  OrderedNoneTuple,
+  OrderedOptionTuple,
+  OrderedSomeTuple,
+  SomeTuple,
+} from 'types';
 
 export function is_some<T>(val: Option<T>): val is Some<T> {
   if (
@@ -25,9 +32,16 @@ export function is_err<T, E extends Error>(val: Result<T, E>): val is Err<E> {
   return false;
 }
 
-export function all_some<T, O extends OptionTuple<T> = OptionTuple<T>>(
-  val: OrderedOptionTuple<T, O>
-): val is OrderedSomeTuple<T, O> {
+export function all_some<T>(
+  val: OrderedOptionTuple<T>
+): val is OrderedSomeTuple<T> {
   if (val.some(v => is_none(v))) return false;
+  return true;
+}
+
+export function all_none<T>(
+  val: OrderedOptionTuple<T>
+): val is OrderedNoneTuple<T> {
+  if (val.some(v => is_some(v))) return false;
   return true;
 }

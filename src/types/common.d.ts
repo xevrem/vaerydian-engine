@@ -7,17 +7,20 @@ export declare type OrderedTuple<T extends unknown[]> = {
 
 export declare type OptionTypes<T> = Option<T>[];
 export declare type OptionTuple<T> = [...OptionTypes<T>];
-export declare type OrderedSomeTuple<
-  T,
-  O extends OptionTuple<T> = OptionTuple<T>
-> = {
-  [P in keyof O]: O[P] extends Option<O[P]> ? Some<O[P]> : None;
-};
-export declare type OrderedNoneTuple<T, O extends OptionTuple<T>> = {
-  [P in keyof O]: O[P] extends Option<O[P]> ? None : Some<O[P]>;
+export declare type SomeTuple<T> = [...Some<T>[]];
+export declare type NoneTuple = [...None[]];
+
+export declare type OrderedOptionTuple<T> = {
+  [P in keyof T]: T[P] extends Option<T[P]> ? Option<T[P]> : unknown;
 };
 
-export declare type OrderedOptionTuple<
-  T,
-  O extends OptionTuple<T> = OptionTuple<T>
-> = OrderedSomeTuple<T, O> | OrderedNoneTuple<T, O>;
+export declare type OrderedSomeTuple<T> = {
+  [P in keyof T]: T[P] extends Some<T[P]> ? Some<T[P]> : Option<T>;
+};
+export declare type OrderedNoneTuple<T> = {
+  [P in keyof T]: T[P] extends None ? None : Option<T[P]>;
+};
+
+// export declare type OrderedOptionTuple<T extends any> =
+//   | OrderedSomeTuple<T>
+//   | OrderedNoneTuple<T>;

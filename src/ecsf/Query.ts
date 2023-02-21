@@ -2,12 +2,19 @@ import { Bag } from './Bag';
 import { EcsInstance } from './EcsInstance';
 import { Component } from './Component';
 import { Entity } from './Entity';
-import { ComponentTuple, JoinedQuery, JoinedResult, OrderedComponentOptionTuple } from 'types';
+import {
+  ComponentOptionTuple,
+  ComponentTuple,
+  JoinedData,
+  JoinedQuery,
+  JoinedResult,
+  OrderedComponentOptionTuple,
+} from 'types';
 
 export declare interface QueryArgs<
-  T extends ComponentTuple,
-  V extends ComponentTuple,
-  W extends ComponentTuple
+  T extends ComponentTuple = ComponentTuple,
+  V extends ComponentOptionTuple = ComponentOptionTuple,
+  W extends ComponentTuple = ComponentTuple
 > {
   ecsInstance: EcsInstance;
   needed: [...T];
@@ -17,7 +24,7 @@ export declare interface QueryArgs<
 
 export class Query<
   T extends ComponentTuple = ComponentTuple,
-  V extends ComponentTuple = ComponentTuple,
+  V extends ComponentOptionTuple = ComponentOptionTuple,
   W extends ComponentTuple = ComponentTuple
 > {
   private _ecsInstance: EcsInstance;
@@ -25,6 +32,7 @@ export class Query<
   private _optional: [...V];
   private _unwanted: [...W];
   private _data: JoinedQuery<T, V>[];
+  private _entity!: Entity;
 
   constructor(props: QueryArgs<T, V, W>) {
     this._ecsInstance = props.ecsInstance;
@@ -45,17 +53,21 @@ export class Query<
     return this._data;
   }
 
+  set entity(value: Entity) {
+    this._entity = value;
+  }
+
   /**
    * a very useful component retrieval function
    * @param entity entity who owns the component
    * @param component the component type to retrieve
    * @returns the instance of that component, if any
    */
-  get<T extends typeof Component>(
-    entity: Entity,
-    component: T
-  ): InstanceType<T> {
-    return this._ecsInstance.getComponent(entity, component) as InstanceType<T>;
+  get<T extends typeof Component>(component: T): InstanceType<T> {
+    return this._ecsInstance.getComponent(
+      this._entity,
+      component
+    ) as InstanceType<T>;
   }
 
   resolve(entities: Bag<Entity>): void {
@@ -216,18 +228,18 @@ export class Query<
     return this._ecsInstance.joinAll(needed, optional, unwanted);
   }
 
-  retrieve<T extends ComponentTuple>(
-    entity: Entity,
-    components: [...T]
-  ): OrderedComponentOptionTuple<T> {
-    return this._ecsInstance.retrieve(entity, components);
+  retrieve(): JoinedData<T, V> {
+    return this._ecsInstance.retrieve(this._entity, [
+      ...this._needed,
+      ...this._optional,
+    ]);
   }
 
-  retrieveById<T extends (typeof Component)[]>(
-    id: number,
-    components: [...T]
-  ): OrderedComponentOptionTuple<T> {
-    return this._ecsInstance.retrieveById(id, components);
+  retrieveById(id: number): JoinedData<T, V> {
+    return this._ecsInstance.retrieveById(id, [
+      ...this._needed,
+      ...this._optional,
+    ]);
   }
 
   /**
