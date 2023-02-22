@@ -4,7 +4,6 @@ import { KeyboardManager } from '../utils/keyboard';
 import { KEYS } from '../utils/constants';
 import { Point } from 'pixi.js';
 import { Vector } from '../utils/vector';
-import { JoinedResult } from 'types/index';
 import { all_some } from 'utils/helpers';
 
 export class ControlSystem extends EntitySystem<
@@ -15,10 +14,6 @@ export class ControlSystem extends EntitySystem<
       ...props,
       needed: [Rotation, Velocity, Heading, Controllable],
     });
-  }
-
-  join(result: JoinedResult<typeof this.needed, []>): void {
-    const [[a, b, c], ent] = result;
   }
 
   process(

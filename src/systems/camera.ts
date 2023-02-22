@@ -1,30 +1,28 @@
-import {
-  Entity,
-  EntitySystem,
-  EntitySystemArgs,
-  Query,
-} from '../ecsf';
+import { Entity, EntitySystem, EntitySystemArgs, Query } from '../ecsf';
 import { Position, Velocity, CameraData, CameraFocus } from '../components';
 import { Application } from '@pixi/app';
-import { is_none, is_some } from 'utils';
+import { all_some, is_none, is_some } from 'utils';
 
 interface CSProps {
   app: Application;
 }
 
-export class CameraSystem extends EntitySystem<CSProps> {
+export class CameraSystem extends EntitySystem<
+  [typeof Position, typeof CameraFocus],
+  CSProps
+> {
   camera!: Entity;
   app: Application;
-  constructor(
-    props: EntitySystemArgs<CSProps> = {
-      needed: [CameraData, Position, Velocity, CameraFocus],
-    }
-  ) {
-    super(props);
+  constructor(props: EntitySystemArgs) {
+    super({
+      ...props,
+      needed: [Position, CameraFocus],
+      app: props.app,
+    });
     this.app = props.app;
   }
 
-  override load() {
+  load() {
     const maybeCamera = this.ecs.getEntityByTag('camera');
     if (!is_some(maybeCamera)) return;
     this.camera = maybeCamera;
@@ -44,21 +42,15 @@ export class CameraSystem extends EntitySystem<CSProps> {
   //   });
   // }
 
-  override process(cameraFocus: Entity, query: Query, _delta: number) {
-    const focusPosition = query.get(cameraFocus, Position);
-    // const cameraPosition = query.get(this.camera, Position);
-    // cameraPosition.point.set(focusPosition.point.x, focusPosition.point.y);
-
-    // this.camera = this.ecsInstance.tagManager.getEntityByTag('camera');
-    const cameraData = query.get(this.camera, CameraData);
+  process(
+    _: Entity,
+    query: Query<typeof this.needed>,
+  ) {
+    const results = query.retrieve();
+    if (!all_some(results)) return;
+    const [position, _focus] = results;
+    const cameraData = this.ecs.getComponent(this.camera, CameraData);
     if (is_none(cameraData)) return;
-    cameraData.view.pivot.set(focusPosition.point.x, focusPosition.point.y);
-    // this.ecs.update(cameraData);
-  }
-
-  override join(
-    result: JoinResult<typeof this.needed, typeof this.optional>
-  ): void {
-    const foo = result;
+    cameraData.view.pivot.set(position.point.x, position.point.y);
   }
 }

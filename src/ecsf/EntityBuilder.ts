@@ -1,6 +1,5 @@
-import { Option, Result } from 'types/common';
-import { FeatureFlags } from 'utils/features';
-import { isNone, isSome } from 'utils/helpers';
+// import { Option, Result } from 'types/common';
+import { is_none, is_some } from 'utils/helpers';
 import { Bag } from './Bag';
 import { Component } from './Component';
 import { EcsInstance } from './EcsInstance';
@@ -139,12 +138,12 @@ export function makeEntityBuilder(ecs: EcsInstance): EntityBuilder {
       entity = ecs.createEntity();
       let currentBuilder: EntityBuilder = this;
       try {
-        currentBuilder = isSome(initCallback)
+        currentBuilder = is_some(initCallback)
           ? initCallback(currentBuilder)
           : this;
         for (let i = 0; i < componentCallbacks.length; i++) {
           const component = componentCallbacks[i](currentBuilder);
-          if (isSome(component)) {
+          if (is_some(component)) {
             components.set(component.type, component);
             ecs.addComponent(entity, component);
           }
@@ -174,9 +173,7 @@ export function makeEntityBuilder(ecs: EcsInstance): EntityBuilder {
         }
         return entity;
       } catch (e) {
-        if (FeatureFlags.DEBUG_TOOLS) {
-          console.error('ENTITY BUILDER ERROR:', e);
-        }
+        console.error('ENTITY BUILDER ERROR:', e);
         ecs.abort(entity);
         return e as E;
       }
@@ -186,7 +183,7 @@ export function makeEntityBuilder(ecs: EcsInstance): EntityBuilder {
       return this;
     },
     addMaybe(maybe: Option<Component>): EntityBuilder {
-      if (isSome(maybe)) {
+      if (is_some(maybe)) {
         components.set(maybe.type, maybe);
       }
       return this;
@@ -205,13 +202,13 @@ export function makeEntityBuilder(ecs: EcsInstance): EntityBuilder {
     },
     get<C extends typeof Component>(component: C): InstanceType<C> {
       const comp = components.get(component.type);
-      if (isNone(comp))
+      if (is_none(comp))
         throw new Error(`builder component ${component.name} is undefined`);
       return comp as InstanceType<C>;
     },
     getData<T>(key: PropertyKey): T {
       const data = workingData[key];
-      if (isNone(data))
+      if (is_none(data))
         throw new Error(`builder data ${key as string} is undefined`);
       return data as T;
     },

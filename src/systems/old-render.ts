@@ -1,39 +1,46 @@
-import { ComponentMapper, Entity, EntitySystem } from '../ecsf';
+import { Entity, EntitySystem, EntitySystemArgs, Query } from '../ecsf';
 import { GraphicsRender, Position } from '../components';
 import { Application, Container } from 'pixi.js';
+import { all_some, is_some } from 'utils/helpers';
 
-export class GraphicsRenderSystem extends EntitySystem {
+export class GraphicsRenderSystem extends EntitySystem<
+  [typeof GraphicsRender, typeof Position],
+  { app: Application }
+> {
   app: Application;
   graphicsContainer!: Container;
-  renderMap!: ComponentMapper;
-  positionMap!: ComponentMapper;
 
-  constructor(app: Application) {
-    super();
-    this.app = app;
+  constructor(props: EntitySystemArgs) {
+    super({
+      ...props,
+      needed: [GraphicsRender, Position],
+      app: props.app,
+    });
+    this.app = props.app;
   }
 
   initialize() {
-    console.log('render system initializing...');
-    this.renderMap = new ComponentMapper(
-      new GraphicsRender(),
-      this.ecsInstance
-    );
-    this.positionMap = new ComponentMapper(new Position(), this.ecsInstance);
+    console.info('render system initializing...');
     this.graphicsContainer = new Container();
     this.app.stage.addChild(this.graphicsContainer);
   }
 
   added(entity: Entity) {
-    this.graphicsContainer.addChild(
-      (<GraphicsRender>this.renderMap.get(entity)).graphics
-    );
+    const maybeGraphics = this.ecs.getComponent(entity, GraphicsRender);
+    if (!is_some(maybeGraphics)) return;
+    this.graphicsContainer.addChild(maybeGraphics.graphics);
   }
 
-  process(entity: Entity) {
-    const render = this.renderMap.get(entity) as GraphicsRender;
-    const position = this.positionMap.get(entity) as Position;
+  removed(entity: Entity): void {
+    const maybeGraphics = this.ecs.getComponent(entity, GraphicsRender);
+    if (!is_some(maybeGraphics)) return;
+    this.graphicsContainer.removeChild(maybeGraphics.graphics);
+  }
 
+  process(_entity: Entity, query: Query<typeof this.needed>) {
+    const results = query.retrieve();
+    if (!all_some(results)) return;
+    const [render, position] = results;
     render.graphics.position.set(position.point.x, position.point.y);
   }
 }

@@ -2,7 +2,7 @@ import { utils } from 'pixi.js';
 
 const clamp = (a, min, max) => Math.max(Math.min(a, max), min);
 
-import { csClip } from 'csclip';
+import { csClip } from 'utils/csclip';
 
 /**
  * a more efficient calculation if all you need is to compare relative distances.

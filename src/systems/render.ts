@@ -1,42 +1,46 @@
-import { EntitySystem, ComponentMapper, Entity } from 'ecsf';
+import { EntitySystem, Entity, EntitySystemArgs, Query } from 'ecsf';
 import { Renderable, Position, Rotation } from 'components';
 import { Application, Container } from 'pixi.js';
+import { is_some, all_some } from 'utils/helpers';
 
-export class RenderSystem extends EntitySystem {
+export class RenderSystem extends EntitySystem<
+  [typeof Renderable, typeof Position, typeof Rotation],
+  { app: Application }
+> {
   app: Application;
   spriteContainer!: Container;
-  renderMapper!: ComponentMapper;
-  positionMapper!: ComponentMapper;
-  rotationMapper!: ComponentMapper;
 
-  constructor(app: Application) {
-    super();
-    this.app = app;
+  constructor(props: EntitySystemArgs) {
+    super({
+      ...props,
+      needed: [Renderable, Position, Rotation],
+      app: props.app,
+    });
+    this.app = props.app;
   }
 
   initialize() {
-    console.log('sprite system initializing...');
-    this.renderMapper = new ComponentMapper(new Renderable(), this.ecsInstance);
-    this.positionMapper = new ComponentMapper(new Position(), this.ecsInstance);
-    this.rotationMapper = new ComponentMapper(new Rotation(), this.ecsInstance);
+    console.info('sprite system initializing...');
     this.spriteContainer = new Container();
     this.app.stage.addChild(this.spriteContainer);
   }
 
   added(entity: Entity) {
-    const spriteRender = this.renderMapper.get(entity) as Renderable;
-    this.spriteContainer.addChild(spriteRender.container);
+    const spriteRender = this.ecs.getComponent(entity, Renderable);
+    is_some(spriteRender) &&
+      this.spriteContainer.addChild(spriteRender.container);
   }
 
   removed(entity: Entity) {
-    const spriteRender = this.renderMapper.get(entity) as Renderable;
-    this.spriteContainer.removeChild(spriteRender.container);
+    const spriteRender = this.ecs.getComponent(entity, Renderable);
+    is_some(spriteRender) &&
+      this.spriteContainer.removeChild(spriteRender.container);
   }
 
-  process(entity: Entity) {
-    const renderable = this.renderMapper.get(entity) as Renderable;
-    const position = this.positionMapper.get(entity) as Position;
-    const rotation = this.rotationMapper.get(entity) as Rotation;
+  process(_: Entity, query: Query<typeof this.needed>) {
+    const results = query.retrieve();
+    if (!all_some(results)) return;
+    const [renderable, position, rotation] = results;
 
     renderable.container.position.set(
       position.point.x - renderable.offset.x,

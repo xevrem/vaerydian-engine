@@ -3,14 +3,14 @@ import { Animatable } from "../components";
 
 
 export class AnimationSystem extends EntitySystem {
-  animatableMapper: ComponentMapper;
+  // animatableMapper: ComponentMapper;
 
   initialize(): void {
-    console.log('animation system initializing...')
-    this.animatableMapper = this.ecsInstance.makeMapper(new Animatable());
+    console.info('animation system initializing...');
+    // this.animatableMapper = this.ecsInstance.makeMapper(new Animatable());
   }
 
-  process(entity: Entity, delta: number): void {
-    const animatable = this.animatableMapper.get(entity) as Animatable;
-  }
+  // process(entity: Entity, delta: number): void {
+  //   // const animatable = this.animatableMapper.get(entity) as Animatable;
+  // }
 }

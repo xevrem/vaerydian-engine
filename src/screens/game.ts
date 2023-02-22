@@ -9,21 +9,8 @@ import {
 import { Assets } from '@pixi/assets';
 import Stats from 'stats.js';
 import { Screen } from 'screens/screen';
-import {
-  Layers,
-  Position,
-  GraphicsRender,
-  Velocity,
-  Renderable,
-  Controllable,
-  Rotation,
-  CameraFocus,
-  CameraData,
-  Starfield,
-  Heading,
-  Animatable,
-} from 'components';
-import { EcsInstance, EntitySystem } from 'ecsf';
+import * as AllComponents from 'components';
+import { EcsInstance, isComponent } from 'ecsf';
 import { EntityFactory, PlayerFactory } from 'factories';
 import {
   AnimationSystem,
@@ -113,65 +100,33 @@ export class GameScreen extends Screen {
 
     this.ecs = new EcsInstance();
 
-    this.ecs.registerSystem(
-      CameraSystem,
-      {
-        app: this.app,
+    this.ecs.registerSystem(CameraSystem, {
+      app: this.app,
+    });
+
+    this.ecs.registerSystem(ControlSystem, {});
+
+    this.ecs.registerSystem(GraphicsRenderSystem, { app: this.app });
+
+    this.ecs.registerSystem(LayeringSystem, { groups: this.groups });
+
+    this.ecs.registerSystem(MovementSystem, {});
+
+    this.ecs.registerSystem(RenderSystem, { app: this.app });
+
+    this.ecs.registerSystem(StarfieldSystem, { app: this.app });
+
+    // this.ecs.registerSystem(AnimationSystem, {});
+
+    Object.values(AllComponents).forEach(value => {
+      if (isComponent(value)) {
+        this.ecs.registerComponent(value);
       }
-      // Position,
-      // CameraFocus
-    );
+    });
 
-    this.ecs.registerSystem(
-      ControlSystem
-      // {}
-      // Controllable,
-      // Velocity,
-      // Rotation
-    );
-
-    this.ecs.registerSystem(
-      GraphicsRenderSystem,
-      { app: this.app }
-      // GraphicsRender,
-      // Position
-    );
-
-    this.ecs.registerSystem(
-      LayeringSystem,
-      { groups: this.groups }
-      // Layers
-    );
-
-    this.ecs.registerSystem(
-      MovementSystem
-      // Position,
-      // Velocity
-    );
-
-    this.ecs.registerSystem(
-      RenderSystem,
-      { app: this.app }
-      // Renderable,
-      // Position,
-      // Rotation
-    );
-
-    this.ecs.registerSystem(
-      StarfieldSystem,
-      { app: this.app }
-      // Position,
-      // Starfield
-    );
-
-    this.ecs.registerSystem(
-      AnimationSystem
-      // Animatable
-    );
-
-    this.ecs.componentManager.registerComponent(Controllable);
-    this.ecs.componentManager.registerComponent(CameraData);
-    this.ecs.componentManager.registerComponent(Heading);
+    // this.ecs.componentManager.registerComponent(Controllable);
+    // this.ecs.componentManager.registerComponent(CameraData);
+    // this.ecs.componentManager.registerComponent(Heading);
 
     this.ecs.systemManager.initializeSystems();
 
@@ -211,7 +166,7 @@ export class GameScreen extends Screen {
           position.point.set(dx, dy);
         }
       },
-      [Position, Velocity]
+      [AllComponents.Position, AllComponents.Velocity]
     );
 
     const graphic = new Graphics();

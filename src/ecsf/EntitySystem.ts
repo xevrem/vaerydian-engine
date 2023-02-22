@@ -47,8 +47,8 @@ export class EntitySystem<
     this.reactive = props.reactive || false;
     this._priority = props.priority || 0;
     this.needed = props.needed;
-    this.optional = props.optional;
-    this.unwanted = props.unwanted;
+    this.optional = props.optional || [];
+    this.unwanted = props.unwanted || [];
   }
 
   get id(): number {
