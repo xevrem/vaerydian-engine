@@ -22,10 +22,6 @@ export class ControlSystem extends EntitySystem<
     delta: number
   ) {
     const results = query.retrieve();
-    if (!all_some(results)) {
-      results;
-      return;
-    }
     const [rotation, velocity, _heading] = results;
 
     // by default we point straight up

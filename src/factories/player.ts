@@ -2,6 +2,7 @@ import { Assets, Container, Point, Sprite, Texture } from 'pixi.js';
 import {
   CameraFocus,
   Controllable,
+  Heading,
   Layers,
   Position,
   Renderable,
@@ -10,6 +11,7 @@ import {
 } from '../components';
 import { EcsInstance } from 'ecsf';
 import { LayerType } from 'utils/constants';
+import { Vector2 } from 'ecsf/vector';
 
 export class PlayerFactory {
   ecsInstance: EcsInstance;
@@ -28,8 +30,8 @@ export class PlayerFactory {
       })
       .addWith(() => {
         const v = new Velocity();
-        v.vector = new Point(0, -1);
-        v.rate = 300;
+        v.vector = new Point(0, 0);
+        v.rate = 30;
         return v;
       })
       .addWith(() => {
@@ -39,8 +41,13 @@ export class PlayerFactory {
         return r;
       })
       .addWith(() => {
+        const h = new Heading();
+        h.vector = new Point(0, -1);
+        return h;
+      })
+      .addWith(() => {
         const playerContainer = new Container();
-        const texture = Assets.cache.get<Texture>('playerShip');
+        const texture = Assets.get<Texture>('playerShip');
         const shipSprite = new Sprite(texture);
         playerContainer.addChild(shipSprite);
         const r = new Renderable();

@@ -34,7 +34,7 @@ export class EntityFactory {
       .addWith(() => {
         const spriteName = STARS[Math.floor(Math.random() * STARS.length)];
         const starContainer = new Container();
-        const texture = Assets.cache.get<Texture>(spriteName);
+        const texture = Assets.get<Texture>(spriteName);
         const starSprite = new Sprite(texture);
         starContainer.addChild(starSprite);
         const renderable = new Renderable();
@@ -69,12 +69,12 @@ export class EntityFactory {
         );
         return position;
       })
-      .addWith(() => {
-        const velocity = new Velocity();
-        velocity.vector = new Point(0, 0);
-        velocity.rate = 0;
-        return velocity;
-      })
+      // .addWith(() => {
+      //   const velocity = new Velocity();
+      //   velocity.vector = new Point(0, 0);
+      //   velocity.rate = 0;
+      //   return velocity;
+      // })
       .addWith(() => {
         const cameraContainer = new Container();
         cameraContainer.pivot.set(
@@ -85,7 +85,7 @@ export class EntityFactory {
           window.innerWidth / 2,
           window.innerHeight / 2
         );
-        cameraContainer.scale.set(1280 / 640, 720 / 360);
+       cameraContainer.scale.set(1280 / 640, 720 / 360);
         const cameraData = new CameraData();
         cameraData.view = cameraContainer;
         return cameraData;

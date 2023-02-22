@@ -109,7 +109,10 @@ export class SystemManager {
     const systems = this.systems;
     for (let i = systems.length; i--; ) {
       const system = this.systems[i];
-      system.query.validate(entity) && system.initialAdd(entity);
+      if(system.query.validate(entity)){
+        system.query.entity = entity;
+        system.initialAdd(entity);
+      } 
     }
   }
 

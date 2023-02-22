@@ -28,9 +28,6 @@ export class ScreenManager {
     });
 
     this._screens.last?.focusUpdate(delta);
-    // this._screens
-    //   .slice(this._screens.count - 1)
-    //   .forEach(screen => screen && screen.focusUpdate(delta));
   }
 
   draw(delta: number): void {

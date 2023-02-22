@@ -8,12 +8,7 @@ import {
 } from 'types';
 
 export function is_some<T>(val: Option<T>): val is Some<T> {
-  if (
-    val ||
-    typeof val === 'number' ||
-    (typeof val === 'boolean' && val === false)
-  )
-    return true;
+  if (!!val || typeof val === 'number' || typeof val === 'boolean') return true;
   return false;
 }
 
@@ -32,14 +27,14 @@ export function is_err<T, E extends Error>(val: Result<T, E>): val is Err<E> {
   return false;
 }
 
-export function all_some<T>(
+export function all_some<T extends OptionTuple<T>>(
   val: OrderedOptionTuple<T>
 ): val is OrderedSomeTuple<T> {
   if (val.some(v => is_none(v))) return false;
   return true;
 }
 
-export function all_none<T>(
+export function all_none<T extends OptionTuple<T>>(
   val: OrderedOptionTuple<T>
 ): val is OrderedNoneTuple<T> {
   if (val.some(v => is_some(v))) return false;

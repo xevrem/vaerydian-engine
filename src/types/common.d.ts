@@ -10,15 +10,15 @@ export declare type OptionTuple<T> = [...OptionTypes<T>];
 export declare type SomeTuple<T> = [...Some<T>[]];
 export declare type NoneTuple = [...None[]];
 
-export declare type OrderedOptionTuple<T> = {
-  [P in keyof T]: T[P] extends Option<T[P]> ? Option<T[P]> : unknown;
+export declare type OrderedOptionTuple<T extends OptionTuple<T>> = {
+  [P in keyof T]: Option<T[P]>;
 };
 
-export declare type OrderedSomeTuple<T> = {
-  [P in keyof T]: T[P] extends Some<T[P]> ? Some<T[P]> : Option<T>;
+export declare type OrderedSomeTuple<T extends OptionTuple<T>> = {
+  [P in keyof T]: Some<T[P]>;
 };
-export declare type OrderedNoneTuple<T> = {
-  [P in keyof T]: T[P] extends None ? None : Option<T[P]>;
+export declare type OrderedNoneTuple<T extends OptionTuple<T>> = {
+  [P in keyof T]: None;
 };
 
 // export declare type OrderedOptionTuple<T extends any> =

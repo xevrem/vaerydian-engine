@@ -10,7 +10,7 @@ import { Assets } from '@pixi/assets';
 import Stats from 'stats.js';
 import { Screen } from 'screens/screen';
 import * as AllComponents from 'components';
-import { EcsInstance, isComponent } from 'ecsf';
+import { isComponent } from 'ecsf';
 import { EntityFactory, PlayerFactory } from 'factories';
 import {
   AnimationSystem,
@@ -22,7 +22,6 @@ import {
   StarfieldSystem,
   RenderSystem,
 } from 'systems';
-import { KeyboardManager } from 'utils/keyboard';
 
 import playerShip from 'assets/player/ship.png';
 import star1 from 'assets/stars/star1.png';
@@ -32,6 +31,7 @@ import star4 from 'assets/stars/star4.png';
 import star5 from 'assets/stars/star5.png';
 import star6 from 'assets/stars/star6.png';
 import star7 from 'assets/stars/star7.png';
+import { LayerType } from 'utils/constants';
 
 const assets = [
   {
@@ -69,19 +69,8 @@ const assets = [
 ];
 
 export class GameScreen extends Screen {
-  ecs!: EcsInstance;
-  assets!: typeof Assets;
   stats!: Stats;
   lastTime = 0;
-
-  // animationSystem!: EntitySystem;
-  // cameraSystem!: EntitySystem;
-  // controlSystem!: EntitySystem;
-  // layeringSystem!: EntitySystem;
-  // movementSystem!: EntitySystem;
-  // graphicsRenderSystem!: EntitySystem;
-  // renderSystem!: EntitySystem;
-  // starfieldSystem!: EntitySystem;
 
   entityFactory!: EntityFactory;
   playerFactory!: PlayerFactory;
@@ -89,32 +78,31 @@ export class GameScreen extends Screen {
   initialize(): void {
     console.log('game screen initialize...');
 
-    KeyboardManager.init();
-
     // Scale mode for all textures, will retain pixelation
     settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
-    // this.app.stage = new Stage();
-    // this.app.ticker.autoStart = false;
-    // this.app.ticker.stop();
-
-    this.ecs = new EcsInstance();
-
     this.ecs.registerSystem(CameraSystem, {
       app: this.app,
+      priority: 5,
     });
 
-    this.ecs.registerSystem(ControlSystem, {});
+    this.ecs.registerSystem(ControlSystem, { priority: 2 });
 
-    this.ecs.registerSystem(GraphicsRenderSystem, { app: this.app });
+    this.ecs.registerSystem(GraphicsRenderSystem, {
+      app: this.app,
+      priority: 4,
+    });
 
-    this.ecs.registerSystem(LayeringSystem, { groups: this.groups });
+    this.ecs.registerSystem(LayeringSystem, {
+      groups: this.groups,
+      priority: 0,
+    });
 
-    this.ecs.registerSystem(MovementSystem, {});
+    // this.ecs.registerSystem(MovementSystem, {});
 
-    this.ecs.registerSystem(RenderSystem, { app: this.app });
+    this.ecs.registerSystem(RenderSystem, { app: this.app, priority: 3 });
 
-    this.ecs.registerSystem(StarfieldSystem, { app: this.app });
+    this.ecs.registerSystem(StarfieldSystem, { app: this.app, priority: 1 });
 
     // this.ecs.registerSystem(AnimationSystem, {});
 
@@ -124,18 +112,14 @@ export class GameScreen extends Screen {
       }
     });
 
-    // this.ecs.componentManager.registerComponent(Controllable);
-    // this.ecs.componentManager.registerComponent(CameraData);
-    // this.ecs.componentManager.registerComponent(Heading);
-
-    this.ecs.systemManager.initializeSystems();
+    this.ecs.initializeSystems();
 
     this.entityFactory = new EntityFactory(this.ecs);
     this.playerFactory = new PlayerFactory(this.ecs);
   }
 
   async load(): Promise<void> {
-    console.log('game screen loading...');
+    console.info('game screen loading...');
 
     const resources = await Promise.all(
       assets.map(asset => {
@@ -143,21 +127,23 @@ export class GameScreen extends Screen {
         return Assets.load<Texture>(asset.name);
       })
     );
-    console.log({ resources });
+    console.info('gs:l::', { resources });
 
     this.entityFactory.createCamera();
 
     this.playerFactory.createPlayer(
-      new Point(this.app.renderer.width / 2, this.app.renderer.height / 2)
+      new Point(0, 0) //window.innerWidth / 2, window.innerHeight / 2)
     );
 
     Array(100)
       .fill('')
       .forEach(() => this.entityFactory.createStar());
 
-    this.ecs.resolveEntities();
-    this.ecs.systemManager.loadSystems();
+    this.ecs.initialResolve();
+    this.ecs.loadSystems();
+    this.ecs.initialCreate();
 
+    // movement system
     this.ecs.withSystem(
       (query, ecs) => {
         for (const [position, velocity] of query.join()) {
@@ -180,8 +166,11 @@ export class GameScreen extends Screen {
     graphic.cacheAsBitmap = true;
     const cont = new Container();
     cont.addChild(graphic);
+    cont.parentGroup = this.groups[LayerType.sprites];
 
     this.app.stage.addChild(cont);
+
+    this.ecs.scheduleSystems();
   }
 
   unload(): void {
@@ -195,10 +184,8 @@ export class GameScreen extends Screen {
   update(delta: number): void {
     this.ecs.updateByDelta(delta);
     this.ecs.resolveEntities();
-
     this.ecs.runQuerySystems();
     this.ecs.runSystems();
-    // this.starfieldSystem.processAll();
   }
 
   focusUpdate(_delta: number): void {

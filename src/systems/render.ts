@@ -25,22 +25,36 @@ export class RenderSystem extends EntitySystem<
     this.app.stage.addChild(this.spriteContainer);
   }
 
+  initialAdd(entity: Entity): void {
+    const spriteRender = this.ecs.getComponent(entity, Renderable);
+    if (is_some(spriteRender)) {
+      this.spriteContainer.addChild(spriteRender.container);
+      console.log('rs:ia::added', entity.id);
+    }
+  }
+
+  initialCreate(entity: Entity) {
+    console.log('rs:ic::');
+  }
+
   added(entity: Entity) {
     const spriteRender = this.ecs.getComponent(entity, Renderable);
-    is_some(spriteRender) &&
+    if (is_some(spriteRender)) {
       this.spriteContainer.addChild(spriteRender.container);
+      console.log('rs:a::added', entity.id);
+    }
   }
 
   removed(entity: Entity) {
     const spriteRender = this.ecs.getComponent(entity, Renderable);
-    is_some(spriteRender) &&
+    if (is_some(spriteRender)) {
       this.spriteContainer.removeChild(spriteRender.container);
+      console.log('rs:r::removed', entity.id);
+    }
   }
 
   process(_: Entity, query: Query<typeof this.needed>) {
-    const results = query.retrieve();
-    if (!all_some(results)) return;
-    const [renderable, position, rotation] = results;
+    const [renderable, position, rotation] = query.retrieve();
 
     renderable.container.position.set(
       position.point.x - renderable.offset.x,

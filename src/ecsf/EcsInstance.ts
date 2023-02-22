@@ -33,9 +33,6 @@ export class EcsInstance {
 
   private _creating: Bag<Entity>;
   private _resolving: Bag<SmartResolve>;
-  // IDEA: for when we introduce smart resolves
-  // private _resolveAdd: Bag<Component[]>;
-  // private _resolveRemove: Bag<Component[]>;
   private _deleting: Bag<Entity>;
   private _updatingEntities: Entity[];
   private _updating: Bag<Bag<SmartUpdate>>;
@@ -52,9 +49,6 @@ export class EcsInstance {
     this.groupManager = new GroupManager();
     this.scheduler = new Scheduler();
     this._creating = new Bag<Entity>();
-    // IDEA: for smart resolves
-    // this._resolveAdd = new Bag<Component[]>();
-    // this._resolveRemove = new Bag<Component[]>();
     this._resolving = new Bag<SmartResolve>();
     this._deleting = new Bag<Entity>();
     this._updatingEntities = [];
@@ -93,14 +87,10 @@ export class EcsInstance {
    */
   addComponent(entity: Entity, component: Component): void {
     this.componentManager.addComponent(entity, component);
-    // IDEA: for smart resolves
-    // this.resolveAdd(entity.id, component);
   }
 
   addComponentById(id: number, component: Component): void {
     this.componentManager.addComponentById(id, component);
-    // IDEA: for smart resolves
-    // this.resolveAdd(id, component);
   }
 
   /**
@@ -355,7 +345,6 @@ export class EcsInstance {
    * @param component the component to remove
    */
   removeComponent(component: Component): void {
-    // this.resolveRemove(component.owner, component);
     this.componentManager.removeComponent(component);
   }
 
@@ -365,16 +354,10 @@ export class EcsInstance {
    * @param component the component type to remove
    */
   removeComponentType(entity: Entity, component: typeof Component): void {
-    // IDEA: for when we introduce smart resolves
-    // const comp = this.componentManager.getComponentById(entity.id, component);
-    // comp && this.resolveRemove(comp.owner, comp);
     this.componentManager.removeComponentType(entity, component);
   }
 
   removeComponentTypeById(id: number, component: typeof Component): void {
-    // IDEA: for when we introduce smart resolves
-    // const comp = this.componentManager.getComponentById(id, component);
-    // comp && this.resolveRemove(comp.owner, comp);
     this.componentManager.removeComponentTypeById(id, component);
   }
 
@@ -391,20 +374,6 @@ export class EcsInstance {
     }
     this._resolving.set(entity.id, [entity, ignored]);
   }
-
-  // IDEA: for when we add smart resolves
-  // resolveAdd(id: number, component: Component): void {
-  //   // don't add if its a new component
-  //   if (this._creating.has(id)) return;
-  //   if (!this._resolveAdd.has(id)) this._resolveAdd.set(id, []);
-  //   this._resolveAdd.get(id)?.push(component);
-  // }
-
-  // IDEA: for when we add smart resolves
-  // resolveRemove(id: number, component: Component): void {
-  //   if (!this._resolveRemove.has(id)) this._resolveRemove.set(id, []);
-  //   this._resolveRemove.get(id)?.push(component);
-  // }
 
   /**
    * resolve the entity that has the given id against he current ecs instance.
@@ -460,20 +429,12 @@ export class EcsInstance {
     // processes cause an update to any of them, they are not possibly lost
     const deleting = this._deleting,
       resolving = this._resolving,
-      // IDEA: for when we introduce smart resolves
-      // resolveAdd = this._resolveAdd,
-      // resolveRemove = this._resolveRemove,
-      updating = this._updating, //Object.values(this._updating),
+      updating = this._updating, 
       updatingEntities = this._updatingEntities,
-      // NOTE: `this._creating` doesn't get reset immediately because we want to wait until later
-      //       this helps prevent system-spammy creates
       creating = this._creating;
 
     this._deleting = new Bag<Entity>(deleting.capacity);
     this._resolving = new Bag<SmartResolve>(resolving.capacity);
-    // IDEA: for when we introduce smart resolves
-    // this._resolveAdd = new Bag<Component[]>(resolveAdd.capacity);
-    // this._resolveRemove = new Bag<Component[]>(resolveRemove.capacity);
     this._updating = new Bag<Bag<SmartUpdate>>(updating.capacity);
     this._updatingEntities = [];
 
@@ -486,67 +447,12 @@ export class EcsInstance {
         this.groupManager.deleteEntity(entity);
         this.componentManager.deleteEntity(entity);
         this.entityManager.deleteEntity(entity);
-        // IDEA: for when we introduce smart resolves
-        // resolveAdd.set(entity.id, undefined);
-        // resolveRemove.set(entity.id, undefined);
       }
     }
 
     if (resolving.count > 0) {
-      // for (let i = resolving.length; i--; ) {
-      //   const entity = resolving.get(i);
-      //   if (!entity) continue;
-      // IDEA: for when we introduce smart resolves
-      // if (resolveAdd.has(entity.id)) {
-      //   // we need to add the smart resolves components first
-      //   const components = resolveAdd.get(entity.id);
-      //   if(components){
-      //     console.log('ei:re:r-ra::', entity.id);
-      //     this.componentManager.addComponents(entity.id, components);
-      //     this.systemManager.resolveAdd(components);
-      //     resolveAdd.set(i, undefined);
-      //     continue;
-      //   }
-      // }
-      // if (resolveRemove.has(entity.id)) {
-      //   // we need to remove the smart resolves components first
-      //   const components = resolveRemove.get(entity.id);
-      //   if(components){
-      //     console.log('ei:re:r-rr::', entity.id);
-      //     this.systemManager.resolveRemove(components);
-      //     this.componentManager.removeComponents(components);
-      //     resolveRemove.set(i, undefined);
-      //     continue;
-      //   }
-      // }
-      // this.systemManager.resolveEntity(entity);
-      // }
       this.systemManager.resolveEntities(resolving);
     }
-
-    // IDEA: for when we introduce smart resolves
-    // verify there is work to do in the sparse bag
-    // if (resolveAdd.count > 0) {
-    //   for (let i = resolveAdd.length; i--; ) {
-    //     const components = resolveAdd.get(i);
-    //     if (components) {
-    //       this.componentManager.addComponents(i, components);
-    //       this.systemManager.resolveAdd(components);
-    //     }
-    //   }
-    // }
-
-    // IDEA: for when we introduce smart resolves
-    // verify there is work to do in the sparse bag
-    // if (resolveRemove.count > 0) {
-    //   for (let i = resolveRemove.length; i--; ) {
-    //     const components = resolveRemove.get(i);
-    //     if (components) {
-    //       this.systemManager.resolveRemove(components);
-    //       this.componentManager.removeComponents(components);
-    //     }
-    //   }
-    // }
 
     if (updating.count > 0) {
       this.systemManager.update(updating);
@@ -1193,16 +1099,4 @@ export class EcsInstance {
       func(new FuncQuery(this, data), this);
     }
   }
-}
-
-const e = new EcsInstance();
-
-class Foo extends Component {}
-
-class Bar extends Component {}
-
-for (const [[a, b], ent] of e.joinAll([Foo], [Bar])) {
-  a;
-  b;
-  ent;
 }

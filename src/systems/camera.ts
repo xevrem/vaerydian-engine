@@ -31,21 +31,19 @@ export class CameraSystem extends EntitySystem<
     this.app.stage.addChild(maybeData.view);
   }
 
-  // override end() {
-  //   const maybeCamera = this.ecsInstance.getEntityByTag('camera');
-  //   if (!is_some(maybeCamera)) return;
-  //   this.camera = maybeCamera;
-  //   const maybeData = this.ecs.getComponentOfType(maybeCamera, CameraData);
-  //   if (is_none(maybeData)) return;
-  //   this.app.renderer.render(this.app.stage, {
-  //     transform: maybeData.view.localTransform,
-  //   });
-  // }
+  end() {
+    const maybeCamera = this.ecs.getEntityByTag('camera');
+    if (!is_some(maybeCamera)) return;
+    this.camera = maybeCamera;
+    const maybeData = this.ecs.getComponent(maybeCamera, CameraData);
+    if (is_none(maybeData)) return;
+    this.app.renderer.render(this.app.stage, {
+      blit: true,
+      transform: maybeData.view.localTransform,
+    });
+  }
 
-  process(
-    _: Entity,
-    query: Query<typeof this.needed>,
-  ) {
+  process(_: Entity, query: Query<typeof this.needed>) {
     const results = query.retrieve();
     if (!all_some(results)) return;
     const [position, _focus] = results;

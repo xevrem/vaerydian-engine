@@ -1,40 +1,34 @@
-import {
-  EntitySystem,
-  Entity,
-  ComponentMapper,
-  EntitySystemArgs,
-  Query,
-} from '../ecsf';
-import { Position, Velocity } from '../components';
-
-import { Vector } from '../utils/vector';
+import { EntitySystem, Entity, EntitySystemArgs, Query } from 'ecsf';
+import { Position, Renderable, Starfield, Velocity } from 'components';
+import { Vector } from 'utils/vector';
 import { Application } from 'pixi.js';
-import { all_some, is_none, is_some } from 'utils/helpers';
+import { is_none, is_some } from 'utils/helpers';
 
 export class StarfieldSystem extends EntitySystem<
-  [typeof Position, typeof Velocity],
+  [typeof Position, typeof Renderable, typeof Starfield],
   { app: Application }
 > {
   app: Application;
   player!: Entity;
-  // positionMap!: ComponentMapper;
-  // velocityMap!: ComponentMapper;
   distance!: number;
 
   constructor(props: EntitySystemArgs) {
     super({
       ...props,
-      needed: [Position, Velocity],
+      needed: [Position, Renderable, Starfield],
       app: props.app,
     });
     this.app = props.app;
   }
 
   initialize(): void {
-    console.log('starfield system initializing...');
-    // this.positionMap = new ComponentMapper(new Position(), this.ecsInstance);
-    // this.velocityMap = new ComponentMapper(new Velocity(), this.ecsInstance);
+    console.info('starfield system initializing...');
     this.distance = window.innerWidth / 1.14;
+  }
+
+  initialAdd(_entity: Entity) {
+    const [position, renderable] = this.query.retrieve();
+    renderable.container.position.set(position.point.x, position.point.y);
   }
 
   load(): void {
@@ -47,9 +41,8 @@ export class StarfieldSystem extends EntitySystem<
   process(_: Entity, query: Query<typeof this.needed>): void {
     const playerPos = this.ecs.getComponent(this.player, Position);
     const playerVel = this.ecs.getComponent(this.player, Velocity);
-    const results = query.retrieve();
-    if (!all_some(results) || is_none(playerPos) || is_none(playerVel)) return;
-    const [position, _velocity] = results;
+    if (is_none(playerPos) || is_none(playerVel)) return;
+    const [position, _star] = query.retrieve();
     const distance = Vector.distance(position.point, playerPos.point);
     if (distance > this.distance) {
       const angle = Math.random() * 120 - 60;

@@ -1,10 +1,11 @@
 import Stats from 'stats.js';
 import '@pixi/layers';
 import { Group, Layer, Stage } from '@pixi/layers';
-import { Application } from 'pixi.js';
+import { Application, Assets } from 'pixi.js';
 import { GameScreen, ScreenManager } from 'screens';
 import { LayerType } from 'utils/constants';
 import { KeyboardManager } from 'utils/keyboard';
+import { EcsInstance } from 'ecsf';
 
 const FRAME_TARGET_FPS = 30.0;
 const FRAME_TARGET_MS: number = 1000.0 / FRAME_TARGET_FPS;
@@ -12,7 +13,9 @@ const FRAME_TARGET_MS: number = 1000.0 / FRAME_TARGET_FPS;
 // applyRendererMixin(Renderer);
 
 export class Engine {
+  assets: typeof Assets;
   app: Application;
+  ecs: EcsInstance;
   lastTime = 0;
   screenManager: ScreenManager;
   stats: Stats;
@@ -23,25 +26,31 @@ export class Engine {
   constructor() {
     this.screenManager = new ScreenManager();
     this.kb = KeyboardManager;
+    this.kb.init();
 
     this.stats = new Stats();
-    // document.body.append(this.stats.dom);
+    document.body.append(this.stats.dom);
 
+    // const canvas = document.getElementById("canvas");
+    
     const app = new Application({
       width: window.innerWidth,
       height: window.innerHeight,
       backgroundColor: 0x000000,
       antialias: false,
+      view: canvas,
     });
     app.stage = new Stage();
     app.stage.sortableChildren = true;
     app.stage.interactive = true;
     app.stage.hitArea = app.screen;
 
+    this.assets = Assets;
+
     document.body.append(app.view as any);
     this.app = app;
 
-    // this.app.stage.sortableChildren = true;
+    this.ecs = new EcsInstance();
   }
 
   async start(): Promise<void> {
@@ -54,15 +63,15 @@ export class Engine {
     });
 
     await this.screenManager.addScreen(
-      new GameScreen(this.app, this.layers, this.groups)
+      new GameScreen(this.app, this.ecs, this.layers, this.groups)
     );
 
-    console.log('engine running...');
+    console.info('engine running...');
     // this.timeoutLoop();
-    // window.requestAnimationFrame(this.runLoop);
-    this.app.ticker.add(this.runLoop);
+    window.requestAnimationFrame(this.runLoop);
+    // this.app.ticker.add(this.runLoop);
     // this.app.ticker.start();
-    this.app.start();
+    // this.app.start();
   }
 
   runLoop = (time: number): void => {
@@ -70,13 +79,13 @@ export class Engine {
     // this.lastTime = time;
 
     const delta = time / 100;
-    // this.stats.begin();
+    this.stats.begin();
     // console.log(time);
     this.update(delta);
     this.draw(delta);
-    // this.stats.end();
+    this.stats.end();
 
-    // window.requestAnimationFrame(this.runLoop);
+    window.requestAnimationFrame(this.runLoop);
   };
 
   timeoutLoop = (): void => {
@@ -90,10 +99,10 @@ export class Engine {
 
     const seconds = delta / 1000;
 
-    this.stats.begin();
+    // this.stats.begin();
     this.update(seconds);
     this.draw(seconds);
-    this.stats.end();
+    // this.stats.end();
 
     const frameTime = performance.now() - time;
     this.lastTime = time;

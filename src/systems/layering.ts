@@ -1,12 +1,19 @@
-import { EntitySystem, Entity, ComponentMapper, EntitySystemArgs } from 'ecsf';
+import {
+  EntitySystem,
+  Entity,
+  ComponentMapper,
+  EntitySystemArgs,
+  Query,
+} from 'ecsf';
 import { Layers, Renderable, GraphicsRender } from 'components';
 import { LayerType } from 'utils/constants';
 import { DisplayObject } from 'pixi.js';
 import { Group } from '@pixi/layers';
 
 export class LayeringSystem extends EntitySystem<
-  [typeof Layers, typeof Renderable, typeof GraphicsRender],
-  { groups: Record<string, Group> }
+  [typeof Layers],
+  { groups: Record<string, Group> },
+  [typeof Renderable, typeof GraphicsRender]
 > {
   groups: Record<string, Group>;
   // graphicsMapper!: ComponentMapper;
@@ -16,7 +23,12 @@ export class LayeringSystem extends EntitySystem<
   starfieldGroup!: Group;
 
   constructor(props: EntitySystemArgs) {
-    super({ ...props, needed: [Layers, Renderable, GraphicsRender], groups: props.groups });
+    super({
+      ...props,
+      needed: [Layers],
+      optional: [Renderable, GraphicsRender],
+      groups: props.groups,
+    });
     this.groups = props.groups;
   }
 
@@ -40,6 +52,16 @@ export class LayeringSystem extends EntitySystem<
   // }
 
   added(entity: Entity) {
+    const [layers, renderable, graphics] = this.ecs.retrieve<
+      typeof this.needed,
+      typeof this.optional
+    >(entity, [Layers, Renderable, GraphicsRender]);
+
+    if (renderable) {
+      renderable.container.parentGroup = this.groups[layers.layer];
+    }else if (graphics){
+      graphics.graphics.parentGroup = this.groups[layers.layer];
+    }
     // const layer = this.layerMapper.get(entity) as Layers;
     // const displayObject = this.getDisplayObject(entity);
     // if (null) return;
