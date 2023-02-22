@@ -25,7 +25,7 @@ export class Engine {
     this.kb = KeyboardManager;
 
     this.stats = new Stats();
-    document.body.append(this.stats.dom);
+    // document.body.append(this.stats.dom);
 
     const app = new Application({
       width: window.innerWidth,
@@ -70,11 +70,11 @@ export class Engine {
     // this.lastTime = time;
 
     const delta = time / 100;
-    this.stats.begin();
+    // this.stats.begin();
     // console.log(time);
     this.update(delta);
     this.draw(delta);
-    this.stats.end();
+    // this.stats.end();
 
     // window.requestAnimationFrame(this.runLoop);
   };

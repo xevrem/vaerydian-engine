@@ -19,58 +19,78 @@ export class EntityFactory {
   }
 
   createStar(location?: Point): void {
-    const graphic = this.ecsInstance.create();
-
-    const position = new Position(
-      location
-        ? location
-        : new Point(
-            (Math.random() * 2 - 1) * window.innerWidth,
-            (Math.random() * 2 - 1) * window.innerHeight
-          )
-    );
-    this.ecsInstance.addComponent(graphic, position);
-    const spriteName = STARS[Math.floor(Math.random() * STARS.length)];
-    const starContainer = new Container();
-    const texture = Assets.cache.get<Texture>(spriteName);
-    const starSprite = new Sprite(texture);
-    starContainer.addChild(starSprite);
-    const renderable = new Renderable(
-      starContainer,
-      new Point(4, 4),
-      new Point(2, 2)
-    );
-    this.ecsInstance.addComponent(
-      graphic,
-      new Rotation(Math.random() * 180, 0)
-    );
-    this.ecsInstance.addComponent(graphic, renderable);
-    this.ecsInstance.addComponent(graphic, new Layers(LayerType.starfield));
-    this.ecsInstance.addComponent(graphic, new Starfield());
-
-    this.ecsInstance.resolve(graphic);
+    this.ecsInstance
+      .create()
+      .addWith(() => {
+        const position = new Position();
+        position.point = location
+          ? location
+          : new Point(
+              (Math.random() * 2 - 1) * window.innerWidth,
+              (Math.random() * 2 - 1) * window.innerHeight
+            );
+        return position;
+      })
+      .addWith(() => {
+        const spriteName = STARS[Math.floor(Math.random() * STARS.length)];
+        const starContainer = new Container();
+        const texture = Assets.cache.get<Texture>(spriteName);
+        const starSprite = new Sprite(texture);
+        starContainer.addChild(starSprite);
+        const renderable = new Renderable();
+        renderable.container = starContainer;
+        renderable.offset = new Point(4, 4);
+        renderable.pivot = new Point(2, 2);
+        return renderable;
+      })
+      .addWith(() => {
+        const rot = new Rotation();
+        rot.amount = Math.random() * 180;
+        rot.rate = 0;
+        return rot;
+      })
+      .addWith(() => {
+        const layers = new Layers();
+        layers.layer = LayerType.starfield;
+        return layers;
+      })
+      .add(new Starfield())
+      .build();
   }
 
   createCamera(): void {
-    const camera = this.ecsInstance.create();
-
-    this.ecsInstance.tagManager.tagEntity('camera', camera);
-
-    const position = new Position(
-      new Point(window.innerWidth / 2, window.innerHeight / 2)
-    );
-    this.ecsInstance.addComponent(camera, position);
-
-    const velocity = new Velocity(new Point(0, 0), 0);
-    this.ecsInstance.addComponent(camera, velocity);
-
-    const cameraContainer = new Container();
-    cameraContainer.pivot.set(window.innerWidth / 2, window.innerHeight / 2);
-    cameraContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
-    cameraContainer.scale.set(1280 / 640, 720 / 360);
-    const cameraData = new CameraData(cameraContainer);
-    this.ecsInstance.addComponent(camera, cameraData);
-
-    this.ecsInstance.resolve(camera);
+    this.ecsInstance
+      .create()
+      .addWith(() => {
+        const position = new Position();
+        position.point = new Point(
+          window.innerWidth / 2,
+          window.innerHeight / 2
+        );
+        return position;
+      })
+      .addWith(() => {
+        const velocity = new Velocity();
+        velocity.vector = new Point(0, 0);
+        velocity.rate = 0;
+        return velocity;
+      })
+      .addWith(() => {
+        const cameraContainer = new Container();
+        cameraContainer.pivot.set(
+          window.innerWidth / 2,
+          window.innerHeight / 2
+        );
+        cameraContainer.position.set(
+          window.innerWidth / 2,
+          window.innerHeight / 2
+        );
+        cameraContainer.scale.set(1280 / 640, 720 / 360);
+        const cameraData = new CameraData();
+        cameraData.view = cameraContainer;
+        return cameraData;
+      })
+      .tag('camera')
+      .build();
   }
 }
