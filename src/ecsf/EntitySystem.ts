@@ -2,7 +2,12 @@ import { Bag } from './Bag';
 import { Entity } from './Entity';
 import { EcsInstance } from './EcsInstance';
 import { Query } from './Query';
-import { ComponentOptionTuple, ComponentTuple, JoinedResult, SmartUpdate } from 'types';
+import {
+  ComponentOptionTuple,
+  ComponentTuple,
+  JoinedResult,
+  SmartUpdate,
+} from 'types';
 
 export declare type EntitySystemArgs<
   T extends ComponentTuple = ComponentTuple,
@@ -134,7 +139,8 @@ export class EntitySystem<
   removeEntity(entity: Entity): void {
     if (this._entities.has(entity.id)) {
       this._entities.set(entity.id, undefined);
-      this.removed && this.removed(entity);
+      this.query.entity = entity;
+      this.removed?.(entity);
       this._dirty = true;
     }
   }
@@ -143,18 +149,28 @@ export class EntitySystem<
     const entity = this._entities.get(id);
     if (entity) {
       this._entities.set(id, undefined);
-      this.removed && this.removed(entity);
+      this.query.entity = entity;
+      this.removed?.(entity);
       this._dirty = true;
     }
   }
 
-  initialAdd(entity: Entity): void {
+  /**
+   * creation/assignment of entities upon initial resolution
+   */
+  initialResolve(entity: Entity): void {
     this._entities.set(entity.id, entity);
+    this.query.entity = entity;
+    this.created?.(entity);
     this._dirty = true;
   }
 
+  /**
+   * creation/assignment of enttiies after load
+   */
   initialCreate(entity: Entity): void {
-    this.created && this.created(entity);
+    this.query.entity = entity;
+    this.created?.(entity);
     this._dirty = true;
   }
 
@@ -175,14 +191,16 @@ export class EntitySystem<
   addEntity(entity: Entity): void {
     if (!this._entities.has(entity.id)) {
       this._entities.set(entity.id, entity);
-      this.added && this.added(entity);
+      this.query.entity = entity;
+      this.added?.(entity);
       this._dirty = true;
     }
   }
 
   createEntity(entity: Entity): void {
     this._entities.set(entity.id, entity);
-    this.created && this.created(entity);
+    this.query.entity = entity;
+    this.created?.(entity);
     this._dirty = true;
   }
 
@@ -207,12 +225,14 @@ export class EntitySystem<
 
   deleteEntity(entity: Entity): void {
     if (this.reactive) {
-      this.deleted && this.deleted(entity);
+      this.query.entity = entity;
+      this.deleted?.(entity);
       this._dirty = true;
     } else {
       if (this._entities.has(entity.id)) {
         this._entities.set(entity.id, undefined);
-        this.deleted && this.deleted(entity);
+        this.query.entity = entity;
+        this.deleted?.(entity);
         this._dirty = true;
       }
     }

@@ -6,8 +6,6 @@ import * as AllComponents from 'components';
 import { isComponent } from 'ecsf';
 import { EntityFactory, PlayerFactory } from 'factories';
 import {
-  AnimationSystem,
-  MovementSystem,
   ControlSystem,
   GraphicsRenderSystem,
   CameraSystem,
@@ -26,6 +24,7 @@ import star6 from 'assets/stars/star6.png';
 import star7 from 'assets/stars/star7.png';
 import { LayerType } from 'utils/constants';
 import { Vector2 } from 'utils/vector';
+import { is_none, is_some } from 'utils/helpers';
 
 const assets = [
   {
@@ -75,16 +74,10 @@ export class GameScreen extends Screen {
     // Scale mode for all textures, will retain pixelation
     settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
-    this.ecs.registerSystem(CameraSystem, {
-      app: this.app,
-      priority: 5,
-    });
-
-    this.ecs.registerSystem(ControlSystem, { priority: 2 });
-
-    this.ecs.registerSystem(GraphicsRenderSystem, {
-      app: this.app,
-      priority: 4,
+    Object.values(AllComponents).forEach(value => {
+      if (isComponent(value)) {
+        this.ecs.registerComponent(value);
+      }
     });
 
     this.ecs.registerSystem(LayeringSystem, {
@@ -92,19 +85,49 @@ export class GameScreen extends Screen {
       priority: 0,
     });
 
-    // this.ecs.registerSystem(MovementSystem, {});
-
+    this.ecs.registerSystem(StarfieldSystem, { app: this.app, priority: 1 });
+    this.ecs.registerSystem(ControlSystem, { priority: 2 });
     this.ecs.registerSystem(RenderSystem, { app: this.app, priority: 3 });
 
-    this.ecs.registerSystem(StarfieldSystem, { app: this.app, priority: 1 });
+    // this.ecs.registerSystem(GraphicsRenderSystem, {
+    //   app: this.app,
+    //   priority: 4,
+    // });
+
+    this.ecs.registerSystem(CameraSystem, {
+      app: this.app,
+      priority: 5,
+    });
 
     // this.ecs.registerSystem(AnimationSystem, {});
 
-    Object.values(AllComponents).forEach(value => {
-      if (isComponent(value)) {
-        this.ecs.registerComponent(value);
-      }
-    });
+    // movement system
+    this.ecs.withSystem(
+      (query, _ecs) => {
+        for (const [position, velocity] of query.join()) {
+          const delta = position.point.add(velocity.vector);
+          position.point = delta;
+        }
+      },
+      [AllComponents.Position, AllComponents.Velocity]
+    );
+
+    // positioning and rotation
+    this.ecs.withSystem(
+      (query, _ecs) => {
+        for (const [position, rotation, renderable] of query.join()) {
+          renderable.container.pivot = renderable.pivot;
+          renderable.container.rotation = rotation.amount + rotation.offset;
+          renderable.container.position = position.point.toPoint();
+        }
+      },
+      [
+        AllComponents.Position,
+        AllComponents.Rotation,
+        AllComponents.Renderable,
+        AllComponents.Player,
+      ]
+    );
 
     this.ecs.initializeSystems();
 
@@ -127,41 +150,9 @@ export class GameScreen extends Screen {
 
     this.playerFactory.createPlayer(Vector2.zero);
 
-    Array(100)
+    Array(1000)
       .fill('')
       .forEach(() => this.entityFactory.createStar());
-
-    this.ecs.initialResolve();
-    this.ecs.loadSystems();
-    this.ecs.initialCreate();
-
-    // movement system
-    this.ecs.withSystem(
-      (query, ecs) => {
-        for (const [position, velocity] of query.join()) {
-          const delta = position.point.add(velocity.vector);
-          position.point = delta;
-        }
-      },
-      [AllComponents.Position, AllComponents.Velocity]
-    );
-
-    // positioning and rotation
-    this.ecs.withSystem(
-      (query, ecs) => {
-        for (const [position, rotation, renderable] of query.join()) {
-          renderable.container.pivot = renderable.pivot;
-          renderable.container.rotation = rotation.amount + rotation.offset;
-          renderable.container.position = position.point.toPoint();
-        }
-      },
-      [
-        AllComponents.Position,
-        AllComponents.Rotation,
-        AllComponents.Renderable,
-        AllComponents.Player,
-      ]
-    );
 
     const graphic = new Graphics();
     graphic
@@ -178,6 +169,9 @@ export class GameScreen extends Screen {
 
     this.app.stage.addChild(cont);
 
+    this.ecs.initialResolve();
+    this.ecs.loadSystems();
+    this.ecs.initialCreate();
     this.ecs.scheduleSystems();
   }
 
@@ -185,25 +179,21 @@ export class GameScreen extends Screen {
     //
   }
 
-  /**
-   * @param {number} delta - data
-   * @return {void}
-   */
-  update(delta: number): void {
-    this.ecs.updateByDelta(delta);
-    this.ecs.resolveEntities();
-    this.ecs.runQuerySystems();
-    this.ecs.runSystems();
-  }
+  update(_delta: number): void {}
 
-  focusUpdate(_delta: number): void {
-    // this.controlSystem.processAll();
-  }
+  focusUpdate(_delta: number): void {}
 
-  draw(): void {
-    // this.renderSystem.processAll();
-    // this.graphicsRenderSystem.processAll();
-    // render scene according to camera position
-    // this.cameraSystem.processAll();
+  draw(_delta: number): void {
+    const maybeCamera = this.ecs.getEntityByTag('camera');
+    if (!is_some(maybeCamera)) return;
+    const maybeData = this.ecs.getComponent(
+      maybeCamera,
+      AllComponents.CameraData
+    );
+    if (is_none(maybeData)) return;
+
+    this.app.renderer.render(this.app.stage, {
+      transform: maybeData.view.localTransform,
+    });
   }
 }

@@ -1,7 +1,7 @@
-import { Entity, EntitySystem, EntitySystemArgs, Query } from '../ecsf';
-import { Position, Velocity, CameraData, CameraFocus } from '../components';
-import { Application } from '@pixi/app';
-import { all_some, is_none, is_some } from 'utils';
+import { Bag, Entity, EntitySystem, EntitySystemArgs, Query } from 'ecsf';
+import { Position, CameraData, CameraFocus } from 'components';
+import { Application } from 'pixi.js';
+import { is_none, is_some } from 'utils';
 
 interface CSProps {
   app: Application;
@@ -22,25 +22,13 @@ export class CameraSystem extends EntitySystem<
     this.app = props.app;
   }
 
-  load() {
+  load(_entities: Bag<Entity>) {
     const maybeCamera = this.ecs.getEntityByTag('camera');
     if (!is_some(maybeCamera)) return;
     this.camera = maybeCamera;
     const maybeData = this.ecs.getComponentOfType(maybeCamera, CameraData);
     if (is_none(maybeData)) return;
     this.app.stage.addChild(maybeData.view);
-  }
-
-  end() {
-    const maybeCamera = this.ecs.getEntityByTag('camera');
-    if (!is_some(maybeCamera)) return;
-    this.camera = maybeCamera;
-    const maybeData = this.ecs.getComponent(maybeCamera, CameraData);
-    if (is_none(maybeData)) return;
-    this.app.renderer.render(this.app.stage, {
-      blit: true,
-      transform: maybeData.view.localTransform,
-    });
   }
 
   process(_: Entity, query: Query<typeof this.needed>) {

@@ -105,14 +105,13 @@ export class SystemManager {
     }
   }
 
-  initialAdd(entity: Entity): void {
+  initialResolve(entity: Entity): void {
     const systems = this.systems;
     for (let i = systems.length; i--; ) {
       const system = this.systems[i];
-      if(system.query.validate(entity)){
-        system.query.entity = entity;
-        system.initialAdd(entity);
-      } 
+      if (system.query.validate(entity)) {
+        system.initialResolve(entity);
+      }
     }
   }
 

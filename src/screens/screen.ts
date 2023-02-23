@@ -11,7 +11,7 @@ export enum ScreenState {
 }
 
 export abstract class Screen {
-  ecs: EcsInstance;
+  ecs!: EcsInstance;
   app: Application;
   layers: Record<string, Layer>;
   groups: Record<string, Group>;
@@ -19,13 +19,13 @@ export abstract class Screen {
   screenState: ScreenState;
   id: number = -1;
 
-  constructor(app: Application, ecs: EcsInstance, layers: Record<string, Layer>, groups: Record<string, Group>) {
+  constructor(app: Application, layers: Record<string, Layer>, groups: Record<string, Group>) {
     this.app = app;
-    this.ecs = ecs;
     this.layers = layers;
     this.groups = groups;
     this.screenState = ScreenState.Inactive;
   }
+
 
   abstract initialize(): void;
   abstract load(): Promise<any>;

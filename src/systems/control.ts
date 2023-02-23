@@ -2,7 +2,6 @@ import { EntitySystem, Entity, Query, EntitySystemArgs } from 'ecsf';
 import { Rotation, Velocity, Heading, Controllable } from 'components';
 import { KeyboardManager } from 'utils/keyboard';
 import { KEYS } from 'utils/constants';
-import { Vector2 } from 'utils/vector';
 
 export class ControlSystem extends EntitySystem<
   [typeof Rotation, typeof Velocity, typeof Heading, typeof Controllable]

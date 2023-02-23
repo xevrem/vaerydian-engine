@@ -16,7 +16,6 @@
     "sourceMap": true,
     "noEmit": true,
     "module": "esnext",
-    "rootDir": ".",
     "baseUrl": "./src"
   },
   "include": ["src/**/*"],

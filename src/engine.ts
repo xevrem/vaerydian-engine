@@ -25,10 +25,6 @@ export class Engine {
   kb!: typeof KeyboardManager;
 
   constructor() {
-    this.screenManager = new ScreenManager();
-    this.kb = KeyboardManager;
-    this.kb.init();
-
     this.stats = new Stats();
     document.body.append(this.stats.dom);
 
@@ -55,11 +51,15 @@ export class Engine {
     this.app = app;
 
     this.ecs = new EcsInstance();
+    this.screenManager = new ScreenManager();
+    this.screenManager.ecs = this.ecs;
+    this.kb = KeyboardManager;
+    this.kb.init();
   }
 
   async start(): Promise<void> {
     Object.entries(LayerType).forEach(([layerName, order]) => {
-      const group = new Group(order, false);
+      const group = new Group(order, true);
       const layer = new Layer(group);
       this.layers[layerName] = layer;
       this.groups[layerName] = group;
@@ -67,7 +67,7 @@ export class Engine {
     });
 
     await this.screenManager.addScreen(
-      new GameScreen(this.app, this.ecs, this.layers, this.groups)
+      new GameScreen(this.app, this.layers, this.groups)
     );
 
     console.info('engine running...');
@@ -79,12 +79,12 @@ export class Engine {
   }
 
   runLoop = (time: number): void => {
-    const delta = time - this.lastTime;
-    this.lastTime = time;
+    // const delta = time - this.lastTime;
+    // this.lastTime = time;
 
-    // const delta = time / 1000;
+    const delta = time / 1000;
     this.stats.begin();
-    this.update(delta / 1000);
+    this.update(delta);
     this.draw(delta);
     this.stats.end();
 

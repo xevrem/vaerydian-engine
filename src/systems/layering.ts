@@ -16,10 +16,7 @@ export class LayeringSystem extends EntitySystem<
   [typeof Renderable, typeof GraphicsRender]
 > {
   groups: Record<string, Group>;
-  // graphicsMapper!: ComponentMapper;
-  // layerMapper!: ComponentMapper;
   playerGroup!: Group;
-  // renderMapper!: ComponentMapper;
   starfieldGroup!: Group;
 
   constructor(props: EntitySystemArgs) {
@@ -33,12 +30,7 @@ export class LayeringSystem extends EntitySystem<
   }
 
   initialize() {
-    // this.layerMapper = new ComponentMapper(new Layers(), this.ecsInstance);
-    // this.renderMapper = new ComponentMapper(new Renderable(), this.ecsInstance);
-    // this.graphicsMapper = new ComponentMapper(
-    //   new GraphicsRender(),
-    //   this.ecsInstance
-    // );
+    console.info('layer system initialized...');
     this.playerGroup = this.groups[LayerType.player];
     this.starfieldGroup = this.groups[LayerType.starfield];
   }

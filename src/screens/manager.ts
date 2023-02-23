@@ -1,10 +1,16 @@
 import { Screen, ScreenState } from './screen';
-import { Bag } from '../ecsf';
+import { Bag, EcsInstance } from 'ecsf';
 
 export class ScreenManager {
   _screens: Bag<Screen> = new Bag<Screen>();
+  _ecs!: EcsInstance;
+
+  set ecs(value: EcsInstance) {
+    this._ecs = value;
+  }
 
   async addScreen(screen: Screen): Promise<any> {
+    screen.ecs = this._ecs;
     screen.screenState = ScreenState.Activating;
     screen.screenManger = this;
     screen.initialize();
@@ -21,6 +27,10 @@ export class ScreenManager {
   }
 
   update(delta: number): void {
+    this._ecs.updateTime(delta);
+    this._ecs.resolveEntities();
+    this._ecs.runSystems();
+
     this._screens.forEach(screen => {
       screen &&
         screen.screenState === ScreenState.Active &&

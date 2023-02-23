@@ -1,7 +1,6 @@
 import { EntitySystem, Entity, EntitySystemArgs, Query } from 'ecsf';
 import { Renderable, Position, Rotation } from 'components';
 import { Application, Container } from 'pixi.js';
-import { is_some, all_some } from 'utils/helpers';
 
 export class RenderSystem extends EntitySystem<
   [typeof Renderable, typeof Position, typeof Rotation],
@@ -17,40 +16,33 @@ export class RenderSystem extends EntitySystem<
       app: props.app,
     });
     this.app = props.app;
+
+    this.spriteContainer = new Container();
   }
 
   initialize() {
     console.info('sprite system initializing...');
-    this.spriteContainer = new Container();
     this.app.stage.addChild(this.spriteContainer);
   }
 
-  initialAdd(entity: Entity): void {
-    const spriteRender = this.ecs.getComponent(entity, Renderable);
-    if (is_some(spriteRender)) {
-      this.spriteContainer.addChild(spriteRender.container);
-      console.log('rs:ia::added', entity.id);
-    }
+  created(entity: Entity): void {
+    const [renderer] = this.query.retrieve();
+    this.spriteContainer.addChild(renderer.container);
   }
 
-  initialCreate(entity: Entity) {
-    console.log('rs:ic::');
+  deleted(entity: Entity) {
+    const [renderer] = this.query.retrieve();
+    this.spriteContainer.removeChild(renderer.container);
   }
 
   added(entity: Entity) {
-    const spriteRender = this.ecs.getComponent(entity, Renderable);
-    if (is_some(spriteRender)) {
-      this.spriteContainer.addChild(spriteRender.container);
-      console.log('rs:a::added', entity.id);
-    }
+    const [renderer] = this.query.retrieve();
+    this.spriteContainer.addChild(renderer.container);
   }
 
   removed(entity: Entity) {
-    const spriteRender = this.ecs.getComponent(entity, Renderable);
-    if (is_some(spriteRender)) {
-      this.spriteContainer.removeChild(spriteRender.container);
-      console.log('rs:r::removed', entity.id);
-    }
+    const [renderer] = this.query.retrieve();
+    this.spriteContainer.removeChild(renderer.container);
   }
 
   process(_: Entity, query: Query<typeof this.needed>) {

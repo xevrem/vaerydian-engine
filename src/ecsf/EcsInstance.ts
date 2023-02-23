@@ -400,7 +400,7 @@ export class EcsInstance {
     if (creating.count > 0) {
       for (let i = creating.length; i--; ) {
         const entity = creating.get(i);
-        entity && this.systemManager.initialAdd(entity);
+        entity && this.systemManager.initialResolve(entity);
       }
     }
   }
@@ -478,6 +478,7 @@ export class EcsInstance {
    */
   runSystems(): void {
     this.scheduler.runSystems();
+    this.runQuerySystems();
   }
 
   /**
