@@ -44,9 +44,7 @@ export class CameraSystem extends EntitySystem<
   }
 
   process(_: Entity, query: Query<typeof this.needed>) {
-    const results = query.retrieve();
-    if (!all_some(results)) return;
-    const [position, _focus] = results;
+    const [position, _focus] = query.retrieve();
     const cameraData = this.ecs.getComponent(this.camera, CameraData);
     if (is_none(cameraData)) return;
     cameraData.view.pivot.set(position.point.x, position.point.y);

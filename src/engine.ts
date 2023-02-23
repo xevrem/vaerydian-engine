@@ -6,6 +6,7 @@ import { GameScreen, ScreenManager } from 'screens';
 import { LayerType } from 'utils/constants';
 import { KeyboardManager } from 'utils/keyboard';
 import { EcsInstance } from 'ecsf';
+import { is_none } from 'utils/helpers';
 
 const FRAME_TARGET_FPS = 30.0;
 const FRAME_TARGET_MS: number = 1000.0 / FRAME_TARGET_FPS;
@@ -31,8 +32,11 @@ export class Engine {
     this.stats = new Stats();
     document.body.append(this.stats.dom);
 
-    // const canvas = document.getElementById("canvas");
-    
+    const canvas = document.getElementById(
+      'canvas'
+    ) as Option<HTMLCanvasElement>;
+    if (is_none(canvas)) throw new Error('NO CANVAS FOUND');
+
     const app = new Application({
       width: window.innerWidth,
       height: window.innerHeight,
@@ -47,7 +51,7 @@ export class Engine {
 
     this.assets = Assets;
 
-    document.body.append(app.view as any);
+    // document.body.append(app.view as any);
     this.app = app;
 
     this.ecs = new EcsInstance();
@@ -75,13 +79,12 @@ export class Engine {
   }
 
   runLoop = (time: number): void => {
-    // const delta = time - this.lastTime;
-    // this.lastTime = time;
+    const delta = time - this.lastTime;
+    this.lastTime = time;
 
-    const delta = time / 100;
+    // const delta = time / 1000;
     this.stats.begin();
-    // console.log(time);
-    this.update(delta);
+    this.update(delta / 1000);
     this.draw(delta);
     this.stats.end();
 

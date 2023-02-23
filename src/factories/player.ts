@@ -4,6 +4,7 @@ import {
   Controllable,
   Heading,
   Layers,
+  Player,
   Position,
   Renderable,
   Rotation,
@@ -11,7 +12,7 @@ import {
 } from '../components';
 import { EcsInstance } from 'ecsf';
 import { LayerType } from 'utils/constants';
-import { Vector2 } from 'ecsf/vector';
+import { Vector2 } from 'utils/vector';
 
 export class PlayerFactory {
   ecsInstance: EcsInstance;
@@ -20,7 +21,7 @@ export class PlayerFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createPlayer(location: Point): void {
+  createPlayer(location: Vector2): void {
     this.ecsInstance
       .create()
       .addWith(() => {
@@ -30,19 +31,20 @@ export class PlayerFactory {
       })
       .addWith(() => {
         const v = new Velocity();
-        v.vector = new Point(0, 0);
-        v.rate = 30;
+        v.vector = Vector2.zero;
+        v.rate = 5;
         return v;
       })
       .addWith(() => {
         const r = new Rotation();
         r.amount = 0;
-        r.rate = 200;
+        r.offset = Math.PI / 2;
+        r.rate = Math.PI / 2;
         return r;
       })
       .addWith(() => {
         const h = new Heading();
-        h.vector = new Point(0, -1);
+        h.vector = new Vector2(1, 0); // 0 degrees
         return h;
       })
       .addWith(() => {
@@ -52,8 +54,8 @@ export class PlayerFactory {
         playerContainer.addChild(shipSprite);
         const r = new Renderable();
         r.container = playerContainer;
-        r.offset = new Point(0, 0);
-        r.pivot = new Point(12, 12);
+        r.offset = Vector2.zero;
+        r.pivot = new Vector2(12, 12);
         return r;
       })
       .addWith(() => {
@@ -63,6 +65,7 @@ export class PlayerFactory {
       })
       .add(new Controllable())
       .add(new CameraFocus())
+      .add(new Player())
       .tag('player')
       .build();
   }

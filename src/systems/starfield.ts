@@ -1,6 +1,6 @@
 import { EntitySystem, Entity, EntitySystemArgs, Query } from 'ecsf';
-import { Position, Renderable, Starfield, Velocity } from 'components';
-import { Vector } from 'utils/vector';
+import { Heading, Position, Renderable, Starfield, Velocity } from 'components';
+import { Vector2 } from 'utils/vector';
 import { Application } from 'pixi.js';
 import { is_none, is_some } from 'utils/helpers';
 
@@ -28,7 +28,7 @@ export class StarfieldSystem extends EntitySystem<
 
   initialAdd(_entity: Entity) {
     const [position, renderable] = this.query.retrieve();
-    renderable.container.position.set(position.point.x, position.point.y);
+    renderable.container.position = position.point;//.set(position.point.x, position.point.y);
   }
 
   load(): void {
@@ -40,20 +40,16 @@ export class StarfieldSystem extends EntitySystem<
 
   process(_: Entity, query: Query<typeof this.needed>): void {
     const playerPos = this.ecs.getComponent(this.player, Position);
-    const playerVel = this.ecs.getComponent(this.player, Velocity);
-    if (is_none(playerPos) || is_none(playerVel)) return;
-    const [position, _star] = query.retrieve();
-    const distance = Vector.distance(position.point, playerPos.point);
+    const playerHeading = this.ecs.getComponent(this.player, Heading);
+    if (is_none(playerPos) || is_none(playerHeading)) return;
+    const [position, renderable, _star] = query.retrieve();
+    const distance = position.point.distanceTo(playerPos.point);
     if (distance > this.distance) {
       const angle = Math.random() * 120 - 60;
-      const projVec = Vector.normalize(
-        Vector.rotateVectorDegrees(playerVel.vector, angle)
-      );
-      const projPos = Vector.multScalar(
-        projVec,
-        this.distance - Math.random() * 200
-      );
-      position.point = Vector.add(playerPos.point, projPos);
+      const projVec = playerHeading.vector.rotateDeg(angle).normalize();
+      const projPos = projVec.multScalar(this.distance * Math.random());
+      position.point = playerPos.point.add(projPos);
+      renderable.container.position = position.point.toPoint();
     }
   }
 }

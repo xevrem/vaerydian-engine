@@ -10,6 +10,7 @@ import {
 } from 'components';
 import { LayerType, STARS } from 'utils/constants';
 import { Assets, Container, Point, Sprite, Texture } from 'pixi.js';
+import { Vector2 } from 'utils/vector';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -18,14 +19,14 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createStar(location?: Point): void {
+  createStar(location?: Vector2): void {
     this.ecsInstance
       .create()
       .addWith(() => {
         const position = new Position();
         position.point = location
           ? location
-          : new Point(
+          : new Vector2(
               (Math.random() * 2 - 1) * window.innerWidth,
               (Math.random() * 2 - 1) * window.innerHeight
             );
@@ -39,8 +40,8 @@ export class EntityFactory {
         starContainer.addChild(starSprite);
         const renderable = new Renderable();
         renderable.container = starContainer;
-        renderable.offset = new Point(4, 4);
-        renderable.pivot = new Point(2, 2);
+        renderable.offset = new Vector2(4, 4);
+        renderable.pivot = new Vector2(2, 2);
         return renderable;
       })
       .addWith(() => {
@@ -63,7 +64,7 @@ export class EntityFactory {
       .create()
       .addWith(() => {
         const position = new Position();
-        position.point = new Point(
+        position.point = new Vector2(
           window.innerWidth / 2,
           window.innerHeight / 2
         );
@@ -85,7 +86,7 @@ export class EntityFactory {
           window.innerWidth / 2,
           window.innerHeight / 2
         );
-       cameraContainer.scale.set(1280 / 640, 720 / 360);
+        cameraContainer.scale.set(1280 / 640, 720 / 360);
         const cameraData = new CameraData();
         cameraData.view = cameraContainer;
         return cameraData;

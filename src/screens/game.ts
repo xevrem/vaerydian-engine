@@ -1,11 +1,4 @@
-import {
-  Container,
-  Graphics,
-  Point,
-  SCALE_MODES,
-  settings,
-  Texture,
-} from 'pixi.js';
+import { Container, Graphics, SCALE_MODES, settings, Texture } from 'pixi.js';
 import { Assets } from '@pixi/assets';
 import Stats from 'stats.js';
 import { Screen } from 'screens/screen';
@@ -32,6 +25,7 @@ import star5 from 'assets/stars/star5.png';
 import star6 from 'assets/stars/star6.png';
 import star7 from 'assets/stars/star7.png';
 import { LayerType } from 'utils/constants';
+import { Vector2 } from 'utils/vector';
 
 const assets = [
   {
@@ -131,9 +125,7 @@ export class GameScreen extends Screen {
 
     this.entityFactory.createCamera();
 
-    this.playerFactory.createPlayer(
-      new Point(0, 0) //window.innerWidth / 2, window.innerHeight / 2)
-    );
+    this.playerFactory.createPlayer(Vector2.zero);
 
     Array(100)
       .fill('')
@@ -147,12 +139,28 @@ export class GameScreen extends Screen {
     this.ecs.withSystem(
       (query, ecs) => {
         for (const [position, velocity] of query.join()) {
-          const dx = position.point.x + velocity.vector.x * ecs.delta;
-          const dy = position.point.y + velocity.vector.y * ecs.delta;
-          position.point.set(dx, dy);
+          const delta = position.point.add(velocity.vector);
+          position.point = delta;
         }
       },
       [AllComponents.Position, AllComponents.Velocity]
+    );
+
+    // positioning and rotation
+    this.ecs.withSystem(
+      (query, ecs) => {
+        for (const [position, rotation, renderable] of query.join()) {
+          renderable.container.pivot = renderable.pivot;
+          renderable.container.rotation = rotation.amount + rotation.offset;
+          renderable.container.position = position.point.toPoint();
+        }
+      },
+      [
+        AllComponents.Position,
+        AllComponents.Rotation,
+        AllComponents.Renderable,
+        AllComponents.Player,
+      ]
     );
 
     const graphic = new Graphics();

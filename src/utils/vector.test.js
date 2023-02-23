@@ -9,12 +9,12 @@ describe('Vector2', () => {
     expect(vec.y).toEqual(2);
   });
   it('should be able to build from points', () => {
-    const vec = Vector2.fromPoint(Point(1, 2));
+    const vec = Vector2.fromPoint(new Point(1, 2));
     expect(vec.x).toEqual(1);
     expect(vec.y).toEqual(2);
   });
   it('should return a point', () => {
-    const point = Point(1, 2);
+    const point = new Point(1, 2);
     const vec = Vector2.fromPoint(point);
     const newPt = vec.toPoint();
     expect(newPt.x).toEqual(point.x);

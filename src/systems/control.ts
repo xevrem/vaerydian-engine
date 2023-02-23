@@ -1,10 +1,8 @@
-import { EntitySystem, Entity, Query, EntitySystemArgs } from '../ecsf';
-import { Rotation, Velocity, Heading, Controllable } from '../components';
-import { KeyboardManager } from '../utils/keyboard';
-import { KEYS } from '../utils/constants';
-import { Point } from 'pixi.js';
-import { Vector } from '../utils/vector';
-import { all_some } from 'utils/helpers';
+import { EntitySystem, Entity, Query, EntitySystemArgs } from 'ecsf';
+import { Rotation, Velocity, Heading, Controllable } from 'components';
+import { KeyboardManager } from 'utils/keyboard';
+import { KEYS } from 'utils/constants';
+import { Vector2 } from 'utils/vector';
 
 export class ControlSystem extends EntitySystem<
   [typeof Rotation, typeof Velocity, typeof Heading, typeof Controllable]
@@ -22,48 +20,47 @@ export class ControlSystem extends EntitySystem<
     delta: number
   ) {
     const results = query.retrieve();
-    const [rotation, velocity, _heading] = results;
+    const [rotation, velocity, heading] = results;
 
     // by default we point straight up
     let amount = 0;
-    let magnitude = 0;
-    let thrust: Point = new Point(0, -1);
+    // let magnitude = 0;
+    let thrust = 0;
 
     if (KeyboardManager.isKeyPressed(KEYS.A)) {
       //rotate left
-      amount -= rotation.rate * delta;
-    }
-
-    if (KeyboardManager.isKeyPressed(KEYS.D)) {
+      amount = -rotation.rate * delta;
+    } else if (KeyboardManager.isKeyPressed(KEYS.D)) {
       //rotate right
-      amount += rotation.rate * delta;
+      amount = rotation.rate * delta;
     }
 
     if (KeyboardManager.isKeyPressed(KEYS.W)) {
       // add 'forward' velocity
-      magnitude += velocity.rate * delta;
-      // thrust = Vector.add(thrust, new Point)
-    }
+      thrust = velocity.rate * delta;
+    } else if (KeyboardManager.isKeyPressed(KEYS.S)) {
+      // remove 'reverse' velocity
+      thrust = -velocity.rate * delta;
+    } 
 
-    if (KeyboardManager.isKeyPressed(KEYS.S)) {
-      // remove 'forward' velocity
-      magnitude -= velocity.rate * delta;
-    }
-
-    thrust = Vector.multScalar(
-      Vector.rotateVectorDegrees(thrust, rotation.amount + amount),
-      magnitude
-    );
+    // thrust = thrust.rotateDeg(amount).multScalar(magnitude);
 
     if (KeyboardManager.isKeyPressed(KEYS.SPACE)) {
       // we override the thrust to apply a breaking force
-      const [vec, mag] = Vector.normalizeMag(
-        Vector.rotateVectorDegrees(velocity.vector, 180)
-      );
-      thrust = Vector.multScalar(vec, mag * delta);
+      // const [vec, mag] = velocity.vector.rotateDeg(180).normalizeMag();
+      // thrust = vec.multScalar(mag * delta);
     }
 
-    rotation.amount += amount;
-    velocity.vector = Vector.add(velocity.vector, thrust);
+    if(amount !== 0){
+      heading.vector = heading.vector.rotate(amount);
+      rotation.amount = heading.vector.angle();
+    }
+
+    if(thrust !== 0){
+      velocity.vector = heading.vector.multScalar(thrust).add(velocity.vector).clamp(-velocity.rate, velocity.rate);
+    }
+
+    // velocity.vector = velocity.vector.add(thrust).clamp(0, 300);
+    // heading.vector = heading.vector.add(thrust).normalize();
   }
 }
