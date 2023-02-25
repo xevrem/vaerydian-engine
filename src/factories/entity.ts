@@ -24,7 +24,7 @@ export class EntityFactory {
       .create()
       .addWith(() => {
         const position = new Position();
-        position.point = location
+        position.value = location
           ? location
           : new Vector2(
               (Math.random() * 2 - 1) * window.innerWidth,
@@ -64,7 +64,7 @@ export class EntityFactory {
       .create()
       .addWith(() => {
         const position = new Position();
-        position.point = new Vector2(
+        position.value = new Vector2(
           window.innerWidth / 2,
           window.innerHeight / 2
         );

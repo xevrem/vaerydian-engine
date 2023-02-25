@@ -27,12 +27,12 @@ export class MovementSystem extends EntitySystem<
     if (!all_some(results)) return;
     const [position, velocity] = results;
 
-    let dx = position.point.x + velocity.vector.x * delta;
-    let dy = position.point.y + velocity.vector.y * delta;
+    let dx = position.value.x + velocity.vector.x * delta;
+    let dy = position.value.y + velocity.vector.y * delta;
 
     // dx = dx > window.innerWidth ? 0 : dx < 0 ? window.innerWidth : dx;
     // dy = dy > window.innerHeight ? 0 : dy < 0 ? window.innerHeight : dy;
 
-    position.point.set(dx, dy);
+    position.value.set(dx, dy);
   }
 }

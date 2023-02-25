@@ -49,8 +49,8 @@ export class RenderSystem extends EntitySystem<
     const [renderable, position, rotation] = query.retrieve();
 
     renderable.container.position.set(
-      position.point.x - renderable.offset.x,
-      position.point.y - renderable.offset.y
+      position.value.x - renderable.offset.x,
+      position.value.y - renderable.offset.y
     );
 
     renderable.container.pivot.set(renderable.pivot.x, renderable.pivot.y);

@@ -15,6 +15,12 @@ export class ScreenManager {
     screen.screenManger = this;
     screen.initialize();
     await screen.load();
+
+    this._ecs.initialResolve();
+    this._ecs.loadSystems();
+    this._ecs.initialCreate();
+    this._ecs.scheduleSystems();
+
     screen.screenState = ScreenState.Active;
     const index = this._screens.add(screen);
     screen.id = index;

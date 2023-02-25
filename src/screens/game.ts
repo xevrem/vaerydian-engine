@@ -105,8 +105,8 @@ export class GameScreen extends Screen {
     this.ecs.withSystem(
       (query, _ecs) => {
         for (const [position, velocity] of query.join()) {
-          const delta = position.point.add(velocity.vector);
-          position.point = delta;
+          const delta = position.value.add(velocity.vector);
+          position.value = delta;
         }
       },
       [AllComponents.Position, AllComponents.Velocity]
@@ -118,7 +118,7 @@ export class GameScreen extends Screen {
         for (const [position, rotation, renderable] of query.join()) {
           renderable.container.pivot = renderable.pivot;
           renderable.container.rotation = rotation.amount + rotation.offset;
-          renderable.container.position = position.point.toPoint();
+          renderable.container.position = position.value.toPoint();
         }
       },
       [
@@ -168,11 +168,6 @@ export class GameScreen extends Screen {
     cont.parentGroup = this.groups[LayerType.sprites];
 
     this.app.stage.addChild(cont);
-
-    this.ecs.initialResolve();
-    this.ecs.loadSystems();
-    this.ecs.initialCreate();
-    this.ecs.scheduleSystems();
   }
 
   unload(): void {

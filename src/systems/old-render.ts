@@ -41,6 +41,6 @@ export class GraphicsRenderSystem extends EntitySystem<
     const results = query.retrieve();
     if (!all_some(results)) return;
     const [render, position] = results;
-    render.graphics.position.set(position.point.x, position.point.y);
+    render.graphics.position.set(position.value.x, position.value.y);
   }
 }

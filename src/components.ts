@@ -18,7 +18,7 @@ export class Controllable extends Component {}
 export class Player extends Component {}
 
 export class Position extends Component {
-  point!: Vector2;
+  value!: Vector2;
 }
 
 export class GraphicsRender extends Component {

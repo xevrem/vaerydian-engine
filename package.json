@@ -7,7 +7,7 @@
   "author": "Erika V. Jonell",
   "license": "MIT",
   "scripts": {
-    "start": "yarn esbuild ./src/index.ts --sourcemap=both --serve --servedir=./dist --outdir=./dist --bundle --loader:.png=dataurl",
+    "start": "esbuild ./src/index.ts --sourcemap=both --serve --servedir=./dist --outdir=./dist --bundle --loader:.png=dataurl",
     "build": "parcel build"
   },
   "dependencies": {

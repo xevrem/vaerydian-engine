@@ -1,5 +1,5 @@
 import { EntitySystem, Entity, EntitySystemArgs, Query } from 'ecsf';
-import { Heading, Position, Renderable, Starfield, } from 'components';
+import { Position, Renderable, Starfield, Velocity, } from 'components';
 import { Application } from 'pixi.js';
 import { is_none, is_some } from 'utils/helpers';
 
@@ -27,7 +27,7 @@ export class StarfieldSystem extends EntitySystem<
 
   created(_entity: Entity) {
     const [position, renderable] = this.query.retrieve();
-    renderable.container.position = position.point;//.set(position.point.x, position.point.y);
+    renderable.container.position = position.value;//.set(position.point.x, position.point.y);
   }
 
   load(): void {
@@ -38,17 +38,17 @@ export class StarfieldSystem extends EntitySystem<
   }
 
   process(_: Entity, query: Query<typeof this.needed>): void {
-    const playerPos = this.ecs.getComponent(this.player, Position);
-    const playerHeading = this.ecs.getComponent(this.player, Heading);
-    if (is_none(playerPos) || is_none(playerHeading)) return;
+    const playerPosition = this.ecs.getComponent(this.player, Position);
+    const playerVelocity = this.ecs.getComponent(this.player, Velocity);
+    if (is_none(playerPosition) || is_none(playerVelocity)) return;
     const [position, renderable, _star] = query.retrieve();
-    const distance = position.point.distanceTo(playerPos.point);
+    const distance = position.value.distanceTo(playerPosition.value);
     if (distance > this.distance) {
       const angle = Math.random() * 120 - 60;
-      const projVec = playerHeading.vector.rotateDeg(angle).normalize();
+      const projVec = playerVelocity.vector.rotateDeg(angle).normalize();
       const projPos = projVec.multScalar(this.distance - Math.random() * 200);
-      position.point = playerPos.point.add(projPos);
-      renderable.container.position = position.point.toPoint();
+      position.value = playerPosition.value.add(projPos);
+      renderable.container.position = position.value.toPoint();
     }
   }
 }

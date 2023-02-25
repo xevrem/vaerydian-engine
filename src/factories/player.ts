@@ -26,7 +26,7 @@ export class PlayerFactory {
       .create()
       .addWith(() => {
         const p = new Position();
-        p.point = location;
+        p.value = location;
         return p;
       })
       .addWith(() => {
