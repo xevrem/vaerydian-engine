@@ -62,3 +62,23 @@ export function isComponentOfType<T extends typeof Component | Component>(
     return false;
   }
 }
+
+type ProtoComp<C> = C & {
+  name: string;
+  type: number;
+  [ComponentSymbol]: true;
+};
+
+export function protoComp<C>(name: string, data: C): ProtoComp<C> {
+  return {
+    ...data,
+    name,
+    type: -1,
+    [ComponentSymbol]: true as const,
+  };
+}
+
+
+const foo = protoComp('Foo', { foo: 1, baz: 'bar'});
+
+export type Foo = typeof foo;

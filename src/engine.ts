@@ -25,6 +25,7 @@ export class Engine {
     FRAME_TARGET_MS,
     FRAME_TARGET_FPS,
   };
+  gameLoop: typeof this.runLoop;
 
   constructor() {
     this.stats = new Stats();
@@ -59,6 +60,8 @@ export class Engine {
     this.screenManager.ecs = this.ecs;
     this.kb = KeyboardManager;
     this.kb.init();
+
+    this.gameLoop = this.runLoop.bind(this);
   }
 
   async start(): Promise<void> {
@@ -75,23 +78,23 @@ export class Engine {
     );
 
     console.info('engine running...');
-    window.requestAnimationFrame(this.runLoop);
+    window.requestAnimationFrame(this.gameLoop);
   }
 
-  runLoop = (time: number): void => {
+  runLoop(time: number): void {
     this.update(time);
     this.draw(time);
     this.stats.end();
     this.stats.begin();
 
-    window.requestAnimationFrame(this.runLoop);
-  };
+    window.requestAnimationFrame(this.gameLoop);
+  }
 
-  update = (time: number): void => {
+  update(time: number): void {
     this.screenManager.update(time);
-  };
+  }
 
-  draw = (time: number): void => {
+  draw(time: number): void {
     this.screenManager.draw(time);
-  };
+  }
 }
