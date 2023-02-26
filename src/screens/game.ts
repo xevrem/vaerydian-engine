@@ -14,7 +14,7 @@ import {
 } from 'systems';
 import { Vector2 } from 'utils/vector';
 import { is_none, is_some } from 'utils/helpers';
-import { makeAnimationSystem } from 'utils/animation';
+import { makeAnimationSystem } from 'systems/animation';
 
 import playerShip from 'assets/player/ship.png';
 import star1 from 'assets/stars/star1.png';

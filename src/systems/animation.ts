@@ -1,16 +1,27 @@
-import { EntitySystem, Entity, ComponentMapper } from "../ecsf";
-import { Animatable } from "../components";
+import { Animatable } from 'components';
+import { EcsInstance } from 'ecsf/EcsInstance';
+import { is_none } from 'utils/helpers';
 
+export function makeAnimationSystem(ecs: EcsInstance) {
+  ecs.withSystem(
+    ({ query, ecs, delta }) => {
+      for (const [animatable] of query.join()) {
+        animatable.elapsed += delta;
 
-export class AnimationSystem extends EntitySystem {
-  // animatableMapper: ComponentMapper;
+        const frame = animatable.value.keyFrames
+          .filter(frame => delta >= frame.time)
+          .last();
 
-  initialize(): void {
-    console.info('animation system initializing...');
-    // this.animatableMapper = this.ecsInstance.makeMapper(new Animatable());
-  }
+        if (is_none(frame)) return;
 
-  // process(entity: Entity, delta: number): void {
-  //   // const animatable = this.animatableMapper.get(entity) as Animatable;
-  // }
+        const comp = ecs.getComponent(animatable.target, frame.component);
+        if (is_none(comp)) return;
+
+        if (frame.property in comp) {
+          Object.add(comp, frame.property, frame.value);
+        }
+      }
+    },
+    [Animatable]
+  );
 }

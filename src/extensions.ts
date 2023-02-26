@@ -1,6 +1,8 @@
 /*eslint no-extend-native: "off" */
-import cloneDeep from 'clone-deep';
-import { AnyObject, KeyValuePair, Option } from 'types';
+import cloneDeep from 'lodash';
+
+type AnyObject<T> = Object | Set<T> | Array<T> | Record<PropertyKey, T>;
+type KeyValuePair<K,V> = [K, V];
 
 export function xor(a: boolean, b: boolean): boolean {
   return (a || b) && !(a && b);
@@ -41,6 +43,7 @@ declare global {
       predicate: (value: T, index: number, obj: T[]) => unknown,
       thisArg?: any
     ): Option<T>;
+    last(): T;
     remove(value: T): Option<T>;
     removeAt(index: number): Option<T>;
     replace(oldValue: T, newValue: T): Option<T>;
@@ -143,6 +146,10 @@ Array.prototype.insert = function <T>(values: T[], index: number): T[] {
   const removedValues = this.splice(index, 0, ...values);
   return removedValues;
 };
+
+Array.prototype.last = function<T>(): T {
+  return this.slice(-1)[0];
+}
 
 Array.prototype.removeAt = function <T>(index: number): Option<T> {
   const removedValues = this.splice(index, 1);
