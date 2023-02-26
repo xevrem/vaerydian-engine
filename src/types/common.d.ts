@@ -24,3 +24,6 @@ export declare type OrderedNoneTuple<T extends OptionTuple<T>> = {
 // export declare type OrderedOptionTuple<T extends any> =
 //   | OrderedSomeTuple<T>
 //   | OrderedNoneTuple<T>;
+
+export declare type InstanceKey<T> = keyof InstanceOf<T>;
+export declare type InstanceValue<T> = InstanceOf<T>[InstanceKey<T>];

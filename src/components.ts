@@ -2,12 +2,12 @@ import { Component } from 'ecsf';
 import { LineRange, QuadTree, Range } from 'utils/quadtree';
 import { Container, Graphics, Sprite } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
+import { Animation } from 'utils/animation';
+import { InstanceValue } from 'types/common';
 
-export class Animation extends Component {
-  value!: unknown;
+export class Animatable<C extends typeof Component = any> extends Component {
+  value!: Animation<C>;
 }
-
-export class Animatable extends Component {}
 
 export class CameraFocus extends Component {}
 

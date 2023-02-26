@@ -5,10 +5,12 @@ import {
   Starfield,
   Scene,
   Rotation,
+  Animatable,
 } from 'components';
 import { LayerType, STARS } from 'utils/constants';
 import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
+import { makeAnimationBuilder } from 'utils/animation';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -90,6 +92,43 @@ export class EntityFactory {
         return cameraData;
       })
       .tag('camera')
+      .build();
+  }
+
+  createAnim() {
+    this.ecsInstance
+      .create()
+      .addWith(() => {
+        const position = new Position();
+        position.value = Vector2.zero;
+        return position;
+      })
+      .addWith(() => {
+        const animation = makeAnimationBuilder(Position)
+          .repeats()
+          .duration(2)
+          .keyFrame()
+          .atPercent(0.0)
+          .set('value')
+          .to(Vector2.zero)
+          .insert()
+          .keyFrame()
+          .atPercent(0.5)
+          .set('value')
+          .to(Vector2.identity)
+          .insert()
+          .keyFrame()
+          .atPercent(1.0)
+          .set('value')
+          .to(Vector2.zero)
+          .insert()
+          .build();
+
+        const animatable = new Animatable<typeof Position>();
+        animatable.value = animation;
+        return animatable;
+      })
+      .tag('animation-test')
       .build();
   }
 }
