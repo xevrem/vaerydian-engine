@@ -88,7 +88,6 @@ export class GameScreen extends Screen {
     this.ecs.registerSystem(ControlSystem, { priority: 2 });
     this.ecs.registerSystem(RenderSystem, { app: this.app, priority: 3 });
 
-
     this.ecs.registerSystem(CameraSystem, {
       app: this.app,
       priority: 5,
@@ -127,12 +126,12 @@ export class GameScreen extends Screen {
     //
   }
 
-  update(_delta: number): void {
-  }
+  update(_delta: number): void {}
 
   focusUpdate(_delta: number): void {}
 
   draw(_delta: number): void {
+    // this.app.render();
     const maybeCamera = this.ecs.getEntityByTag('camera');
     if (!is_some(maybeCamera)) return;
     const maybeData = this.ecs.getComponent(maybeCamera, AllComponents.Scene);

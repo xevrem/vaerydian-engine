@@ -75,9 +75,7 @@ export class Engine {
     );
 
     console.info('engine running...');
-    // window.requestAnimationFrame(this.runLoop);
-
-    this.timeoutLoop(FRAME_TARGET_MS);
+    window.requestAnimationFrame(this.runLoop);
   }
 
   runLoop = (time: number): void => {
@@ -87,27 +85,6 @@ export class Engine {
     this.stats.begin();
 
     window.requestAnimationFrame(this.runLoop);
-  };
-
-  timeoutLoop = (deltaTime: number): void => {
-    window.setTimeout(this.doPreFrame, deltaTime);
-  };
-
-  doPreFrame = (): void => {
-    const time = performance.now();
-
-    this.update(time);
-    this.draw(time);
-    this.stats.end();
-    this.stats.begin();
-
-    const frameTime = performance.now() - time;
-
-    if (frameTime < FRAME_TARGET_MS) {
-      this.timeoutLoop(FRAME_TARGET_MS - frameTime);
-    } else {
-      this.timeoutLoop(FRAME_TARGET_MS - (frameTime - FRAME_TARGET_MS));
-    }
   };
 
   update = (time: number): void => {
