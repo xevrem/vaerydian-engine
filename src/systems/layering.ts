@@ -1,19 +1,11 @@
-import {
-  EntitySystem,
-  Entity,
-  ComponentMapper,
-  EntitySystemArgs,
-  Query,
-} from 'ecsf';
-import { Layers, Renderable, GraphicsRender } from 'components';
+import { EntitySystem, Entity, EntitySystemArgs } from 'ecsf';
+import { Layers, Scene } from 'components';
 import { LayerType } from 'utils/constants';
-import { DisplayObject } from 'pixi.js';
 import { Group } from '@pixi/layers';
 
 export class LayeringSystem extends EntitySystem<
-  [typeof Layers],
-  { groups: Record<string, Group> },
-  [typeof Renderable, typeof GraphicsRender]
+  [typeof Layers, typeof Scene],
+  { groups: Record<string, Group> }
 > {
   groups: Record<string, Group>;
   playerGroup!: Group;
@@ -22,8 +14,7 @@ export class LayeringSystem extends EntitySystem<
   constructor(props: EntitySystemArgs) {
     super({
       ...props,
-      needed: [Layers],
-      optional: [Renderable, GraphicsRender],
+      needed: [Layers, Scene],
       groups: props.groups,
     });
     this.groups = props.groups;
@@ -35,29 +26,9 @@ export class LayeringSystem extends EntitySystem<
     this.starfieldGroup = this.groups[LayerType.starfield];
   }
 
-  // getDisplayObject(entity: Entity): DisplayObject {
-  //   const renderable = this.renderMapper.get(entity) as Renderable;
-  //   if (renderable) return renderable.container;
-
-  //   const graphics = this.graphicsMapper.get(entity) as GraphicsRender;
-  //   return graphics.graphics;
-  // }
-
-  added(entity: Entity) {
-    const [layers, renderable, graphics] = this.ecs.retrieve<
-      typeof this.needed,
-      typeof this.optional
-    >(entity, [Layers, Renderable, GraphicsRender]);
-
-    if (renderable) {
-      renderable.container.parentGroup = this.groups[layers.layer];
-    }else if (graphics){
-      graphics.graphics.parentGroup = this.groups[layers.layer];
-    }
-    // const layer = this.layerMapper.get(entity) as Layers;
-    // const displayObject = this.getDisplayObject(entity);
-    // if (null) return;
-    // displayObject.parentGroup = this.groups[layer.layer];
+  added(_entity: Entity) {
+    const [layers, scene] = this.query.retrieve();
+    scene.asset.parentGroup = this.groups[layers.value];
   }
 
   removed(_entity: Entity) {}

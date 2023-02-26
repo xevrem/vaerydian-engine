@@ -1,19 +1,21 @@
 import { Component } from 'ecsf';
 import { LineRange, QuadTree, Range } from 'utils/quadtree';
-import { Container, DisplayObject, Graphics } from 'pixi.js';
+import { Container, Graphics, Sprite } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
 
-export class Animatable extends Component {
-  animation!: object;
+export class Animation extends Component {
+  value!: unknown;
 }
 
-export class CameraData extends Component {
-  view!: Container;
-}
+export class Animatable extends Component {}
 
 export class CameraFocus extends Component {}
 
 export class Controllable extends Component {}
+
+export class Image extends Component {
+  asset!: Sprite;
+}
 
 export class Player extends Component {}
 
@@ -26,11 +28,11 @@ export class GraphicsRender extends Component {
 }
 
 export class Heading extends Component {
-  vector!: Vector2;
+  value!: Vector2;
 }
 
 export class Layers extends Component {
-  layer!: number;
+  value!: number;
 }
 
 export class QtSpatial extends Component {
@@ -43,13 +45,13 @@ export class QtSpatial extends Component {
 export class Qtree extends Component {}
 
 export class Rotation extends Component {
-  amount!: number;
+  value!: number;
   offset!: number;
   rate!: number;
 }
 
-export class Renderable extends Component {
-  container!: DisplayObject;
+export class Scene extends Component {
+  asset!: Container;
   offset!: Vector2;
   pivot!: Vector2;
 }

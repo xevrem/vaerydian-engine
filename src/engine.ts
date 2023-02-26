@@ -8,10 +8,8 @@ import { KeyboardManager } from 'utils/keyboard';
 import { EcsInstance } from 'ecsf';
 import { is_none } from 'utils/helpers';
 
-const FRAME_TARGET_FPS = 30.0;
+const FRAME_TARGET_FPS = 60.0;
 const FRAME_TARGET_MS: number = 1000.0 / FRAME_TARGET_FPS;
-
-// applyRendererMixin(Renderer);
 
 export class Engine {
   assets: typeof Assets;
@@ -23,6 +21,10 @@ export class Engine {
   groups: Record<string, Group> = {};
   layers: Record<string, Layer> = {};
   kb!: typeof KeyboardManager;
+  targets = {
+    FRAME_TARGET_MS,
+    FRAME_TARGET_FPS,
+  };
 
   constructor() {
     this.stats = new Stats();
@@ -39,7 +41,9 @@ export class Engine {
       backgroundColor: 0x000000,
       antialias: false,
       view: canvas,
+      autoStart: false,
     });
+
     app.stage = new Stage();
     app.stage.sortableChildren = true;
     app.stage.interactive = true;
@@ -71,61 +75,46 @@ export class Engine {
     );
 
     console.info('engine running...');
-    // this.timeoutLoop();
-    window.requestAnimationFrame(this.runLoop);
-    // this.app.ticker.add(this.runLoop);
-    // this.app.ticker.start();
-    // this.app.start();
+    // window.requestAnimationFrame(this.runLoop);
+
+    this.timeoutLoop(FRAME_TARGET_MS);
   }
 
   runLoop = (time: number): void => {
-    // const delta = time - this.lastTime;
-    // this.lastTime = time;
-
-    const delta = time / 1000;
-    this.stats.begin();
-    this.update(delta);
-    this.draw(delta);
+    this.update(time);
+    this.draw(time);
     this.stats.end();
+    this.stats.begin();
 
     window.requestAnimationFrame(this.runLoop);
   };
 
-  timeoutLoop = (): void => {
-    window.setTimeout(this.doPreFrame, FRAME_TARGET_MS);
+  timeoutLoop = (deltaTime: number): void => {
+    window.setTimeout(this.doPreFrame, deltaTime);
   };
 
   doPreFrame = (): void => {
-    // compute delta time
     const time = performance.now();
-    const delta = time - this.lastTime;
 
-    const seconds = delta / 1000;
-
-    // this.stats.begin();
-    this.update(seconds);
-    this.draw(seconds);
-    // this.stats.end();
+    this.update(time);
+    this.draw(time);
+    this.stats.end();
+    this.stats.begin();
 
     const frameTime = performance.now() - time;
-    this.lastTime = time;
 
     if (frameTime < FRAME_TARGET_MS) {
-      window.setTimeout(this.doPreFrame, FRAME_TARGET_MS - frameTime);
+      this.timeoutLoop(FRAME_TARGET_MS - frameTime);
     } else {
-      // skip the frame calculating time for next frame
-      window.setTimeout(
-        this.doPreFrame,
-        FRAME_TARGET_MS - (frameTime - FRAME_TARGET_MS)
-      );
+      this.timeoutLoop(FRAME_TARGET_MS - (frameTime - FRAME_TARGET_MS));
     }
   };
 
-  update(delta: number): void {
-    this.screenManager.update(delta);
-  }
+  update = (time: number): void => {
+    this.screenManager.update(time);
+  };
 
-  draw(delta: number): void {
-    this.screenManager.draw(delta);
-  }
+  draw = (time: number): void => {
+    this.screenManager.draw(time);
+  };
 }

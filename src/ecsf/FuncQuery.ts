@@ -3,9 +3,14 @@ import { ComponentTuple, OrderedComponentTuple } from 'types';
 
 export declare type VariadricQuery<T extends ComponentTuple> = [...T];
 
+export declare interface QueryFuncParams<T extends ComponentTuple> {
+  query: FuncQuery<T>;
+  ecs: EcsInstance;
+  delta: number;
+}
+
 export declare type QueryFunc<T extends ComponentTuple> = (
-  query: FuncQuery<T>,
-  ecs: EcsInstance
+  params: QueryFuncParams<T>
 ) => void;
 
 export class FuncQuery<T extends ComponentTuple> {

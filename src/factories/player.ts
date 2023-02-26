@@ -1,4 +1,4 @@
-import { Assets, Container, Point, Sprite, Texture } from 'pixi.js';
+import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import {
   CameraFocus,
   Controllable,
@@ -6,7 +6,7 @@ import {
   Layers,
   Player,
   Position,
-  Renderable,
+  Scene,
   Rotation,
   Velocity,
 } from '../components';
@@ -37,14 +37,14 @@ export class PlayerFactory {
       })
       .addWith(() => {
         const r = new Rotation();
-        r.amount = 0;
+        r.value = 0;
         r.offset = Math.PI / 2;
         r.rate = Math.PI / 2;
         return r;
       })
       .addWith(() => {
         const h = new Heading();
-        h.vector = new Vector2(1, 0); // 0 degrees
+        h.value = new Vector2(1, 0); // 0 degrees
         return h;
       })
       .addWith(() => {
@@ -52,15 +52,15 @@ export class PlayerFactory {
         const texture = Assets.get<Texture>('playerShip');
         const shipSprite = new Sprite(texture);
         playerContainer.addChild(shipSprite);
-        const r = new Renderable();
-        r.container = playerContainer;
+        const r = new Scene();
+        r.asset = playerContainer;
         r.offset = Vector2.zero;
         r.pivot = new Vector2(12, 12);
         return r;
       })
       .addWith(() => {
         const l = new Layers();
-        l.layer = LayerType.player;
+        l.value = LayerType.player;
         return l;
       })
       .add(new Controllable())

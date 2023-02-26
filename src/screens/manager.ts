@@ -32,26 +32,26 @@ export class ScreenManager {
     this._screens.removeAt(screen.id);
   }
 
-  update(delta: number): void {
-    this._ecs.updateTime(delta);
+  update(time: number): void {
+    this._ecs.updateTime(time);
     this._ecs.resolveEntities();
     this._ecs.runSystems();
 
     this._screens.forEach(screen => {
       screen &&
         screen.screenState === ScreenState.Active &&
-        screen.update(delta);
+        screen.update(this._ecs.delta);
     });
 
-    this._screens.last?.focusUpdate(delta);
+    this._screens.last?.focusUpdate(this._ecs.delta);
   }
 
-  draw(delta: number): void {
+  draw(time: number): void {
     this._screens.forEach(
       screen =>
         screen &&
         screen.screenState !== ScreenState.Inactive &&
-        screen.draw(delta)
+        screen.draw(this._ecs.delta)
     );
   }
 }

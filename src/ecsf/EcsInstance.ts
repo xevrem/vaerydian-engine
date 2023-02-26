@@ -9,7 +9,7 @@ import { EntitySystem, EntitySystemArgs } from './EntitySystem';
 import { Bag } from './Bag';
 import { EntityBuilder, makeEntityBuilder } from './EntityBuilder';
 import { FuncQuery, QueryFunc } from './FuncQuery';
-import { is_none } from 'utils/helpers';
+import { is_none, makeTimer } from 'utils/helpers';
 import { Entity } from './Entity';
 import { Component } from './Component';
 import {
@@ -22,6 +22,8 @@ import {
   ComponentOptionTuple,
   JoinedData,
 } from 'types';
+
+const timer = makeTimer(1);
 
 export class EcsInstance {
   entityManager: EntityManager;
@@ -429,7 +431,7 @@ export class EcsInstance {
     // processes cause an update to any of them, they are not possibly lost
     const deleting = this._deleting,
       resolving = this._resolving,
-      updating = this._updating, 
+      updating = this._updating,
       updatingEntities = this._updatingEntities,
       creating = this._creating;
 
@@ -560,7 +562,7 @@ export class EcsInstance {
    * @param time current time in miliseconds
    */
   updateTime(time: number): void {
-    this._delta = time - this._lastTime;
+    this._delta = (time - this._lastTime) / 1000;
     this._elapsed += this._delta;
     this._lastTime = time;
   }
@@ -1083,7 +1085,11 @@ export class EcsInstance {
   }
 
   qSysTuple: [
-    func: (query: FuncQuery<any>, ecs: EcsInstance) => void,
+    func: (params: {
+      query: FuncQuery<any>;
+      ecs: EcsInstance;
+      delta: number;
+    }) => void,
     data: ComponentTuple
   ][] = [];
 
@@ -1097,7 +1103,13 @@ export class EcsInstance {
   runQuerySystems(): void {
     for (let i = 0; i < this.qSysTuple.length; i++) {
       const [func, data] = this.qSysTuple[i];
-      func(new FuncQuery(this, data), this);
+      timer.begin()
+      func({
+        query: new FuncQuery(this, data),
+        ecs: this,
+        delta: this._delta,
+      });
+      timer.end('query system::', [...data]);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Assets, Container, Graphics, SCALE_MODES, settings, Texture } from 'pixi.js';
+import { Assets, SCALE_MODES, settings, Texture } from 'pixi.js';
 import Stats from 'stats.js';
 import { Screen } from 'screens/screen';
 import * as AllComponents from 'components';
@@ -10,7 +10,11 @@ import {
   LayeringSystem,
   StarfieldSystem,
   RenderSystem,
+  makeMovementSystem,
 } from 'systems';
+import { Vector2 } from 'utils/vector';
+import { is_none, is_some } from 'utils/helpers';
+import { makeAnimationSystem } from 'utils/animation';
 
 import playerShip from 'assets/player/ship.png';
 import star1 from 'assets/stars/star1.png';
@@ -20,9 +24,6 @@ import star4 from 'assets/stars/star4.png';
 import star5 from 'assets/stars/star5.png';
 import star6 from 'assets/stars/star6.png';
 import star7 from 'assets/stars/star7.png';
-import { LayerType } from 'utils/constants';
-import { Vector2 } from 'utils/vector';
-import { is_none, is_some } from 'utils/helpers';
 
 const assets = [
   {
@@ -87,45 +88,15 @@ export class GameScreen extends Screen {
     this.ecs.registerSystem(ControlSystem, { priority: 2 });
     this.ecs.registerSystem(RenderSystem, { app: this.app, priority: 3 });
 
-    // this.ecs.registerSystem(GraphicsRenderSystem, {
-    //   app: this.app,
-    //   priority: 4,
-    // });
 
     this.ecs.registerSystem(CameraSystem, {
       app: this.app,
       priority: 5,
     });
 
-    // this.ecs.registerSystem(AnimationSystem, {});
+    makeMovementSystem(this.ecs);
 
-    // movement system
-    this.ecs.withSystem(
-      (query, _ecs) => {
-        for (const [position, velocity] of query.join()) {
-          const delta = position.value.add(velocity.vector);
-          position.value = delta;
-        }
-      },
-      [AllComponents.Position, AllComponents.Velocity]
-    );
-
-    // positioning and rotation
-    this.ecs.withSystem(
-      (query, _ecs) => {
-        for (const [position, rotation, renderable] of query.join()) {
-          renderable.container.pivot = renderable.pivot;
-          renderable.container.rotation = rotation.amount + rotation.offset;
-          renderable.container.position = position.value.toPoint();
-        }
-      },
-      [
-        AllComponents.Position,
-        AllComponents.Rotation,
-        AllComponents.Renderable,
-        AllComponents.Player,
-      ]
-    );
+    makeAnimationSystem(this.ecs);
 
     this.ecs.initializeSystems();
 
@@ -136,57 +107,39 @@ export class GameScreen extends Screen {
   async load(): Promise<void> {
     console.info('game screen loading...');
 
-    const resources = await Promise.all(
+    await Promise.all(
       assets.map(asset => {
         Assets.add(asset.name, asset.src);
         return Assets.load<Texture>(asset.name);
       })
     );
-    console.info('gs:l::', { resources });
 
     this.entityFactory.createCamera();
 
     this.playerFactory.createPlayer(Vector2.zero);
 
-    Array(1000)
+    Array(100)
       .fill('')
       .forEach(() => this.entityFactory.createStar());
-
-    // const graphic = new Graphics();
-    // graphic
-    //   .clear()
-    //   .lineStyle({
-    //     color: 0xff5555,
-    //     width: 10,
-    //   })
-    //   .drawCircle(200, 200, 100);
-    // graphic.cacheAsBitmap = true;
-    // const cont = new Container();
-    // cont.addChild(graphic);
-    // cont.parentGroup = this.groups[LayerType.sprites];
-
-    // this.app.stage.addChild(cont);
   }
 
   unload(): void {
     //
   }
 
-  update(_delta: number): void {}
+  update(_delta: number): void {
+  }
 
   focusUpdate(_delta: number): void {}
 
   draw(_delta: number): void {
     const maybeCamera = this.ecs.getEntityByTag('camera');
     if (!is_some(maybeCamera)) return;
-    const maybeData = this.ecs.getComponent(
-      maybeCamera,
-      AllComponents.CameraData
-    );
+    const maybeData = this.ecs.getComponent(maybeCamera, AllComponents.Scene);
     if (is_none(maybeData)) return;
 
     this.app.renderer.render(this.app.stage, {
-      transform: maybeData.view.localTransform,
+      transform: maybeData.asset.localTransform,
     });
   }
 }

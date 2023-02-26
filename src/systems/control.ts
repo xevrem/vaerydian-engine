@@ -51,12 +51,12 @@ export class ControlSystem extends EntitySystem<
     }
 
     if(amount !== 0){
-      heading.vector = heading.vector.rotate(amount);
-      rotation.amount = heading.vector.angle();
+      heading.value = heading.value.rotate(amount);
+      rotation.value = heading.value.angle();
     }
 
     if(thrust !== 0){
-      velocity.vector = heading.vector.multScalar(thrust).add(velocity.vector).clamp(-velocity.rate, velocity.rate);
+      velocity.vector = heading.value.multScalar(thrust).add(velocity.vector).clamp(-velocity.rate, velocity.rate);
     }
 
     // velocity.vector = velocity.vector.add(thrust).clamp(0, 300);

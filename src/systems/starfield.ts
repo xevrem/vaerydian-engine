@@ -1,10 +1,10 @@
 import { EntitySystem, Entity, EntitySystemArgs, Query } from 'ecsf';
-import { Position, Renderable, Starfield, Velocity, } from 'components';
+import { Position, Scene, Starfield, Velocity, } from 'components';
 import { Application } from 'pixi.js';
 import { is_none, is_some } from 'utils/helpers';
 
 export class StarfieldSystem extends EntitySystem<
-  [typeof Position, typeof Renderable, typeof Starfield],
+  [typeof Position, typeof Scene, typeof Starfield],
   { app: Application }
 > {
   app: Application;
@@ -14,7 +14,7 @@ export class StarfieldSystem extends EntitySystem<
   constructor(props: EntitySystemArgs) {
     super({
       ...props,
-      needed: [Position, Renderable, Starfield],
+      needed: [Position, Scene, Starfield],
       app: props.app,
     });
     this.app = props.app;
@@ -27,7 +27,7 @@ export class StarfieldSystem extends EntitySystem<
 
   created(_entity: Entity) {
     const [position, renderable] = this.query.retrieve();
-    renderable.container.position = position.value;//.set(position.point.x, position.point.y);
+    renderable.asset.position = position.value;//.set(position.point.x, position.point.y);
   }
 
   load(): void {
@@ -48,7 +48,7 @@ export class StarfieldSystem extends EntitySystem<
       const projVec = playerVelocity.vector.rotateDeg(angle).normalize();
       const projPos = projVec.multScalar(this.distance - Math.random() * 200);
       position.value = playerPosition.value.add(projPos);
-      renderable.container.position = position.value.toPoint();
+      renderable.asset.position = position.value.toPoint();
     }
   }
 }

@@ -1,15 +1,13 @@
 import { EcsInstance } from 'ecsf';
 import {
   Position,
-  Velocity,
-  CameraData,
   Layers,
   Starfield,
-  Renderable,
+  Scene,
   Rotation,
 } from 'components';
 import { LayerType, STARS } from 'utils/constants';
-import { Assets, Container, Point, Sprite, Texture } from 'pixi.js';
+import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
 
 export class EntityFactory {
@@ -38,21 +36,21 @@ export class EntityFactory {
         const texture = Assets.get<Texture>(spriteName);
         const starSprite = new Sprite(texture);
         starContainer.addChild(starSprite);
-        const renderable = new Renderable();
-        renderable.container = starContainer;
+        const renderable = new Scene();
+        renderable.asset = starContainer;
         renderable.offset = new Vector2(4, 4);
         renderable.pivot = new Vector2(2, 2);
         return renderable;
       })
       .addWith(() => {
         const rot = new Rotation();
-        rot.amount = Math.random() * 180;
+        rot.value = Math.random() * 180;
         rot.rate = 0;
         return rot;
       })
       .addWith(() => {
         const layers = new Layers();
-        layers.layer = LayerType.starfield;
+        layers.value = LayerType.starfield;
         return layers;
       })
       .add(new Starfield())
@@ -87,8 +85,8 @@ export class EntityFactory {
           window.innerHeight / 2
         );
         cameraContainer.scale.set(1280 / 640, 720 / 360);
-        const cameraData = new CameraData();
-        cameraData.view = cameraContainer;
+        const cameraData = new Scene();
+        cameraData.asset = cameraContainer;
         return cameraData;
       })
       .tag('camera')
