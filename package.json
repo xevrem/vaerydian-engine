@@ -42,5 +42,6 @@
     "prettier": "^2.8.4",
     "typescript": "^4.9.5"
   },
-  "browserslist": "> 0.5%, last 2 versions, not dead"
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "packageManager": "yarn@3.4.1"
 }
