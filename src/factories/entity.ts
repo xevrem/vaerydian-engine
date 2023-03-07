@@ -1,4 +1,4 @@
-import { EcsInstance } from 'ecsf';
+import { EcsInstance, Entity } from 'ecsf';
 import {
   Position,
   Layers,
@@ -10,7 +10,7 @@ import {
 import { LayerType, STARS } from 'utils/constants';
 import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
-import { makeAnimationBuilder } from 'utils/animation';
+import { animationBuilder, animationTrackBuilder } from 'utils/animation';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -95,7 +95,7 @@ export class EntityFactory {
       .build();
   }
 
-  createAnim() {
+  createAnim(target: Entity) {
     this.ecsInstance
       .create()
       .addWith(() => {
@@ -104,7 +104,9 @@ export class EntityFactory {
         return position;
       })
       .addWith(() => {
-        const animation = makeAnimationBuilder(Position)
+        const animation = animationBuilder([Position, Scene])
+          .setTarget(target)
+          .addTrack(Position)
           .repeats()
           .duration(2)
           .keyFrame()
@@ -122,9 +124,18 @@ export class EntityFactory {
           .set('value')
           .to(Vector2.zero)
           .insert()
+          .endTrack()
+          .addTrack(Scene)
+          .duration(4)
+          .keyFrame()
+          .atTime(2)
+          .set('asset')
+          .to(new Container())
+          .insert()
+          .endTrack()
           .build();
 
-        const animatable = new Animatable<typeof Position>();
+        const animatable = new Animatable();
         animatable.value = animation;
         return animatable;
       })

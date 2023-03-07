@@ -1,48 +1,66 @@
-import { Component } from 'ecsf/Component';
+import { Bag } from 'ecsf/Bag';
+import { Entity } from 'ecsf/Entity';
 import { InstanceKey, InstanceOf, InstanceValue } from 'types/common';
+import { ComponentType, ComponentTypes } from 'types/ecs';
+import { is_some } from './helpers';
 
-
-export type KeyFrame<C extends typeof Component> = {
-  component: C;
+export type KeyFrame<C extends ComponentType> = {
   percent: boolean;
   property: InstanceKey<C>;
   time: number;
   value: InstanceValue<C>;
 };
 
-export type Animation<
-  C extends typeof Component,
-> = {
+export type AnimationTrack<C extends ComponentType> = {
+  component: C;
   keyFrames: KeyFrame<C>[];
   repeats: boolean;
   duration: number;
 };
 
-export type KeyFrameBuilder<
-  C extends typeof Component,
-> = {
-  set(property: keyof InstanceOf<C>): KeyFrameBuilder<C>;
-  to(value: InstanceValue<C>): KeyFrameBuilder<C>;
-  atTime(time: number): KeyFrameBuilder<C>;
-  atPercent(percent: number): KeyFrameBuilder<C>;
-  insert(): AnimationBuilder<C>;
+export type Animation<CTypes extends ComponentTypes> = {
+  target: Entity;
+  elapsed: number;
+  tracks: Bag<AnimationTrack<CTypes[number]>>;
 };
 
-export type AnimationBuilder<
-  C extends typeof Component,
+export type KeyFrameBuilder<
+  C extends ComponentType,
+  CTypes extends ComponentTypes
+> = {
+  set(property: keyof InstanceOf<C>): KeyFrameBuilder<C, CTypes>;
+  to(value: InstanceValue<C>): KeyFrameBuilder<C, CTypes>;
+  atTime(time: number): KeyFrameBuilder<C, CTypes>;
+  atPercent(percent: number): KeyFrameBuilder<C, CTypes>;
+  insert(): AnimationTrackBuilder<C, CTypes>;
+};
+
+export type AnimationTrackBuilder<
+  C extends ComponentType,
+  CTypes extends ComponentTypes
 > = {
   _addKeyFrame(keyFrame: KeyFrame<C>): void;
-  duration(seconds: number): AnimationBuilder<C>;
-  repeats(): AnimationBuilder<C>;
-  keyFrame(): KeyFrameBuilder<C>;
-  build(): Animation<C>;
+  duration(seconds: number): AnimationTrackBuilder<C, CTypes>;
+  repeats(): AnimationTrackBuilder<C, CTypes>;
+  keyFrame(): KeyFrameBuilder<C, CTypes>;
+  _build(): AnimationTrack<C>;
+  endTrack(): AnimationBuilder<CTypes>;
 };
 
-export function makeKeyFrameBuilder<
-  C extends typeof Component,
->(animationBuilder: AnimationBuilder<C>, component: C) {
+export type AnimationBuilder<CTypes extends ComponentTypes> = {
+  _addTrack(track: AnimationTrack<CTypes[number]>): void;
+  setTarget(target: Entity): AnimationBuilder<CTypes>;
+  addTrack<Comp extends ComponentType>(
+    component: Comp
+  ): AnimationTrackBuilder<Comp, CTypes>;
+  build(): Animation<CTypes>;
+};
+
+export function keyFrameBuilder<
+  C extends ComponentType,
+  CTypes extends ComponentTypes
+>(trackBuilder: AnimationTrackBuilder<C, CTypes>, _component: C) {
   const keyFrame: Partial<KeyFrame<C>> = {
-    component,
     percent: false,
     time: 0,
   };
@@ -66,18 +84,20 @@ export function makeKeyFrameBuilder<
       return builder;
     },
     insert() {
-      animationBuilder._addKeyFrame(keyFrame as KeyFrame<C>);
-      return animationBuilder;
+      trackBuilder._addKeyFrame(keyFrame as KeyFrame<C>);
+      return trackBuilder;
     },
   };
 
   return builder;
 }
 
-export function makeAnimationBuilder<
-  C extends typeof Component,
->(component: C) {
-  const animation: Animation<C> = {
+export function animationTrackBuilder<
+  C extends ComponentType,
+  CTypes extends ComponentTypes
+>(animationBuilder: AnimationBuilder<CTypes>, component: C) {
+  const animation: AnimationTrack<C> = {
+    component,
     duration: 0,
     keyFrames: [],
     repeats: false,
@@ -85,7 +105,7 @@ export function makeAnimationBuilder<
 
   const builder = {
     _addKeyFrame(keyFrame: KeyFrame<C>): void {
-      animation.keyFrames.push(keyFrame);
+      (animation.keyFrames as KeyFrame<C>[]).push(keyFrame);
     },
     duration(seconds: number) {
       animation.duration = seconds;
@@ -95,19 +115,56 @@ export function makeAnimationBuilder<
       animation.repeats = true;
       return builder;
     },
-    keyFrame() {
-      return makeKeyFrameBuilder<C>(builder, component);
+    // setType(component: C) {
+    //   animation.component = component;
+    //   return builder;
+    // },
+    keyFrame(): KeyFrameBuilder<C, CTypes> {
+      return keyFrameBuilder(builder, component);
     },
-    build(): Animation<C> {
-      animation.keyFrames.forEach(keyFrame => {
-        if (keyFrame.percent) {
+    _build(): AnimationTrack<C> {
+      (animation.keyFrames as KeyFrame<C>[]).forEach(keyFrame => {
+        if (keyFrame.percent && animation.duration) {
           keyFrame.time = keyFrame.time * animation.duration;
         }
       });
-      return animation;
+      return animation as AnimationTrack<C>;
+    },
+    endTrack() {
+      const track = builder._build();
+      animationBuilder._addTrack(track);
+      return animationBuilder;
     },
   };
 
   return builder;
 }
 
+export function animationBuilder<CTypes extends ComponentTypes>(
+  _components: CTypes
+) {
+  const animation: Partial<Animation<CTypes>> = {
+    elapsed: 0,
+    tracks: new Bag<AnimationTrack<CTypes[number]>>(),
+  };
+
+  const builder = {
+    _addTrack(track: AnimationTrack<CTypes[number]>) {
+      if (is_some(animation.tracks)) animation.tracks.add(track);
+    },
+    setTarget(target: Entity) {
+      animation.target = target;
+      return builder;
+    },
+    addTrack<Comp extends ComponentType>(
+      component: Comp
+    ): AnimationTrackBuilder<Comp, CTypes> {
+      return animationTrackBuilder<Comp, CTypes>(builder, component);
+    },
+    build() {
+      return animation as Animation<CTypes>;
+    },
+  };
+
+  return builder;
+}
