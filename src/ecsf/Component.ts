@@ -1,4 +1,4 @@
-export const ComponentSymbol = Symbol('Component');
+export const ComponentSymbol: unique symbol = Symbol('Component');
 
 export class Component {
   static type = -1;

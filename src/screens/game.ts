@@ -13,7 +13,7 @@ import {
   makeMovementSystem,
 } from 'systems';
 import { Vector2 } from 'utils/vector';
-import { is_none, is_some } from 'utils/helpers';
+import { is_none, is_ok, is_some } from 'utils/helpers';
 import { makeAnimationSystem } from 'systems/animation';
 
 import playerShip from 'assets/player/ship.png';
@@ -119,7 +119,12 @@ export class GameScreen extends Screen {
 
     Array(100)
       .fill('')
-      .forEach(() => this.entityFactory.createStar());
+      .forEach(() => {
+        const ent = this.entityFactory.createStar();
+        if(is_ok(ent)){
+          this.entityFactory.createAnim(ent);
+        }
+      });
   }
 
   unload(): void {

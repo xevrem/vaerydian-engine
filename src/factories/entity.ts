@@ -10,7 +10,7 @@ import {
 import { LayerType, STARS } from 'utils/constants';
 import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
-import { animationBuilder, animationTrackBuilder } from 'utils/animation';
+import { animationBuilder } from 'utils/animation';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -19,8 +19,8 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createStar(location?: Vector2): void {
-    this.ecsInstance
+  createStar(location?: Vector2): Result<Entity> {
+    return this.ecsInstance
       .create()
       .addWith(() => {
         const position = new Position();
@@ -104,33 +104,47 @@ export class EntityFactory {
         return position;
       })
       .addWith(() => {
-        const animation = animationBuilder([Position, Scene])
+        const animation = animationBuilder([Position, Rotation])
           .setTarget(target)
-          .addTrack(Position)
-          .repeats()
-          .duration(2)
-          .keyFrame()
-          .atPercent(0.0)
-          .set('value')
-          .to(Vector2.zero)
-          .insert()
-          .keyFrame()
-          .atPercent(0.5)
-          .set('value')
-          .to(Vector2.identity)
-          .insert()
-          .keyFrame()
-          .atPercent(1.0)
-          .set('value')
-          .to(Vector2.zero)
-          .insert()
-          .endTrack()
-          .addTrack(Scene)
+	  .repeats()
+          // .addTrack(Position)
+          // .repeats()
+          // .startsAt(0)
+          // .duration(2)
+          // .keyFrame()
+          // .atPercent(0.0)
+          // .set('value')
+          // .to(Vector2.zero)
+          // .insert()
+          // .keyFrame()
+          // .atPercent(0.5)
+          // .set('value')
+          // .to(new Vector2(100, 100))
+          // .insert()
+          // .keyFrame()
+          // .atPercent(1.0)
+          // .set('value')
+          // .to(Vector2.zero)
+          // .insert()
+          // .endTrack()
+          .addTrack(Rotation)
+	  .startsAt(0)
+	  .repeats()
           .duration(4)
           .keyFrame()
+	  .atTime(0)
+          .set('value')
+          .to(0)
+          .insert()
+          .keyFrame()
           .atTime(2)
-          .set('asset')
-          .to(new Container())
+          .set('value')
+          .to(180)
+          .insert()
+          .keyFrame()
+          .atTime(4)
+          .set('value')
+          .to(360)
           .insert()
           .endTrack()
           .build();
@@ -139,7 +153,7 @@ export class EntityFactory {
         animatable.value = animation;
         return animatable;
       })
-      .tag('animation-test')
+      // .tag('animation-test')
       .build();
   }
 }

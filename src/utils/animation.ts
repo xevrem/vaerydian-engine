@@ -16,11 +16,14 @@ export type AnimationTrack<C extends ComponentType> = {
   keyFrames: KeyFrame<C>[];
   repeats: boolean;
   duration: number;
+  startsAt: number;
 };
 
 export type Animation<CTypes extends ComponentTypes> = {
-  target: Entity;
+  duration: number;
   elapsed: number;
+  repeats: boolean;
+  target: Entity;
   tracks: Bag<AnimationTrack<CTypes[number]>>;
 };
 
@@ -41,6 +44,7 @@ export type AnimationTrackBuilder<
 > = {
   _addKeyFrame(keyFrame: KeyFrame<C>): void;
   duration(seconds: number): AnimationTrackBuilder<C, CTypes>;
+  startsAt(seconds: number): AnimationTrackBuilder<C, CTypes>;
   repeats(): AnimationTrackBuilder<C, CTypes>;
   keyFrame(): KeyFrameBuilder<C, CTypes>;
   _build(): AnimationTrack<C>;
@@ -49,6 +53,7 @@ export type AnimationTrackBuilder<
 
 export type AnimationBuilder<CTypes extends ComponentTypes> = {
   _addTrack(track: AnimationTrack<CTypes[number]>): void;
+  repeats(): AnimationBuilder<CTypes>;
   setTarget(target: Entity): AnimationBuilder<CTypes>;
   addTrack<Comp extends ComponentType>(
     component: Comp
@@ -98,12 +103,13 @@ export function animationTrackBuilder<
 >(animationBuilder: AnimationBuilder<CTypes>, component: C) {
   const animation: AnimationTrack<C> = {
     component,
+    startsAt: 0,
     duration: 0,
     keyFrames: [],
     repeats: false,
   };
 
-  const builder = {
+  const builder: AnimationTrackBuilder<C, CTypes> = {
     _addKeyFrame(keyFrame: KeyFrame<C>): void {
       (animation.keyFrames as KeyFrame<C>[]).push(keyFrame);
     },
@@ -111,14 +117,14 @@ export function animationTrackBuilder<
       animation.duration = seconds;
       return builder;
     },
+    startsAt(seconds: number) {
+      animation.startsAt = seconds;
+      return builder;
+    },
     repeats() {
       animation.repeats = true;
       return builder;
     },
-    // setType(component: C) {
-    //   animation.component = component;
-    //   return builder;
-    // },
     keyFrame(): KeyFrameBuilder<C, CTypes> {
       return keyFrameBuilder(builder, component);
     },
@@ -145,12 +151,18 @@ export function animationBuilder<CTypes extends ComponentTypes>(
 ) {
   const animation: Partial<Animation<CTypes>> = {
     elapsed: 0,
+    duration: 0,
+    repeats: false,
     tracks: new Bag<AnimationTrack<CTypes[number]>>(),
   };
 
-  const builder = {
+  const builder: AnimationBuilder<CTypes> = {
     _addTrack(track: AnimationTrack<CTypes[number]>) {
       if (is_some(animation.tracks)) animation.tracks.add(track);
+    },
+    repeats() {
+      animation.repeats = true;
+      return builder;
     },
     setTarget(target: Entity) {
       animation.target = target;
@@ -162,7 +174,26 @@ export function animationBuilder<CTypes extends ComponentTypes>(
       return animationTrackBuilder<Comp, CTypes>(builder, component);
     },
     build() {
-      return animation as Animation<CTypes>;
+      const anim = animation as Animation<CTypes>;
+      const [_minStart, maxTime] = anim.tracks.reduce(
+        ([minStart, maxTime], track) => {
+          if (track) {
+            const dur: number = track.startsAt + track.duration;
+            return [
+              track.startsAt < minStart ? track.duration : minStart,
+              dur > maxTime ? dur : maxTime,
+            ];
+          } else {
+            return [minStart, maxTime];
+          }
+        },
+        [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER] as [
+          min: number,
+          max: number
+        ]
+      );
+      anim.duration = maxTime;
+      return anim;
     },
   };
 

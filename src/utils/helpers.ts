@@ -68,3 +68,7 @@ export function makeTimer(deltaMax: number) {
     },
   };
 }
+
+export function lerp(a: number, b: number, percent: number): number {
+  return (b - a) * percent + a;
+}

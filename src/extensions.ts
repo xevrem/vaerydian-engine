@@ -2,7 +2,7 @@
 import cloneDeep from 'lodash';
 
 type AnyObject<T> = Object | Set<T> | Array<T> | Record<PropertyKey, T>;
-type KeyValuePair<K,V> = [K, V];
+type KeyValuePair<K, V> = [K, V];
 
 export function xor(a: boolean, b: boolean): boolean {
   return (a || b) && !(a && b);
@@ -43,6 +43,7 @@ declare global {
       predicate: (value: T, index: number, obj: T[]) => unknown,
       thisArg?: any
     ): Option<T>;
+    first(): T;
     last(): T;
     remove(value: T): Option<T>;
     removeAt(index: number): Option<T>;
@@ -147,9 +148,13 @@ Array.prototype.insert = function <T>(values: T[], index: number): T[] {
   return removedValues;
 };
 
-Array.prototype.last = function<T>(): T {
+Array.prototype.last = function <T>(): T {
   return this.slice(-1)[0];
-}
+};
+
+Array.prototype.first = function <T>(): T {
+  return this[0];
+};
 
 Array.prototype.removeAt = function <T>(index: number): Option<T> {
   const removedValues = this.splice(index, 1);
@@ -237,7 +242,7 @@ Object.deepMerge = function <T extends AnyObject<T>>(
       }
     } else if (Set.isSet(objB)) {
       if (Set.isSet(objA)) {
-        objB.forEach((value) => Set.isSet(objA) && objA.add(value as T));
+        objB.forEach(value => Set.isSet(objA) && objA.add(value as T));
         return objA;
       } else {
         return objB;
@@ -335,7 +340,9 @@ export function isExtension(symbol: any): boolean {
     case Array.prototype.add:
     case Array.prototype.addItem:
     case Array.prototype.findReplace:
+    case Array.prototype.first:
     case Array.prototype.insert:
+    case Array.prototype.last:
     case Array.prototype.remove:
     case Array.prototype.removeAt:
     case Array.prototype.replace:
