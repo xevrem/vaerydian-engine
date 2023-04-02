@@ -121,7 +121,7 @@ export class GameScreen extends Screen {
       .fill('')
       .forEach(() => {
         const ent = this.entityFactory.createStar();
-        if(is_ok(ent)){
+        if (is_ok(ent)) {
           this.entityFactory.createAnim(ent);
         }
       });

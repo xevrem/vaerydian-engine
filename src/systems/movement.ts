@@ -42,7 +42,7 @@ export function makeMovementSystem(ecs: EcsInstance) {
         position.value = delta;
 
         renderable.asset.pivot = renderable.pivot;
-        renderable.asset.rotation = rotation.value + rotation.offset;
+        renderable.asset.transform.rotation = rotation.value + rotation.offset;
         renderable.asset.position = position.value.toPoint();
       }
     },

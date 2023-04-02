@@ -131,7 +131,7 @@ export function animationTrackBuilder<
     _build(): AnimationTrack<C> {
       (animation.keyFrames as KeyFrame<C>[]).forEach(keyFrame => {
         if (keyFrame.percent && animation.duration) {
-          keyFrame.time = keyFrame.time * animation.duration;
+          keyFrame.time = (animation.startsAt + keyFrame.time) * animation.duration;
         }
       });
       return animation as AnimationTrack<C>;
