@@ -8,7 +8,6 @@ export function makeAnimationSystem(ecs: EcsInstance) {
     ({ query, ecs, delta }) => {
       for (const [animatable] of query.join()) {
         animatable.value.elapsed += delta;
-        const percent = animatable.value.elapsed / animatable.value.duration;
 
         animatable.value.tracks.forEach(track => {
           if (!track) return;
@@ -36,27 +35,29 @@ export function makeAnimationSystem(ecs: EcsInstance) {
             track.component
           );
           if (is_none(comp)) return;
+          const startTime = track.startsAt + prevFrame.time;
+          const endTime = track.startsAt + currFrame.time;
+          const totalTime = endTime - startTime;
+          const frameTime = animatable.value.elapsed - startTime;
+          const percent = frameTime / totalTime;
 
           if (currFrame.property in comp) {
-            //const field = comp[currFrame.property] as number;
             const update = lerp(
               prevFrame.value as number,
               currFrame.value as number,
               percent
             );
-            console.log('upd:', update, prevFrame.value, currFrame.value, percent, animatable, delta);//, animatable.value.elapsed);
             Object.add(comp, currFrame.property, update);
             ecs.update(comp);
           }
         });
-        if (
-          animatable.value.elapsed >= animatable.value.duration &&
-          animatable.value.repeats
-        ) {
-          animatable.value.elapsed = 0;
-        } else {
-          const ent = ecs.getEntity(animatable.owner);
-          ent && ecs.deleteEntity(ent);
+        if (animatable.value.elapsed >= animatable.value.duration) {
+          if (animatable.value.repeats) {
+            animatable.value.elapsed = 0;
+          } else {
+            const ent = ecs.getEntity(animatable.owner);
+            ent && ecs.deleteEntity(ent);
+          }
         }
       }
     },
