@@ -63,22 +63,47 @@ export function isComponentOfType<T extends typeof Component | Component>(
   }
 }
 
-type ProtoComp<C> = C & {
-  name: string;
-  type: number;
-  [ComponentSymbol]: true;
+type BaseType = {
+  readonly name: string;
+  readonly type: number;
 };
 
-export function protoComp<C>(name: string, data: C): ProtoComp<C> {
-  return {
-    ...data,
-    name,
-    type: -1,
-    [ComponentSymbol]: true as const,
-  };
+type BaseComp = {
+  owner: number;
+  [ComponentSymbol]: true;
+} & BaseType;
+
+type ProtoComp<C> = C & BaseComp;
+type ProtoCompBuilder<C> = (owner: number) => ProtoComp<C>;
+
+function registerComponent<C>(
+  name: string,
+  defaultData: C,
+  nextId: number
+): [baseType: BaseType, builder: ProtoCompBuilder<C>] {
+  const _typeId = nextId++;
+  const _name = name;
+
+  function makeComponent(owner: number) {
+    const inner: ProtoComp<C> = {
+      ...defaultData,
+      owner,
+      name: _name,
+      type: _typeId,
+      [ComponentSymbol]: true as const,
+    };
+    return inner;
+  }
+
+  return [
+    {
+      type: _typeId,
+      name: _name,
+    },
+    makeComponent,
+  ];
 }
 
+const [Foo, makeFoo] = registerComponent('Foo', { a: 0, b: 'world' }, 0);
 
-const foo = protoComp('Foo', { foo: 1, baz: 'bar'});
-
-export type Foo = typeof foo;
+const foo = makeFoo(0);

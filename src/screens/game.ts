@@ -131,9 +131,13 @@ export class GameScreen extends Screen {
     //
   }
 
-  update(_delta: number): void {}
+  update(_delta: number): void {
+    //
+  }
 
-  focusUpdate(_delta: number): void {}
+  focusUpdate(_delta: number): void {
+    //
+  }
 
   draw(_delta: number): void {
     // this.app.render();
