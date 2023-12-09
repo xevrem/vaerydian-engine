@@ -1,6 +1,6 @@
 import { Component, Entity } from 'ecsf';
 import { LineRange, QuadTree, Range } from 'utils/quadtree';
-import { Container, Graphics, Sprite } from 'pixi.js';
+import { Container, Graphics, Sprite, Transform as PTransform } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
 import { Animation } from 'utils/animation';
 
@@ -58,6 +58,10 @@ export class Scene extends Component {
 }
 
 export class Starfield extends Component {}
+
+export class Transform extends Component{
+  value!: PTransform;
+}
 
 export class Velocity extends Component {
   vector!: Vector2;

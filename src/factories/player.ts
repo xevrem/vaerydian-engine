@@ -1,4 +1,4 @@
-import { Assets, Container, Sprite, Texture } from 'pixi.js';
+import { Assets, Container, Sprite, Texture, Transform as PTransform } from 'pixi.js';
 import {
   CameraFocus,
   Controllable,
@@ -8,6 +8,7 @@ import {
   Position,
   Scene,
   Rotation,
+  Transform,
   Velocity,
 } from '../components';
 import { EcsInstance } from 'ecsf';
@@ -62,6 +63,10 @@ export class PlayerFactory {
         const l = new Layers();
         l.value = LayerType.player;
         return l;
+      }).addWith(()=>{
+        const trans = new Transform();
+        trans.value = new PTransform();
+        return trans;
       })
       .add(new Controllable())
       .add(new CameraFocus())
