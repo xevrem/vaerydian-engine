@@ -106,7 +106,7 @@ dist
 # ignore parcel junk
 .parcel-cache/
 
-# yarn 2+ stuff
+# yarn ignores
 .pnp.*
 .yarn/*
 !.yarn/patches

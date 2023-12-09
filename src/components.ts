@@ -3,10 +3,9 @@ import { LineRange, QuadTree, Range } from 'utils/quadtree';
 import { Container, Graphics, Sprite, Transform as PTransform } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
 import { Animation } from 'utils/animation';
+import { ComponentTypes } from 'types/ecs';
 
-export class Animatable<C extends typeof Component = any> extends Component {
-  elapsed = 0;
-  target!: Entity;
+export class Animatable<C extends ComponentTypes> extends Component {
   value!: Animation<C>;
 }
 

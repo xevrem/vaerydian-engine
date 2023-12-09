@@ -1,4 +1,4 @@
-import { EcsInstance } from 'ecsf';
+import { EcsInstance, Entity } from 'ecsf';
 import {
   Position,
   Layers,
@@ -10,7 +10,7 @@ import {
 import { LayerType, STARS } from 'utils/constants';
 import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
-import { makeAnimationBuilder } from 'utils/animation';
+import { animationBuilder } from 'utils/animation';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;
@@ -19,8 +19,8 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createStar(location?: Vector2): void {
-    this.ecsInstance
+  createStar(location?: Vector2): Result<Entity> {
+    return this.ecsInstance
       .create()
       .addWith(() => {
         const position = new Position();
@@ -95,7 +95,7 @@ export class EntityFactory {
       .build();
   }
 
-  createAnim() {
+  createAnim(target: Entity) {
     this.ecsInstance
       .create()
       .addWith(() => {
@@ -104,31 +104,41 @@ export class EntityFactory {
         return position;
       })
       .addWith(() => {
-        const animation = makeAnimationBuilder(Position)
+        const animation = animationBuilder([Position, Rotation])
+          .setTarget(target)
           .repeats()
-          .duration(2)
+          .addTrack(Rotation)
+          .startsAt(0)
+          .repeats()
+          .duration(6)
           .keyFrame()
-          .atPercent(0.0)
+          .atTime(0)
           .set('value')
-          .to(Vector2.zero)
+          .to(0)
           .insert()
           .keyFrame()
-          .atPercent(0.5)
+          .atTime(2)
           .set('value')
-          .to(Vector2.identity)
+          .to(120)
           .insert()
           .keyFrame()
-          .atPercent(1.0)
+          .atTime(4)
           .set('value')
-          .to(Vector2.zero)
+          .to(240)
           .insert()
+          .keyFrame()
+          .atTime(6)
+          .set('value')
+          .to(360)
+          .insert()
+          .endTrack()
           .build();
 
-        const animatable = new Animatable<typeof Position>();
+        const animatable = new Animatable();
         animatable.value = animation;
         return animatable;
       })
-      .tag('animation-test')
+      // .tag('animation-test')
       .build();
   }
 }

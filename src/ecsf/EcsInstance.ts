@@ -1094,8 +1094,8 @@ export class EcsInstance {
   ][] = [];
 
   withSystem<T extends ComponentTuple>(
-    queryFunc: QueryFunc<T>,
-    data: [...T]
+    data: [...T],
+    queryFunc: QueryFunc<T>
   ): void {
     this.qSysTuple.push([queryFunc, data]);
   }
@@ -1103,7 +1103,7 @@ export class EcsInstance {
   runQuerySystems(): void {
     for (let i = 0; i < this.qSysTuple.length; i++) {
       const [func, data] = this.qSysTuple[i];
-      timer.begin()
+      timer.begin();
       func({
         query: new FuncQuery(this, data),
         ecs: this,

@@ -1,3 +1,4 @@
+import './extensions';
 import * as PIXI from 'pixi.js';
 import '@pixi/layers';
 import { Engine } from './engine';
