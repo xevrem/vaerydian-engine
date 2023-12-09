@@ -7,7 +7,6 @@
   "author": "Erika V. Jonell",
   "license": "MIT",
   "scripts": {
-    "plugins:install": "yarn dlx @yarnpkg/sdks base",
     "start": "esbuild ./src/index.ts --sourcemap=both --serve --servedir=./dist --outdir=./dist --bundle --loader:.png=dataurl",
     "build": "esbuild ./src/index.ts --sourcemap=both --outdir=./dist --bundle --loader:.png=dataurl"
   },
@@ -42,6 +41,5 @@
     "prettier": "^2.8.4",
     "typescript": "^5.2.2"
   },
-  "browserslist": "> 0.5%, last 2 versions, not dead",
-  "packageManager": "yarn@3.6.3"
+  "browserslist": "> 0.5%, last 2 versions, not dead"
 }

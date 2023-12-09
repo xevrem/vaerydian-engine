@@ -13,7 +13,7 @@ declare global {
 window.PIXI = PIXI;
 
 window.addEventListener('load', async () => {
-  console.info('load...');
+  console.info('loading...');
 
   const engine = new Engine();
   window.engine = engine;
