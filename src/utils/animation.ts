@@ -1,5 +1,4 @@
-import { Bag } from 'ecsf/Bag';
-import { Entity } from 'ecsf/Entity';
+import { Entity, Bag } from 'ecsf';
 import { InstanceKey, InstanceOf, InstanceValue } from 'types/common';
 import { ComponentType, ComponentTypes } from 'types/ecs';
 import { is_some } from './helpers';

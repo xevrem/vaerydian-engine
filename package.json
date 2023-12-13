@@ -26,6 +26,7 @@
     "@pixi/text": "^7.3.2",
     "@pixi/ticker": "^7.3.2",
     "@pixi/utils": "^7.3.2",
+    "ecsf": "github:xevrem/ecs-framework#develop",
     "lodash": "^4.17.21",
     "pixi.js": "^7.3.2",
     "stats.js": "^0.17.0"

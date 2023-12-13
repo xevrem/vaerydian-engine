@@ -1,5 +1,5 @@
 import { QtSpatial } from '../components';
-import { Vector } from './vector';
+import { Vector2 as Vector } from './vector';
 import { csClip } from './csclip';
 
 const clamp = (a: number, min: number, max: number): number =>

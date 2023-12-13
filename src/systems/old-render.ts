@@ -1,4 +1,4 @@
-import { Entity, EntitySystem, EntitySystemArgs, Query } from '../ecsf';
+import { Entity, EntitySystem, Query } from 'ecsf';
 import { GraphicsRender, Position } from '../components';
 import { Application, Container } from 'pixi.js';
 import { all_some, is_some } from 'utils/helpers';

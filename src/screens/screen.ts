@@ -1,5 +1,5 @@
 import { Group, Layer } from '@pixi/layers';
-import { EcsInstance } from 'ecsf/index';
+import { EcsInstance } from 'ecsf';
 import { Application } from 'pixi.js';
 import { ScreenManager } from './manager';
 
