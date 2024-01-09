@@ -2,12 +2,12 @@ import {
   EcsInstance,
   Entity,
   EntitySystem,
-  EntitySystemArgs,
   Query,
 } from 'ecsf';
 import { Position, Scene, Rotation, Velocity } from 'components';
 
 export class MovementSystem extends EntitySystem<
+  any,
   [typeof Position, typeof Velocity]
 > {
   process(_entity: Entity, query: Query<typeof this.needed>, delta: number) {

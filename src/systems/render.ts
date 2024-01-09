@@ -2,14 +2,15 @@ import { EntitySystem, Entity, EntitySystemArgs, Query } from 'ecsf';
 import { Scene, Position, Rotation } from 'components';
 import { Application, Container } from 'pixi.js';
 
-export class RenderSystem extends EntitySystem<
-  [typeof Scene, typeof Position, typeof Rotation],
-  { app: Application }
-> {
+type Props = { app: Application };
+
+type Needed = [typeof Scene, typeof Position, typeof Rotation];
+
+export class RenderSystem extends EntitySystem<Props, Needed> {
   app: Application;
   spriteContainer!: Container;
 
-  constructor(props: EntitySystemArgs) {
+  constructor(props: EntitySystemArgs<Props, Needed>) {
     super({
       ...props,
       needed: [Scene, Position, Rotation],
@@ -55,8 +56,6 @@ export class RenderSystem extends EntitySystem<
 
     renderable.asset.pivot.set(renderable.pivot.x, renderable.pivot.y);
 
-    renderable.asset.angle = rotation
-      ? rotation.value
-      : renderable.asset.angle;
+    renderable.asset.angle = rotation ? rotation.value : renderable.asset.angle;
   }
 }

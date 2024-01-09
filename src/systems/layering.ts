@@ -3,15 +3,19 @@ import { Layers, Scene } from 'components';
 import { LayerType } from 'utils/constants';
 import { Group } from '@pixi/layers';
 
+type Props =   { groups: Record<string, Group> }
+type Needed =   [typeof Layers, typeof Scene];
+
+
 export class LayeringSystem extends EntitySystem<
-  [typeof Layers, typeof Scene],
-  { groups: Record<string, Group> }
+  Props,
+  Needed
 > {
   groups: Record<string, Group>;
   playerGroup!: Group;
   starfieldGroup!: Group;
 
-  constructor(props: EntitySystemArgs) {
+  constructor(props: EntitySystemArgs<Props, Needed>) {
     super({
       ...props,
       needed: [Layers, Scene],

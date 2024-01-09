@@ -1,8 +1,6 @@
-import { Bag } from 'ecsf/Bag';
-import { Entity } from 'ecsf/Entity';
-import { InstanceKey, InstanceOf, InstanceValue } from 'types/common';
-import { ComponentType, ComponentTypes } from 'types/ecs';
-import { is_some } from './helpers';
+import { Bag, ComponentType, ComponentTypes, Entity } from 'ecsf';
+import { is_some } from 'onsreo';
+import { InstanceKey, InstanceOf, InstanceValue } from 'types';
 
 export type KeyFrame<C extends ComponentType> = {
   percent: boolean;
@@ -131,7 +129,8 @@ export function animationTrackBuilder<
     _build(): AnimationTrack<C> {
       (animation.keyFrames as KeyFrame<C>[]).forEach(keyFrame => {
         if (keyFrame.percent && animation.duration) {
-          keyFrame.time = (animation.startsAt + keyFrame.time) * animation.duration;
+          keyFrame.time =
+            (animation.startsAt + keyFrame.time) * animation.duration;
         }
       });
       return animation as AnimationTrack<C>;

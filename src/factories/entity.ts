@@ -1,4 +1,5 @@
 import { EcsInstance, Entity } from 'ecsf';
+import { Result } from 'onsreo';
 import {
   Position,
   Layers,
@@ -19,7 +20,7 @@ export class EntityFactory {
     this.ecsInstance = ecsInstance;
   }
 
-  createStar(location?: Vector2): Result<Entity> {
+  createStar(location?: Vector2): Result<Entity, Error> {
     return this.ecsInstance
       .create()
       .addWith(() => {
