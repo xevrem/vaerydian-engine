@@ -1,11 +1,11 @@
-import { Entity, EntitySystem, Query } from 'ecsf';
-import { GraphicsRender, Position } from '../components';
+import { Entity, EntitySystem, EntitySystemArgs, Query } from 'ecsf';
 import { Application, Container } from 'pixi.js';
-import { all_some, is_some } from 'utils/helpers';
+import { all_some, is_some } from 'onsreo';
+import { GraphicsRender, Position } from '../components';
 
 export class GraphicsRenderSystem extends EntitySystem<
-  [typeof GraphicsRender, typeof Position],
-  { app: Application }
+  { app: Application },
+  [typeof GraphicsRender, typeof Position]
 > {
   app: Application;
   graphicsContainer!: Container;

@@ -1,19 +1,18 @@
 import { Bag, Entity, EntitySystem, EntitySystemArgs, Query } from 'ecsf';
-import { Position, Scene, CameraFocus } from 'components';
+import { is_none } from 'onsreo';
 import { Application } from 'pixi.js';
-import { is_none, is_some } from 'utils';
+import { Position, Scene, CameraFocus } from 'components';
 
 interface CSProps {
   app: Application;
 }
 
-export class CameraSystem extends EntitySystem<
-  [typeof Position, typeof CameraFocus],
-  CSProps
-> {
+type Needed = [typeof Position, typeof CameraFocus];
+
+export class CameraSystem extends EntitySystem<CSProps, Needed> {
   camera!: Entity;
   app: Application;
-  constructor(props: EntitySystemArgs) {
+  constructor(props: EntitySystemArgs<CSProps, Needed>) {
     super({
       ...props,
       needed: [Position, CameraFocus],
@@ -24,7 +23,7 @@ export class CameraSystem extends EntitySystem<
 
   load(_entities: Bag<Entity>) {
     const maybeCamera = this.ecs.getEntityByTag('camera');
-    if (!is_some(maybeCamera)) return;
+    if (is_none(maybeCamera)) return;
     this.camera = maybeCamera;
     const maybeData = this.ecs.getComponentOfType(maybeCamera, Scene);
     if (is_none(maybeData)) return;

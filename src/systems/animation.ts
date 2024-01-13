@@ -1,7 +1,8 @@
+import { EcsInstance } from 'ecsf';
+import { is_none } from 'onsreo';
 import { Animatable } from 'components';
-import { EcsInstance } from 'ecsf/EcsInstance';
 import { KeyFrame } from 'utils/animation';
-import { lerp, is_none } from 'utils/helpers';
+import { lerp } from 'utils/helpers';
 
 export function makeAnimationSystem(ecs: EcsInstance) {
   ecs.withSystem([Animatable], ({ query, ecs, delta }) => {

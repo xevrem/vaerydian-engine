@@ -3,10 +3,15 @@ import { Rotation, Velocity, Heading, Controllable } from 'components';
 import { KeyboardManager } from 'utils/keyboard';
 import { KEYS } from 'utils/constants';
 
+type Props = {};
+type Needed = [typeof Rotation, typeof Velocity, typeof Heading, typeof Controllable]
+
+
 export class ControlSystem extends EntitySystem<
-  [typeof Rotation, typeof Velocity, typeof Heading, typeof Controllable]
+  Props,
+  Needed
 > {
-  constructor(props: EntitySystemArgs) {
+  constructor(props: EntitySystemArgs<Props, Needed>) {
     super({
       ...props,
       needed: [Rotation, Velocity, Heading, Controllable],
