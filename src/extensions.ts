@@ -1,4 +1,5 @@
 /*eslint no-extend-native: "off" */
+import { Option } from 'onsreo';
 import cloneDeep from 'lodash';
 
 type AnyObject<T> = Object | Set<T> | Array<T> | Record<PropertyKey, T>;
