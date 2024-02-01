@@ -25,7 +25,7 @@ export class CameraSystem extends EntitySystem<CSProps, Needed> {
     const maybeCamera = this.ecs.getEntityByTag('camera');
     if (is_none(maybeCamera)) return;
     this.camera = maybeCamera;
-    const maybeData = this.ecs.getComponentOfType(maybeCamera, Scene);
+    const maybeData = this.ecs.getComponent(maybeCamera, Scene);
     if (is_none(maybeData)) return;
     this.app.stage.addChild(maybeData.asset);
   }

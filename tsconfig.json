@@ -1,23 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "checkJs": true,
-    "skipLibCheck": false,
+    "baseUrl": "src",
+    "target": "es2015",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmit": true,
     "esModuleInterop": true,
+    "downlevelIteration": true,
+    "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
+    "skipLibCheck": false,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "sourceMap": true,
-    "noEmit": true,
-    "module": "esnext",
-    "baseUrl": "./src"
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules/**/*"]
+  "exclude": ["dist"],
 }

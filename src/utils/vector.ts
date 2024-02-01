@@ -314,6 +314,13 @@ export class Vector2 {
     return bsubSq.x + bsubSq.y;
   }
 
+  static distanceSq(a: PointLike, b: PointLike): number {
+    const av = Vector2.fromPoint(a);
+    const bv = Vector2.fromPoint(b);
+    return av.distanceToSq(bv);
+  }
+
+
   /**
    * distance from this point to the line defined by a to b
    * @param a - p1 of line

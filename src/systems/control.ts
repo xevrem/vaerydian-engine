@@ -45,7 +45,7 @@ export class ControlSystem extends EntitySystem<
     } else if (KeyboardManager.isKeyPressed(KEYS.S)) {
       // remove 'reverse' velocity
       thrust = -velocity.rate * delta;
-    } 
+    }
 
     // thrust = thrust.rotateDeg(amount).multScalar(magnitude);
 
@@ -55,13 +55,16 @@ export class ControlSystem extends EntitySystem<
       // thrust = vec.multScalar(mag * delta);
     }
 
-    if(amount !== 0){
+    if (amount !== 0) {
       heading.value = heading.value.rotate(amount);
       rotation.value = heading.value.angle();
     }
 
-    if(thrust !== 0){
-      velocity.vector = heading.value.multScalar(thrust).add(velocity.vector).clamp(-velocity.rate, velocity.rate);
+    if (thrust !== 0) {
+      velocity.vector = heading.value
+        .multScalar(thrust)
+        .add(velocity.vector)
+        .clamp(-velocity.rate, velocity.rate);
     }
 
     // velocity.vector = velocity.vector.add(thrust).clamp(0, 300);

@@ -12,6 +12,7 @@ import {
   StarfieldSystem,
   RenderSystem,
   makeMovementSystem,
+  MovementSystem,
 } from 'systems';
 import { Vector2 } from 'utils/vector';
 import { makeAnimationSystem } from 'systems/animation';
@@ -73,11 +74,12 @@ export class GameScreen extends Screen {
     // Scale mode for all textures, will retain pixelation
     settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
-    Object.values(AllComponents).forEach(value => {
-      if (isComponent(value)) {
-        this.ecs.registerComponent(value);
-      }
-    });
+    // Object.values(AllComponents).forEach(value => {
+    //   if (isComponent(value)) {
+    //     this.ecs.registerComponent(value);
+    //   }
+    // });
+    this.ecs.registerComponents(AllComponents);
 
     this.ecs.registerSystem(LayeringSystem, {
       groups: this.groups,
@@ -94,6 +96,7 @@ export class GameScreen extends Screen {
     });
 
     makeMovementSystem(this.ecs);
+    // this.ecs.registerSystem(MovementSystem, { priority: 6 });
 
     makeAnimationSystem(this.ecs);
 

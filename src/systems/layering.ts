@@ -1,4 +1,10 @@
-import { EntitySystem, Entity, EntitySystemArgs } from 'ecsf';
+import {
+  ComponentTuple,
+  ComponentOptionTuple,
+  EntitySystem,
+  Entity,
+  EntitySystemArgs,
+} from 'ecsf';
 import { Layers, Scene } from 'components';
 import { LayerType } from 'utils/constants';
 import { Group } from '@pixi/layers';
