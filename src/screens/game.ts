@@ -1,6 +1,5 @@
 import { Assets, SCALE_MODES, settings, Texture } from 'pixi.js';
 import Stats from 'stats.js';
-import { Entity, isComponent } from 'ecsf';
 import { is_none, is_ok, is_some } from 'onsreo';
 import { Screen } from 'screens/screen';
 import * as AllComponents from 'components';

@@ -5,8 +5,8 @@ import { KeyFrame } from 'utils/animation';
 import { lerp } from 'utils/helpers';
 
 export function makeAnimationSystem(ecs: EcsInstance) {
-  ecs.withSystem([Animatable], ({ query, ecs, delta }) => {
-    for (const [animatable] of query.join()) {
+  ecs.withSystem([[Animatable]], ({ query, ecs, delta }) => {
+    for (const [[animatable]] of query.join()) {
       animatable.value.elapsed += delta;
 
       animatable.value.tracks.forEach(track => {
@@ -42,7 +42,7 @@ export function makeAnimationSystem(ecs: EcsInstance) {
           const update = lerp(
             prevFrame.value as number,
             currFrame.value as number,
-            percent
+            percent,
           );
           Object.add(comp, currFrame.property, update);
           ecs.update(comp);

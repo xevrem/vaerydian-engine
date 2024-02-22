@@ -1,4 +1,4 @@
-import './extensions';
+import 'evjkit';
 import * as PIXI from 'pixi.js';
 import '@pixi/layers';
 import { Engine } from './engine';

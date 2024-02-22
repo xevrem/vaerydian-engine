@@ -1,10 +1,5 @@
-import {
-  EcsInstance,
-  Entity,
-  EntitySystem,
-  Query,
-} from 'ecsf';
-import { Position, Scene, Rotation, Velocity } from 'components';
+import { EcsInstance, Entity, EntitySystem, Query } from 'ecsf';
+import { Position, Scene, Rotation, Velocity } from '../components';
 
 type Needed = [typeof Position, typeof Rotation, typeof Scene, typeof Velocity];
 
@@ -23,8 +18,11 @@ export class MovementSystem extends EntitySystem<any, Needed> {
 
 export function makeMovementSystem(ecs: EcsInstance) {
   // update rederable container with position and rotation
-  ecs.withSystem([Position, Rotation, Scene, Velocity], ({ query }) => {
-    for (const [position, rotation, renderable, velocity] of query.join()) {
+  ecs.withSystem([[Position, Rotation, Scene, Velocity]], ({ query }) => {
+    for (const [
+      [position, rotation, renderable, velocity],
+      _ent,
+    ] of query.join()) {
       const delta = position.value.add(velocity.vector);
       position.value = delta;
 
