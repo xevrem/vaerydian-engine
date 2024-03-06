@@ -1,5 +1,12 @@
-import { Assets, Container, Sprite, Texture, Transform as PTransform } from 'pixi.js';
 import {
+  Assets,
+  Container,
+  Sprite,
+  Texture,
+  Transform as PTransform,
+} from 'pixi.js';
+import {
+  Behavior,
   CameraFocus,
   Controllable,
   Heading,
@@ -14,6 +21,8 @@ import {
 import { EcsInstance } from 'ecsf';
 import { LayerType } from 'utils/constants';
 import { Vector2 } from 'utils/vector';
+import { ExecutorBuilder, sel } from 'behavey';
+// import { Behavior } from 'behave/behavior';
 
 export class PlayerFactory {
   ecsInstance: EcsInstance;
@@ -63,7 +72,8 @@ export class PlayerFactory {
         const l = new Layers();
         l.value = LayerType.player;
         return l;
-      }).addWith(()=>{
+      })
+      .addWith(() => {
         const trans = new Transform();
         trans.value = new PTransform();
         return trans;
@@ -71,6 +81,35 @@ export class PlayerFactory {
       .add(new Controllable())
       .add(new CameraFocus())
       .add(new Player())
+      .addWith(() => {
+        const exec = new ExecutorBuilder<EcsInstance, any>()
+          .create_major_mode(major =>
+            major
+              .create_tree(tree =>
+                tree
+                  .set_root(
+                    sel(
+                      () => false,
+                      _args => {
+                        // console.log(`entities: ${args.meta.entityManager.entities.count}`);
+                        return true;
+                      },
+                    ),
+                  )
+                  .build(),
+              )
+              .set_name('idle')
+              .build(),
+          )
+          .set_default_mode('idle')
+          .build();
+        exec.init();
+
+        const behavior = new Behavior<EcsInstance, any>();
+        behavior.value = exec;
+
+        return behavior;
+      })
       .tag('player')
       .build();
   }

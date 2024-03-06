@@ -1,11 +1,19 @@
 import { Component, ComponentTypes } from 'ecsf';
-import { LineRange, QuadTree, Range } from 'utils/quadtree';
+// import { LineRange, QuadTree, Range } from 'utils/quadtree';
 import { Container, Graphics, Sprite, Transform as PTransform } from 'pixi.js';
 import { Vector2 } from 'utils/vector';
 import { Animation } from 'utils/animation';
+import { Executor } from 'behavey';
 
 export class Animatable<C extends ComponentTypes> extends Component {
   value!: Animation<C>;
+}
+
+export class Behavior<
+  Meta extends any = void,
+  EType extends any = any,
+> extends Component {
+  value!: Executor<Meta, EType>;
 }
 
 export class CameraFocus extends Component {}
@@ -34,12 +42,12 @@ export class Layers extends Component {
   value!: number;
 }
 
-export class QtSpatial extends Component {
-  point!: Vector2;
-  parents!: Array<QuadTree>;
-  range!: Range;
-  line!: LineRange;
-}
+// export class QtSpatial extends Component {
+//   point!: Vector2;
+//   parents!: Array<QuadTree>;
+//   range!: Range;
+//   line!: LineRange;
+// }
 
 export class Qtree extends Component {}
 
@@ -57,7 +65,7 @@ export class Scene extends Component {
 
 export class Starfield extends Component {}
 
-export class Transform extends Component{
+export class Transform extends Component {
   value!: PTransform;
 }
 

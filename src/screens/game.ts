@@ -1,9 +1,9 @@
 import { Assets, SCALE_MODES, settings, Texture } from 'pixi.js';
 import Stats from 'stats.js';
 import { is_none, is_ok, is_some } from 'onsreo';
-import { Screen } from 'screens/screen';
-import * as AllComponents from 'components';
-import { EntityFactory, PlayerFactory } from 'factories';
+import { Screen } from '../screens/screen';
+import * as AllComponents from '../components';
+import { EntityFactory, PlayerFactory } from '../factories';
 import {
   ControlSystem,
   CameraSystem,
@@ -11,10 +11,10 @@ import {
   StarfieldSystem,
   RenderSystem,
   makeMovementSystem,
-  MovementSystem,
-} from 'systems';
-import { Vector2 } from 'utils/vector';
-import { makeAnimationSystem } from 'systems/animation';
+} from '../systems';
+import { Vector2 } from '../utils/vector';
+import { makeAnimationSystem } from '../systems/animation';
+import { makeBehaviorSystem } from '../systems/behavior';
 
 import playerShip from 'assets/player/ship.png';
 import star1 from 'assets/stars/star1.png';
@@ -99,6 +99,8 @@ export class GameScreen extends Screen {
 
     makeAnimationSystem(this.ecs);
 
+    makeBehaviorSystem(this.ecs);
+
     this.ecs.initializeSystems();
 
     this.entityFactory = new EntityFactory(this.ecs);
@@ -112,7 +114,7 @@ export class GameScreen extends Screen {
       assets.map(asset => {
         Assets.add(asset.name, asset.src);
         return Assets.load<Texture>(asset.name);
-      })
+      }),
     );
 
     this.entityFactory.createCamera();

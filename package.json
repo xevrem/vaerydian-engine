@@ -27,6 +27,7 @@
     "@pixi/text": "^7.3.2",
     "@pixi/ticker": "^7.3.2",
     "@pixi/utils": "^7.3.2",
+    "behavey": "^0.1.0",
     "ecsf": "^1.0.18",
     "evjkit": "^0.0.4",
     "lodash": "^4.17.21",
