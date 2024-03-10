@@ -29,7 +29,7 @@ export class EntityFactory {
           ? location
           : new Vector2(
               (Math.random() * 2 - 1) * window.innerWidth,
-              (Math.random() * 2 - 1) * window.innerHeight
+              (Math.random() * 2 - 1) * window.innerHeight,
             );
         return position;
       })
@@ -67,7 +67,7 @@ export class EntityFactory {
         const position = new Position();
         position.value = new Vector2(
           window.innerWidth / 2,
-          window.innerHeight / 2
+          window.innerHeight / 2,
         );
         return position;
       })
@@ -81,11 +81,11 @@ export class EntityFactory {
         const cameraContainer = new Container();
         cameraContainer.pivot.set(
           window.innerWidth / 2,
-          window.innerHeight / 2
+          window.innerHeight / 2,
         );
         cameraContainer.position.set(
           window.innerWidth / 2,
-          window.innerHeight / 2
+          window.innerHeight / 2,
         );
         cameraContainer.scale.set(1280 / 640, 720 / 360);
         const cameraData = new Scene();
@@ -108,31 +108,17 @@ export class EntityFactory {
         const animation = animationBuilder([Position, Rotation])
           .setTarget(target)
           .repeats()
-          .addTrack(Rotation)
-          .startsAt(0)
-          .repeats()
-          .duration(6)
-          .keyFrame()
-          .atTime(0)
-          .set('value')
-          .to(0)
-          .insert()
-          .keyFrame()
-          .atTime(2)
-          .set('value')
-          .to(120)
-          .insert()
-          .keyFrame()
-          .atTime(4)
-          .set('value')
-          .to(240)
-          .insert()
-          .keyFrame()
-          .atTime(6)
-          .set('value')
-          .to(360)
-          .insert()
-          .endTrack()
+          .addTrack(Rotation, track =>
+            track
+              .startsAt(0)
+              .repeats()
+              .duration(6)
+              .keyFrame(frame => frame.atTime(0).set('value').to(0).build())
+              .keyFrame(frame => frame.atTime(2).set('value').to(120).build())
+              .keyFrame(frame => frame.atTime(4).set('value').to(240).build())
+              .keyFrame(frame => frame.atTime(6).set('value').to(360).build())
+              .build(),
+          )
           .build();
 
         const animatable = new Animatable();

@@ -1,16 +1,17 @@
-import { EntitySystem, Entity, Query, EntitySystemArgs } from 'ecsf';
-import { Rotation, Velocity, Heading, Controllable } from 'components';
-import { KeyboardManager } from 'utils/keyboard';
-import { KEYS } from 'utils/constants';
+import { EntitySystem, EntitySystemArgs, JoinedResult } from 'ecsf';
+import { Rotation, Velocity, Heading, Controllable } from '../components';
+import { KeyboardManager } from '../utils/keyboard';
+import { KEYS } from '../utils/constants';
 
 type Props = {};
-type Needed = [typeof Rotation, typeof Velocity, typeof Heading, typeof Controllable]
+type Needed = [
+  typeof Rotation,
+  typeof Velocity,
+  typeof Heading,
+  typeof Controllable,
+];
 
-
-export class ControlSystem extends EntitySystem<
-  Props,
-  Needed
-> {
+export class ControlSystem extends EntitySystem<Props, Needed> {
   constructor(props: EntitySystemArgs<Props, Needed>) {
     super({
       ...props,
@@ -18,14 +19,8 @@ export class ControlSystem extends EntitySystem<
     });
   }
 
-  process(
-    _entity: Entity,
-    query: Query<typeof this.needed, [], []>,
-    delta: number
-  ) {
-    const results = query.retrieve();
-    const [rotation, velocity, heading] = results;
-
+  join(results: JoinedResult<Needed, []>, delta: number) {
+    const [[rotation, velocity, heading], _ent] = results;
     // by default we point straight up
     let amount = 0;
     // let magnitude = 0;

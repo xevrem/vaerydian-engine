@@ -1,18 +1,21 @@
-import { EcsInstance } from 'ecsf';
+import { ComponentTypes, EcsInstance } from 'ecsf';
 import { is_none } from 'onsreo';
 import { Animatable } from 'components';
 import { KeyFrame } from 'utils/animation';
 import { lerp } from 'utils/helpers';
+import { InstanceValue } from 'types';
 
-export function makeAnimationSystem(ecs: EcsInstance) {
-  ecs.withSystem([[Animatable]], ({ query, ecs, delta }) => {
+export function makeAnimationSystem<CTypes extends ComponentTypes = any>(
+  ecs: EcsInstance,
+) {
+  ecs.withSystem([[Animatable<CTypes>]], ({ query, ecs, delta }) => {
     for (const [[animatable]] of query.join()) {
       animatable.value.elapsed += delta;
 
       animatable.value.tracks.forEach(track => {
         if (!track) return;
-        let prevFrame!: KeyFrame<typeof track.component>,
-          currFrame!: KeyFrame<typeof track.component>;
+        let prevFrame!: KeyFrame<CTypes[number]>,
+          currFrame!: KeyFrame<CTypes[number]>;
         track.keyFrames.forEach(frame => {
           if (animatable.value.elapsed > track.startsAt + frame.time) {
             prevFrame = frame;
@@ -38,14 +41,21 @@ export function makeAnimationSystem(ecs: EcsInstance) {
         const frameTime = animatable.value.elapsed - startTime;
         const percent = frameTime / totalTime;
 
-        if (currFrame.property in comp) {
-          const update = lerp(
-            prevFrame.value as number,
-            currFrame.value as number,
-            percent,
-          );
-          Object.add(comp, currFrame.property, update);
-          ecs.update(comp);
+        if (track.lerp) {
+          if (currFrame.property in comp) {
+            const update = lerp(
+              prevFrame.asNum(),
+              currFrame.asNum(),
+              percent,
+            ) as InstanceValue<CTypes[number]>;
+            comp[currFrame.property] = update;
+            ecs.update(comp);
+          }
+        } else {
+          if (currFrame.property in comp) {
+            comp[currFrame.property] = currFrame.value;
+            ecs.update(comp);
+          }
         }
       });
       if (animatable.value.elapsed >= animatable.value.duration) {
