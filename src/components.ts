@@ -42,12 +42,13 @@ export class Layers extends Component {
   value!: number;
 }
 
-// export class QtSpatial extends Component {
-//   point!: Vector2;
-//   parents!: Array<QuadTree>;
-//   range!: Range;
-//   line!: LineRange;
-// }
+export class Spatial extends Component {
+  x!: number;
+  y!: number;
+  get id() {
+    return this.owner;
+  }
+}
 
 export class Qtree extends Component {}
 

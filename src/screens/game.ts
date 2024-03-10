@@ -24,6 +24,8 @@ import star4 from 'assets/stars/star4.png';
 import star5 from 'assets/stars/star5.png';
 import star6 from 'assets/stars/star6.png';
 import star7 from 'assets/stars/star7.png';
+import { QuadTree } from 'fqtree';
+import { makeSpatialSystem } from 'systems/spatial';
 
 const assets = [
   {
@@ -66,6 +68,7 @@ export class GameScreen extends Screen {
 
   entityFactory!: EntityFactory;
   playerFactory!: PlayerFactory;
+  quadTree!: QuadTree<AllComponents.Spatial>;
 
   initialize(): void {
     console.log('game screen initialize...');
@@ -98,7 +101,7 @@ export class GameScreen extends Screen {
     // this.ecs.registerSystem(MovementSystem, { priority: 6 });
 
     makeAnimationSystem(this.ecs);
-
+    this.quadTree = makeSpatialSystem();
     makeBehaviorSystem(this.ecs);
 
     this.ecs.initializeSystems();
