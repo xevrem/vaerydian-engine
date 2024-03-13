@@ -1,5 +1,11 @@
-import { EntitySystem, Entity, EntitySystemArgs, Query } from 'ecsf';
-import { is_none, is_some } from 'onsreo';
+import {
+  EntitySystem,
+  Entity,
+  EntitySystemArgs,
+  Query,
+  JoinedResult,
+} from 'ecsf';
+import { all_some, is_none, is_some } from 'onsreo';
 import { Application } from 'pixi.js';
 import { Position, Scene, Starfield, Velocity } from 'components';
 
@@ -27,8 +33,8 @@ export class StarfieldSystem extends EntitySystem<Props, Needed> {
   }
 
   created(_entity: Entity) {
-    const [position, renderable] = this.query.retrieve();
-    renderable.asset.position = position.value; //.set(position.point.x, position.point.y);
+    const [position, scene, _starfield] = this.query.retrieve();
+    scene.asset.position = position.value;
   }
 
   load(): void {
@@ -38,18 +44,18 @@ export class StarfieldSystem extends EntitySystem<Props, Needed> {
     }
   }
 
-  process(_: Entity, query: Query<typeof this.needed>): void {
-    const playerPosition = this.ecs.getComponent(this.player, Position);
-    const playerVelocity = this.ecs.getComponent(this.player, Velocity);
-    if (is_none(playerPosition) || is_none(playerVelocity)) return;
-    const [position, renderable, _star] = query.retrieve();
+  join([[position, scene], _ent]: JoinedResult<Needed>): void {
+    const [playerPosition, playerVelocity] = this.ecs.retrieve(this.player, [
+      Position,
+      Velocity,
+    ]);
     const distance = position.value.distanceTo(playerPosition.value);
     if (distance > this.distance) {
       const angle = Math.random() * 120 - 60;
       const projVec = playerVelocity.vector.rotateDeg(angle).normalize();
       const projPos = projVec.multScalar(this.distance - Math.random() * 200);
       position.value = playerPosition.value.add(projPos);
-      renderable.asset.position = position.value.toPoint();
+      scene.asset.position = position.value.toPoint();
     }
   }
 }

@@ -88,7 +88,10 @@ export class GameScreen extends Screen {
       priority: 0,
     });
 
-    this.ecs.registerSystem(StarfieldSystem, { app: this.app, priority: 1 });
+    this.ecs.registerSystem(StarfieldSystem, {
+      app: this.app,
+      priority: 1,
+    });
     this.ecs.registerSystem(ControlSystem, { priority: 2 });
     this.ecs.registerSystem(RenderSystem, { app: this.app, priority: 3 });
 
