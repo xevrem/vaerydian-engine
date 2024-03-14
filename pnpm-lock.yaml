@@ -54,8 +54,8 @@ dependencies:
     specifier: ^0.1.0
     version: 0.1.0
   ecsf:
-    specifier: ^1.1.0
-    version: 1.1.0
+    specifier: ^1.2.2
+    version: 1.2.2
   evjkit:
     specifier: ^0.0.7
     version: 0.0.7
@@ -2029,8 +2029,8 @@ packages:
     resolution: {integrity: sha512-/pjZsA1b4RPHbeWZQn66SWS8nZZWLQQ23oE3Eam7aroEFGEvwKAsJfZ9ytiEMycfzXWpca4FA9QIOehf7PocBQ==}
     dev: false
 
-  /ecsf@1.1.0:
-    resolution: {integrity: sha512-W9mDJdTYiDInZ6vHqwXDtlaalCA6rPQaATxIbyynN5I+SPeA37+8Zf4dE+xxeDsLWroehU+Dq9hR7V4/p4PvNg==}
+  /ecsf@1.2.2:
+    resolution: {integrity: sha512-29lbh/eRjcJVxpRK15UtzSEEX7e+8S3eQ+2b9ultW4DT60sxyvdZRVIyn+GapcchQIJPmTvKgzwx5hDWjznYOg==}
     dependencies:
       evjkit: 0.0.7
       onsreo: 1.0.6
