@@ -1,4 +1,4 @@
-import { asyncSleep } from './utils';
+// import { asyncSleep } from './utils';
 
 /**
  * Inspired by the Semaphore code in `https://github.com/DirtyHairy/async-mutex`
@@ -8,6 +8,10 @@ import { asyncSleep } from './utils';
 export declare type MutexRelease = () => Promise<void>;
 
 export declare type SpinLock = (waitTime?: number) => Promise<void>;
+
+export function asyncSleep(time: number): Promise<void> {
+  return new Promise<void>(res => globalThis.setTimeout(() => res, time));
+}
 
 export declare type MutexQueueEntry = {
   releaser: MutexRelease;

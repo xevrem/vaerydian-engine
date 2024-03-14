@@ -54,14 +54,14 @@ dependencies:
     specifier: ^0.1.0
     version: 0.1.0
   ecsf:
-    specifier: ^1.2.2
-    version: 1.2.2
+    specifier: ^1.3.0
+    version: 1.3.0
   evjkit:
     specifier: ^0.0.7
     version: 0.0.7
   fqtree:
-    specifier: file:../fqtree
-    version: file:../fqtree
+    specifier: ^0.0.2
+    version: 0.0.2
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -2029,8 +2029,8 @@ packages:
     resolution: {integrity: sha512-/pjZsA1b4RPHbeWZQn66SWS8nZZWLQQ23oE3Eam7aroEFGEvwKAsJfZ9ytiEMycfzXWpca4FA9QIOehf7PocBQ==}
     dev: false
 
-  /ecsf@1.2.2:
-    resolution: {integrity: sha512-29lbh/eRjcJVxpRK15UtzSEEX7e+8S3eQ+2b9ultW4DT60sxyvdZRVIyn+GapcchQIJPmTvKgzwx5hDWjznYOg==}
+  /ecsf@1.3.0:
+    resolution: {integrity: sha512-k8k/CnKmwEEXs65BlH5WljTNYluIDf7rcpJ3gnYMqABRaMSbm1nNv5CeTcLLDIlzrRvAH3UGq0dCOgA634moOg==}
     dependencies:
       evjkit: 0.0.7
       onsreo: 1.0.6
@@ -2336,6 +2336,14 @@ packages:
   /flatted@3.3.1:
     resolution: {integrity: sha512-X8cqMLLie7KsNUDSdzeN8FYK9rEt4Dt67OsG/DNGnYTSDBG4uFAJFBnUeiV+zCVAvwFy56IjM9sH51jVaEhNxw==}
     dev: true
+
+  /fqtree@0.0.2:
+    resolution: {integrity: sha512-EVXGLuZhHrFCp99UgA/91ky7QpUsmFo3agShtKdB7heCeDc4AwYd/njyjtR0L0wjakQPRw9UT5a8jF5k11E43Q==}
+    dependencies:
+      evjkit: 0.0.7
+      lodash: 4.17.21
+      onsreo: 1.0.6
+    dev: false
 
   /fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
@@ -3876,12 +3884,3 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
-
-  file:../fqtree:
-    resolution: {directory: ../fqtree, type: directory}
-    name: fqtree
-    dependencies:
-      evjkit: 0.0.7
-      lodash: 4.17.21
-      onsreo: 1.0.6
-    dev: false
