@@ -12,7 +12,7 @@ export class MovementSystem extends EntitySystem<any, Needed> {
     position.value = delta;
     renderable.asset.pivot = renderable.pivot;
     renderable.asset.transform.rotation = rotation.value + rotation.offset;
-    renderable.asset.position = position.value.toPoint();
+    renderable.asset.position.set(position.value.x, position.value.y);
   }
 }
 
@@ -28,7 +28,7 @@ export function makeMovementSystem(ecs: EcsInstance) {
 
       renderable.asset.pivot = renderable.pivot;
       renderable.asset.transform.rotation = rotation.value + rotation.offset;
-      renderable.asset.position = position.value.toPoint();
+      renderable.asset.position.set(position.value.x, position.value.y);
     }
   });
 }

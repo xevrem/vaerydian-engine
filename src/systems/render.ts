@@ -1,6 +1,6 @@
 import { EntitySystem, Entity, EntitySystemArgs, Query } from 'ecsf';
-import { Scene, Position, Rotation } from 'components';
 import { Application, Container } from 'pixi.js';
+import { Scene, Position, Rotation } from 'src/components';
 
 type Props = { app: Application };
 

@@ -1,4 +1,4 @@
-import { Behavior, BehaviorCode } from '../behavior';
+import { Behavior, BehaviorCode } from "src/behave/behavior";
 
 export class Selector extends Behavior {
   behaviors: Array<Behavior>;

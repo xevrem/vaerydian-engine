@@ -1,5 +1,5 @@
-import { Screen, ScreenState } from './screen';
 import { Bag, EcsInstance } from 'ecsf';
+import { Screen, ScreenState } from './screen';
 
 export class ScreenManager {
   _screens: Bag<Screen> = new Bag<Screen>();

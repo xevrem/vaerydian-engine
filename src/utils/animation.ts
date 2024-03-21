@@ -1,5 +1,5 @@
 import { Bag, ComponentType, ComponentTypes, Entity } from 'ecsf';
-import { InstanceKey, InstanceValue } from 'types';
+import { InstanceKey, InstanceValue } from '../types';
 
 export class KeyFrame<C extends ComponentType> {
   component: C;

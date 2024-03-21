@@ -1,31 +1,29 @@
 import { Assets, SCALE_MODES, settings, Texture } from 'pixi.js';
 import Stats from 'stats.js';
 import { is_none, is_ok, is_some } from 'onsreo';
+import { Vector2 } from 'evjkit';
+import { QuadTree } from 'fqtree';
 import { Screen } from '../screens/screen';
 import * as AllComponents from '../components';
 import { EntityFactory, PlayerFactory } from '../factories';
-import {
-  ControlSystem,
-  CameraSystem,
-  LayeringSystem,
-  StarfieldSystem,
-  RenderSystem,
-  makeMovementSystem,
-} from '../systems';
-import { Vector2 } from '../utils/vector';
 import { makeAnimationSystem } from '../systems/animation';
 import { makeBehaviorSystem } from '../systems/behavior';
+import { makeSpatialSystem } from '../systems/spatial';
+import { LayeringSystem } from 'src/systems/layering';
+import { StarfieldSystem } from 'src/systems/starfield';
+import { ControlSystem } from 'src/systems/control';
+import { RenderSystem } from 'src/systems/render';
+import { CameraSystem } from 'src/systems/camera';
+import { makeMovementSystem } from 'src/systems/movement';
 
-import playerShip from 'assets/player/ship.png';
-import star1 from 'assets/stars/star1.png';
-import star2 from 'assets/stars/star2.png';
-import star3 from 'assets/stars/star3.png';
-import star4 from 'assets/stars/star4.png';
-import star5 from 'assets/stars/star5.png';
-import star6 from 'assets/stars/star6.png';
-import star7 from 'assets/stars/star7.png';
-import { QuadTree } from 'fqtree';
-import { makeSpatialSystem } from 'systems/spatial';
+import playerShip from 'src/assets/player/ship.png';
+import star1 from 'src/assets/stars/star1.png';
+import star2 from 'src/assets/stars/star2.png';
+import star3 from 'src/assets/stars/star3.png';
+import star4 from 'src/assets/stars/star4.png';
+import star5 from 'src/assets/stars/star5.png';
+import star6 from 'src/assets/stars/star6.png';
+import star7 from 'src/assets/stars/star7.png';
 
 const assets = [
   {

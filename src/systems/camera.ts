@@ -1,7 +1,7 @@
 import { Bag, Entity, EntitySystem, EntitySystemArgs, Query } from 'ecsf';
 import { is_none } from 'onsreo';
 import { Application } from 'pixi.js';
-import { Position, Scene, CameraFocus } from 'components';
+import { Position, Scene, CameraFocus } from 'src/components';
 
 interface CSProps {
   app: Application;

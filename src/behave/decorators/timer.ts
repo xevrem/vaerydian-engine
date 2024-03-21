@@ -1,4 +1,4 @@
-import { Behavior, BehaviorCode } from 'behave/behavior';
+import { Behavior, BehaviorCode } from '../behavior';
 
 export class TimerDecorator extends Behavior {
   behavior: Behavior;
@@ -9,7 +9,7 @@ export class TimerDecorator extends Behavior {
   constructor(
     elapsedTimeFunc: () => number,
     waitTime: number,
-    behavior: Behavior
+    behavior: Behavior,
   ) {
     super();
     this.elapsedTimeFunc = elapsedTimeFunc;

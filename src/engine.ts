@@ -4,9 +4,10 @@ import { Group, Layer, Stage } from '@pixi/layers';
 import { Application, Assets } from 'pixi.js';
 import { is_none, type Option } from 'onsreo';
 import { EcsInstance } from 'ecsf';
-import { GameScreen, ScreenManager } from 'screens';
-import { LayerType } from 'utils/constants';
-import { KeyboardManager } from 'utils/keyboard';
+import { GameScreen } from './screens/game';
+import { ScreenManager } from './screens/manager';
+import { LayerType } from './utils/constants';
+import { KeyboardManager } from './utils/keyboard';
 
 const FRAME_TARGET_FPS = 60.0;
 const FRAME_TARGET_MS: number = 1000.0 / FRAME_TARGET_FPS;
@@ -32,7 +33,7 @@ export class Engine {
     document.body.append(this.stats.dom);
 
     const canvas = document.getElementById(
-      'canvas'
+      'canvas',
     ) as Option<HTMLCanvasElement>;
     if (is_none(canvas)) throw new Error('NO CANVAS FOUND');
 
@@ -74,7 +75,7 @@ export class Engine {
     });
 
     await this.screenManager.addScreen(
-      new GameScreen(this.app, this.layers, this.groups)
+      new GameScreen(this.app, this.layers, this.groups),
     );
 
     console.info('engine running...');

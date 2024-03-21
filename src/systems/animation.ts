@@ -1,9 +1,9 @@
 import { ComponentTypes, EcsInstance } from 'ecsf';
 import { is_none } from 'onsreo';
-import { Animatable } from 'components';
-import { KeyFrame } from 'utils/animation';
-import { lerp } from 'utils/helpers';
-import { InstanceValue } from 'types';
+import { Animatable } from '../components';
+import { KeyFrame } from '../utils/animation';
+import { lerp } from '../utils/helpers';
+import { InstanceValue } from '../types';
 
 export function makeAnimationSystem<CTypes extends ComponentTypes = any>(
   ecs: EcsInstance,

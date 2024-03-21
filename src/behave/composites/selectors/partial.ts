@@ -1,4 +1,4 @@
-import { Behavior, BehaviorCode } from "behave/behavior";
+import { Behavior, BehaviorCode } from "src/behave/behavior";
 
 
 

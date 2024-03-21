@@ -1,13 +1,7 @@
-import {
-  EntitySystem,
-  Entity,
-  EntitySystemArgs,
-  Query,
-  JoinedResult,
-} from 'ecsf';
-import { all_some, is_none, is_some } from 'onsreo';
+import { EntitySystem, Entity, EntitySystemArgs, JoinedResult } from 'ecsf';
+import { is_some } from 'onsreo';
 import { Application } from 'pixi.js';
-import { Position, Scene, Starfield, Velocity } from 'components';
+import { Position, Scene, Starfield, Velocity } from 'src/components';
 
 type Props = { app: Application };
 
@@ -55,7 +49,7 @@ export class StarfieldSystem extends EntitySystem<Props, Needed> {
       const projVec = playerVelocity.vector.rotateDeg(angle).normalize();
       const projPos = projVec.multScalar(this.distance - Math.random() * 200);
       position.value = playerPosition.value.add(projPos);
-      scene.asset.position = position.value.toPoint();
+      scene.asset.position.set(position.value.x, position.value.y);
     }
   }
 }

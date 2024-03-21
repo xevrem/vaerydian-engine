@@ -1,5 +1,7 @@
 import { EcsInstance, Entity } from 'ecsf';
 import { Result } from 'onsreo';
+import { Vector2 } from 'evjkit';
+import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import {
   Position,
   Layers,
@@ -7,11 +9,9 @@ import {
   Scene,
   Rotation,
   Animatable,
-} from 'components';
-import { LayerType, STARS } from 'utils/constants';
-import { Assets, Container, Sprite, Texture } from 'pixi.js';
-import { Vector2 } from 'utils/vector';
-import { animationBuilder } from 'utils/animation';
+} from '../components';
+import { LayerType, STARS } from '../utils/constants';
+import { animationBuilder } from '../utils/animation';
 
 export class EntityFactory {
   ecsInstance: EcsInstance;

@@ -3,7 +3,7 @@ import { create_executor_builder } from 'behavey';
 import { Vector2 } from 'evjkit';
 import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { Animatable, Behavior, Scene } from '../components';
-import { animationBuilder } from '../utils';
+import { animationBuilder } from '../utils/animation';
 
 export function create_enemy_ship(ecs: EcsInstance, location: Vector2) {
   ecs

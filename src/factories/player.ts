@@ -1,3 +1,5 @@
+import { EcsInstance } from 'ecsf';
+import { Vector2 } from 'evjkit';
 import {
   Assets,
   Container,
@@ -5,6 +7,7 @@ import {
   Texture,
   Transform as PTransform,
 } from 'pixi.js';
+import { ExecutorBuilder, sel } from 'behavey';
 import {
   Behavior,
   CameraFocus,
@@ -18,11 +21,7 @@ import {
   Transform,
   Velocity,
 } from '../components';
-import { EcsInstance } from 'ecsf';
-import { LayerType } from 'utils/constants';
-import { Vector2 } from 'utils/vector';
-import { ExecutorBuilder, sel } from 'behavey';
-// import { Behavior } from 'behave/behavior';
+import { LayerType } from '../utils/constants';
 
 export class PlayerFactory {
   ecsInstance: EcsInstance;

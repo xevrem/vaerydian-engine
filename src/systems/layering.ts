@@ -1,13 +1,11 @@
 import {
-  ComponentTuple,
-  ComponentOptionTuple,
   EntitySystem,
   Entity,
   EntitySystemArgs,
 } from 'ecsf';
-import { Layers, Scene } from 'components';
-import { LayerType } from 'utils/constants';
 import { Group } from '@pixi/layers';
+import { Layers, Scene } from '../components';
+import { LayerType } from '../utils/constants';
 
 type Props =   { groups: Record<string, Group> }
 type Needed =   [typeof Layers, typeof Scene];

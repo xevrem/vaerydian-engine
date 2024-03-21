@@ -1,9 +1,9 @@
 import { Component, ComponentTypes } from 'ecsf';
-// import { LineRange, QuadTree, Range } from 'utils/quadtree';
+// import { LineRange, QuadTree, IRange } from 'fqtree';
 import { Container, Graphics, Sprite, Transform as PTransform } from 'pixi.js';
-import { Vector2 } from 'utils/vector';
-import { Animation } from 'utils/animation';
+import { Vector2 } from 'evjkit';
 import { Executor } from 'behavey';
+import { Animation } from './utils/animation';
 
 export class Animatable<C extends ComponentTypes> extends Component {
   value!: Animation<C>;
