@@ -52,6 +52,10 @@ export class Spatial extends Component {
 
 export class Qtree extends Component {}
 
+export class Resource<T> extends Component {
+  value!: T
+}
+
 export class Rotation extends Component {
   value!: number;
   offset!: number;

@@ -14,12 +14,12 @@ export abstract class Screen {
   ecs!: EcsInstance;
   app: Application;
   layers: Record<string, Layer>;
-  groups: Record<string, Group>;
+  groups: Map<number, Group>;
   screenManger!: ScreenManager;
   screenState: ScreenState;
   id: number = -1;
 
-  constructor(app: Application, layers: Record<string, Layer>, groups: Record<string, Group>) {
+  constructor(app: Application, layers: Record<string, Layer>, groups: Map<number, Group>) {
     this.app = app;
     this.layers = layers;
     this.groups = groups;

@@ -1,4 +1,4 @@
-import { Assets, SCALE_MODES, settings, Texture } from 'pixi.js';
+import { Assets, Texture } from 'pixi.js';
 import Stats from 'stats.js';
 import { is_none, is_ok, is_some } from 'onsreo';
 import { Vector2 } from 'evjkit';
@@ -15,8 +15,10 @@ import { ControlSystem } from 'src/systems/control';
 import { RenderSystem } from 'src/systems/render';
 import { CameraSystem } from 'src/systems/camera';
 import { makeMovementSystem } from 'src/systems/movement';
+import { create_enemy_ship } from 'src/factories/enemy-ship';
 
 import playerShip from 'src/assets/player/ship.png';
+import enemyShip from 'src/assets/enemy/enemy.png';
 import star1 from 'src/assets/stars/star1.png';
 import star2 from 'src/assets/stars/star2.png';
 import star3 from 'src/assets/stars/star3.png';
@@ -29,6 +31,10 @@ const assets = [
   {
     src: playerShip,
     name: 'playerShip',
+  },
+  {
+    src: enemyShip,
+    name: 'enemyShip',
   },
   {
     src: star1,
@@ -72,7 +78,7 @@ export class GameScreen extends Screen {
     console.log('game screen initialize...');
 
     // Scale mode for all textures, will retain pixelation
-    settings.SCALE_MODE = SCALE_MODES.NEAREST;
+    // settings.SCALE_MODE = SCALE_MODES.NEAREST;
 
     // Object.values(AllComponents).forEach(value => {
     //   if (isComponent(value)) {
@@ -116,7 +122,7 @@ export class GameScreen extends Screen {
 
     await Promise.all(
       assets.map(asset => {
-        Assets.add(asset.name, asset.src);
+        Assets.add(asset);
         return Assets.load<Texture>(asset.name);
       }),
     );
@@ -133,6 +139,8 @@ export class GameScreen extends Screen {
           this.entityFactory.createAnim(ent);
         }
       });
+
+    create_enemy_ship(this.ecs, new Vector2(5, 5));
   }
 
   unload(): void {
@@ -154,7 +162,12 @@ export class GameScreen extends Screen {
     const maybeData = this.ecs.getComponent(maybeCamera, AllComponents.Scene);
     if (is_none(maybeData)) return;
 
-    this.app.renderer.render(this.app.stage, {
+    // this.app.renderer.render(this.app.stage, {
+
+    //   transform: maybeData.asset.localTransform,
+    // });
+    this.app.renderer.render({
+      container: this.app.stage,
       transform: maybeData.asset.localTransform,
     });
   }

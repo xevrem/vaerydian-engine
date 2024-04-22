@@ -39,11 +39,11 @@ export class EntityFactory {
         const texture = Assets.get<Texture>(spriteName);
         const starSprite = new Sprite(texture);
         starContainer.addChild(starSprite);
-        const renderable = new Scene();
-        renderable.asset = starContainer;
-        renderable.offset = new Vector2(4, 4);
-        renderable.pivot = new Vector2(2, 2);
-        return renderable;
+        const scene = new Scene();
+        scene.asset = starContainer;
+        scene.offset = new Vector2(4, 4);
+        scene.pivot = new Vector2(2, 2);
+        return scene;
       })
       .addWith(() => {
         const rot = new Rotation();

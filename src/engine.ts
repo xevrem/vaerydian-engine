@@ -1,6 +1,6 @@
 import Stats from 'stats.js';
-import '@pixi/layers';
-import { Group, Layer, Stage } from '@pixi/layers';
+// import '@pixi/layers';
+// import { Group, Layer, Stage } from '@pixi/layers';
 import { Application, Assets } from 'pixi.js';
 import { is_none, type Option } from 'onsreo';
 import { EcsInstance } from 'ecsf';
@@ -19,7 +19,7 @@ export class Engine {
   lastTime = 0;
   screenManager: ScreenManager;
   stats: Stats;
-  groups: Record<string, Group> = {};
+  groups: Map<number, Group> = new Map();
   layers: Record<string, Layer> = {};
   kb!: typeof KeyboardManager;
   targets = {
@@ -70,7 +70,7 @@ export class Engine {
       const group = new Group(order, true);
       const layer = new Layer(group);
       this.layers[layerName] = layer;
-      this.groups[layerName] = group;
+      this.groups.set(order, group);
       this.app.stage.addChild(layer);
     });
 

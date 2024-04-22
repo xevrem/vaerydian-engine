@@ -27,35 +27,35 @@ export class RenderSystem extends EntitySystem<Props, Needed> {
   }
 
   created(entity: Entity): void {
-    const [renderer] = this.query.retrieve();
-    this.spriteContainer.addChild(renderer.asset);
+    const [scene] = this.query.retrieve();
+    this.spriteContainer.addChild(scene.asset);
   }
 
   deleted(entity: Entity) {
-    const [renderer] = this.query.retrieve();
-    this.spriteContainer.removeChild(renderer.asset);
+    const [scene] = this.query.retrieve();
+    this.spriteContainer.removeChild(scene.asset);
   }
 
   added(entity: Entity) {
-    const [renderer] = this.query.retrieve();
-    this.spriteContainer.addChild(renderer.asset);
+    const [scene] = this.query.retrieve();
+    this.spriteContainer.addChild(scene.asset);
   }
 
   removed(entity: Entity) {
-    const [renderer] = this.query.retrieve();
-    this.spriteContainer.removeChild(renderer.asset);
+    const [scene] = this.query.retrieve();
+    this.spriteContainer.removeChild(scene.asset);
   }
 
   process(_: Entity, query: Query<typeof this.needed>) {
-    const [renderable, position, rotation] = query.retrieve();
+    const [scene, position, rotation] = query.retrieve();
 
-    renderable.asset.position.set(
-      position.value.x - renderable.offset.x,
-      position.value.y - renderable.offset.y
+    scene.asset.position.set(
+      position.value.x - scene.offset.x,
+      position.value.y - scene.offset.y
     );
 
-    renderable.asset.pivot.set(renderable.pivot.x, renderable.pivot.y);
+    scene.asset.pivot.set(scene.pivot.x, scene.pivot.y);
 
-    renderable.asset.angle = rotation ? rotation.value : renderable.asset.angle;
+    scene.asset.angle = rotation ? rotation.value : scene.asset.angle;
   }
 }

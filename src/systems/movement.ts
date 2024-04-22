@@ -7,12 +7,12 @@ export class MovementSystem extends EntitySystem<any, Needed> {
   needed = [Position, Rotation, Scene, Velocity] as Needed;
   process(_entity: Entity, query: Query<Needed>, _delta: number) {
     const results = query.retrieve();
-    const [position, rotation, renderable, velocity] = results;
+    const [position, rotation, scene, velocity] = results;
     const delta = position.value.add(velocity.vector);
     position.value = delta;
-    renderable.asset.pivot = renderable.pivot;
-    renderable.asset.transform.rotation = rotation.value + rotation.offset;
-    renderable.asset.position.set(position.value.x, position.value.y);
+    scene.asset.pivot = scene.pivot;
+    scene.asset.transform.rotation = rotation.value + rotation.offset;
+    scene.asset.position.set(position.value.x, position.value.y);
   }
 }
 
@@ -20,15 +20,15 @@ export function makeMovementSystem(ecs: EcsInstance) {
   // update rederable container with position and rotation
   ecs.withSystem([[Position, Rotation, Scene, Velocity]], ({ query }) => {
     for (const [
-      [position, rotation, renderable, velocity],
+      [position, rotation, scene, velocity],
       _ent,
     ] of query.join()) {
       const delta = position.value.add(velocity.vector);
       position.value = delta;
 
-      renderable.asset.pivot = renderable.pivot;
-      renderable.asset.transform.rotation = rotation.value + rotation.offset;
-      renderable.asset.position.set(position.value.x, position.value.y);
+      scene.asset.pivot = scene.pivot;
+      scene.asset.transform.rotation = rotation.value + rotation.offset;
+      scene.asset.position.set(position.value.x, position.value.y);
     }
   });
 }
