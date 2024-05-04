@@ -9,7 +9,10 @@
   "scripts": {
     "build": "esbuild ./src/index.ts --sourcemap=both --outdir=./dist --bundle --loader:.png=dataurl",
     "check": "tsc --watch --noEmit --pretty -p tsconfig.dev.json",
-    "start": "esbuild ./src/index.ts --sourcemap=both --watch --serve --servedir=./dist --outdir=./dist --bundle --loader:.png=dataurl"
+    "start:clean": "rm -rf ./dist",
+    "start:prep": "mkdir ./dist;cp ./src/index.html ./dist/.;cp -r ./src/assets ./dist/.",
+    "start:serve": "esbuild ./src/index.ts --sourcemap=both --watch --serve --servedir=./dist --outdir=./dist --bundle --loader:.png=dataurl",
+    "start": "pnpm start:clean;pnpm start:prep;pnpm start:serve"
   },
   "dependencies": {
     "@pixi/layers": "^2.1.0",
