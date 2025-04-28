@@ -11,7 +11,9 @@ export class MovementSystem extends EntitySystem<any, Needed> {
     const delta = position.value.add(velocity.vector);
     position.value = delta;
     scene.asset.pivot = scene.pivot;
-    scene.asset.transform.rotation = rotation.value + rotation.offset;
+    scene.asset.updateTransform({
+      rotation: rotation.value + rotation.offset,
+    });
     scene.asset.position.set(position.value.x, position.value.y);
   }
 }
@@ -19,15 +21,14 @@ export class MovementSystem extends EntitySystem<any, Needed> {
 export function makeMovementSystem(ecs: EcsInstance) {
   // update rederable container with position and rotation
   ecs.withSystem([[Position, Rotation, Scene, Velocity]], ({ query }) => {
-    for (const [
-      [position, rotation, scene, velocity],
-      _ent,
-    ] of query.join()) {
+    for (const [[position, rotation, scene, velocity], _ent] of query.join()) {
       const delta = position.value.add(velocity.vector);
       position.value = delta;
 
       scene.asset.pivot = scene.pivot;
-      scene.asset.transform.rotation = rotation.value + rotation.offset;
+      scene.asset.updateTransform({
+        rotation: rotation.value + rotation.offset,
+      });
       scene.asset.position.set(position.value.x, position.value.y);
     }
   });

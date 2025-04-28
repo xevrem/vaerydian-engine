@@ -1,6 +1,6 @@
 import Stats from 'stats.js';
-// import '@pixi/layers';
-// import { Group, Layer, Stage } from '@pixi/layers';
+import '@pixi/layers';
+import { Group, Layer, Stage } from '@pixi/layers';
 import { Application, Assets } from 'pixi.js';
 import { is_none, type Option } from 'onsreo';
 import { EcsInstance } from 'ecsf';
