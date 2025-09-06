@@ -1,6 +1,6 @@
 import 'evjkit';
 import * as PIXI from 'pixi.js';
-import '@pixi/layers';
+// import '@pixi/layers';
 import { Engine } from './engine';
 
 declare global {
@@ -17,5 +17,6 @@ window.addEventListener('load', async () => {
 
   const engine = new Engine();
   window.engine = engine;
+  await engine.init();
   engine.start();
 });

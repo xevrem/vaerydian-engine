@@ -1,6 +1,6 @@
-import { Group, Layer } from '@pixi/layers';
+// import { Group, Layer } from '@pixi/layers';
 import { EcsInstance } from 'ecsf';
-import { Application } from 'pixi.js';
+import { Application, IRenderLayer } from 'pixi.js';
 import { ScreenManager } from './manager';
 
 export enum ScreenState {
@@ -13,16 +13,16 @@ export enum ScreenState {
 export abstract class Screen {
   ecs!: EcsInstance;
   app: Application;
-  layers: Record<string, Layer>;
-  groups: Map<number, Group>;
+  // layers: Record<string, Layer>;
+  layers: Map<number, IRenderLayer>;
   screenManger!: ScreenManager;
   screenState: ScreenState;
   id: number = -1;
 
-  constructor(app: Application, layers: Record<string, Layer>, groups: Map<number, Group>) {
+  constructor(app: Application, layers: Map<number, IRenderLayer>) {
     this.app = app;
+    // this.layers = layers;
     this.layers = layers;
-    this.groups = groups;
     this.screenState = ScreenState.Inactive;
   }
 

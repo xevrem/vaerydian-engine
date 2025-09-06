@@ -30,39 +30,39 @@ import star7 from 'src/assets/stars/star7.png';
 const assets = [
   {
     src: playerShip,
-    name: 'playerShip',
+    alias: 'playerShip',
   },
   {
     src: enemyShip,
-    name: 'enemyShip',
+    alias: 'enemyShip',
   },
   {
     src: star1,
-    name: 'star1',
+    alias: 'star1',
   },
   {
     src: star2,
-    name: 'star2',
+    alias: 'star2',
   },
   {
     src: star3,
-    name: 'star3',
+    alias: 'star3',
   },
   {
     src: star4,
-    name: 'star4',
+    alias: 'star4',
   },
   {
     src: star5,
-    name: 'star5',
+    alias: 'star5',
   },
   {
     src: star6,
-    name: 'star6',
+    alias: 'star6',
   },
   {
     src: star7,
-    name: 'star7',
+    alias: 'star7',
   },
 ];
 
@@ -88,7 +88,7 @@ export class GameScreen extends Screen {
     this.ecs.registerComponents(AllComponents);
 
     this.ecs.registerSystem(LayeringSystem, {
-      groups: this.groups,
+      layers: this.layers,
       priority: 0,
     });
 
@@ -123,7 +123,7 @@ export class GameScreen extends Screen {
     await Promise.all(
       assets.map(asset => {
         Assets.add(asset);
-        return Assets.load<Texture>(asset.name);
+        return Assets.load<Texture>(asset.alias);
       }),
     );
 

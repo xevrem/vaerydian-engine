@@ -80,35 +80,35 @@ export class PlayerFactory {
       .add(new Controllable())
       .add(new CameraFocus())
       .add(new Player())
-      .addWith(() => {
-        const exec = new ExecutorBuilder<EcsInstance, any>()
-          .create_major_mode(major =>
-            major
-              .create_tree(tree =>
-                tree
-                  .set_root(
-                    sel(
-                      () => false,
-                      _args => {
-                        // console.log(`entities: ${args.meta.entityManager.entities.count}`);
-                        return true;
-                      },
-                    ),
-                  )
-                  .build(),
-              )
-              .set_name('idle')
-              .build(),
-          )
-          .set_default_mode('idle')
-          .build();
-        exec.init();
+      // .addWith(() => {
+      //   const exec = new ExecutorBuilder<EcsInstance, any>()
+      //     .create_major_mode(major =>
+      //       major
+      //         .create_tree(tree =>
+      //           tree
+      //             .set_root(
+      //               sel(
+      //                 () => false,
+      //                 _args => {
+      //                   // console.log(`entities: ${args.meta.entityManager.entities.count}`);
+      //                   return true;
+      //                 },
+      //               ),
+      //             )
+      //             .build(),
+      //         )
+      //         .set_name('idle')
+      //         .build(),
+      //     )
+      //     .set_default_mode('idle')
+      //     .build();
+      //   exec.init();
 
-        const behavior = new Behavior<EcsInstance, any>();
-        behavior.value = exec;
+      //   const behavior = new Behavior<EcsInstance, any>();
+      //   behavior.value = exec;
 
-        return behavior;
-      })
+      //   return behavior;
+      // })
       .tag('player')
       .build();
   }

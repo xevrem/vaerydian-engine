@@ -1,14 +1,15 @@
 import { EntitySystem, Entity, EntitySystemArgs } from 'ecsf';
-import { Group } from '@pixi/layers';
+import { IRenderLayer } from 'pixi.js';
+// import { Group } from '@pixi/layers';
 import { Layers, Scene } from '../components';
 // import { LayerType } from '../utils/constants';
 import { is_some } from 'onsreo';
 
-type Props = { groups: Map<number, Group> };
+type Props = { layers: Map<number, IRenderLayer> };
 type Needed = [typeof Layers, typeof Scene];
 
 export class LayeringSystem extends EntitySystem<Props, Needed> {
-  groups: Map<number, Group>;
+  groups: Map<number, IRenderLayer>;
   // playerGroup!: Group;
   // starfieldGroup!: Group;
 
@@ -16,9 +17,9 @@ export class LayeringSystem extends EntitySystem<Props, Needed> {
     super({
       ...props,
       needed: [Layers, Scene],
-      groups: props.groups,
+      layers: props.layers,
     });
-    this.groups = props.groups;
+    this.groups = props.layers;
   }
 
   initialize() {
@@ -29,9 +30,9 @@ export class LayeringSystem extends EntitySystem<Props, Needed> {
   }
 
   added(_entity: Entity) {
-    const [layers, scene] = this.query.retrieve();
-    const group = this.groups.get(layers.value);
-    if (is_some(group)) scene.asset.parentGroup = group;
+    // const [layers, scene] = this.query.retrieve();
+    // const group = this.groups.get(layers.value);
+    // if (is_some(group)) scene.asset.parentGroup = group;
   }
 
   removed(_entity: Entity) {}
