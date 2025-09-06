@@ -1,8 +1,6 @@
 {
   inputs = {
-    # nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     utils.url = "github:numtide/flake-utils";
-    utils.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = { self, nixpkgs, utils }: utils.lib.eachDefaultSystem (system:
     let
@@ -10,14 +8,12 @@
       nodePkgs = with pkgs.nodePackages; [
         bash-language-server
         eslint
-        pnpm
         prettier
         stylelint
         typescript
         typescript-language-server
         vscode-langservers-extracted
         yaml-language-server
-        yarn
       ];
     in
     {
@@ -25,10 +21,8 @@
         # buildInputs = with pkgs; [
         # ];
         packages = with pkgs; [
-          bun
-          deno
           marksman
-          nodejs_20
+          nodejs_22
         ] ++ nodePkgs;
       };
     }
