@@ -122,7 +122,14 @@ export class GameScreen extends Screen {
 
     await Promise.all(
       assets.map(asset => {
-        Assets.add(asset);
+        Assets.add({
+          ...asset,
+          data: {
+            // use nearest neighbor filtering on texture for
+            // pixelated look
+            scaleMode: 'nearest',
+          },
+        });
         return Assets.load<Texture>(asset.alias);
       }),
     );
